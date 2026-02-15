@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FrienDex
+namespace FrienDex.Data
 {
-    // TODO: Deleteme!
+    /// <summary>
+    /// A class to keep track of nformation that is to stay constant, such as database path and filename
+    /// </summary>
     public static class Constants
     {
-        public const string DatabaseFilename = "TodoSQLite.db3";
+        public const string DatabaseFilename = "AppSQLite.db3";
 
         public const SQLite.SQLiteOpenFlags Flags =
             // open the database in read/write mode
@@ -20,8 +18,8 @@ namespace FrienDex
             // enable multi-threaded database access
             SQLite.SQLiteOpenFlags.SharedCache;
 
+
         public static string DatabasePath =>
-            Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+            $"Data Source={Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename)}";
     }
 }
-

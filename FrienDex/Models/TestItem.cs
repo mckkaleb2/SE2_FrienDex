@@ -5,10 +5,12 @@ using System.Text;
 
 namespace FrienDex.Models
 {
-    public class TestItemModel
+    [Table("TestItems")]
+    public class TestItem
     {
         [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
+        public int Id { get; set; }
+        [MaxLength(250), Unique]
         public string Name { get; set; }
         public string Notes { get; set; }
         public bool Done { get; set; }
