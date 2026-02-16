@@ -1,7 +1,7 @@
 namespace FrienDex.Data
 {
     /// <summary>
-    /// A class to keep track of nformation that is to stay constant, such as database path and filename
+    /// A class to keep track of information that is to stay constant, such as database path and filename
     /// </summary>
     public static class Constants
     {

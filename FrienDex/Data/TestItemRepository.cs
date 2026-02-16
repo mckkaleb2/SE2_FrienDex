@@ -7,7 +7,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 
 using SQLite;
-using FrienDex.Models;
+using FrienDex.Models.Entities;
 
 
 namespace FrienDex.Data
@@ -39,27 +39,22 @@ namespace FrienDex.Data
 
         // Add variable for the SQLite connection
         private SQLiteConnection conn;
+        private SQLiteAsyncConnection connAsync;
 
-        private void Init()
+        private async Task Init()
         {
-            // Add code to initialize the repository
-            // 
             /*if (_hasBeenInitialized)
                 return;*/
-            if (conn != null)
+            if (connAsync != null)
                 return;
-
-
-            /*
-                        await using var connection = new SqliteConnection(Constants.DatabasePath);
-                        await connection.OpenAsync();
-            */
-
-
+                        
+            //conn = new SQLiteAsyncConnection(Constants.DatabasePath);
+            //await connection.OpenAsync();
+            
             try
             {
-                conn = new SQLiteConnection(_dbPath);
-                conn.CreateTable<TestItem>();
+                connAsync = new SQLiteAsyncConnection(_dbPath);
+                await connAsync.CreateTableAsync<TestItem>();
 
                 /*
                                 var createTableCmd = connection.CreateCommand();
@@ -92,7 +87,21 @@ namespace FrienDex.Data
         }
 
 
-
+        private void InitSync()
+        {
+            if (conn != null)
+                return;
+            try
+            {
+                conn = new SQLiteConnection(_dbPath);
+                conn.CreateTable<TestItem>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error creating tables");
+                throw;
+            }
+        }
 
 
 
@@ -102,13 +111,17 @@ namespace FrienDex.Data
             _dbPath = dbPath;
         }
 
+        /// <summary>
+        /// A method to add a new TestItem to the database. (NOTE: Use Async version of method unless absolutely necessary) It takes a name as a parameter, performs basic validation, and then inserts the new TestItem into the database. The result of the operation is stored in the StatusMessage property for feedback.
+        /// </summary>
+        /// <param name="name"></param>
         public void AddNewTestItem(string name)
         {
             int result = 0;
             try
             {
                 // Call Init()
-                Init();
+                InitSync();
 
                 // basic validation to ensure a name was entered
                 if (string.IsNullOrEmpty(name))
@@ -126,13 +139,50 @@ namespace FrienDex.Data
             }
         }
 
-
-        public List<TestItem> GetAllTestItems()
+        /// <summary>
+        /// Adds a new test item to the database asynchronously using the specified name.
+        /// </summary>
+        /// <remarks>If the operation succeeds, the status message is updated to indicate the number of
+        /// records added. If the operation fails, the status message contains the error details.</remarks>
+        /// <param name="name">The name of the test item to add. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public async Task AddNewTestItemAsync(string name)
         {
-            // TODO: Init then retrieve a list of TestItem objects from the database into a list
+            int result = 0;
             try
             {
-                Init();
+                // Call Init()
+                await Init();
+
+                // basic validation to ensure a name was entered
+                if (string.IsNullOrEmpty(name))
+                    throw new Exception("Valid name required");
+
+                // Insert the new person into the database
+                result = await connAsync.InsertAsync(new TestItem { Name = name });
+                StatusMessage = string.Format("{0} record(s) added (Name: {1})", result, name);
+
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = string.Format("Failed to add {0}. Error: {1}", name, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all test items from the database. (NOTE: Use Async version of method unless absolutely necessary) 
+        /// </summary>
+        /// <remarks>If an error occurs while accessing the database, the method returns an empty list and
+        /// updates the <c>StatusMessage</c> property with the error details. The returned list will never be <see
+        /// langword="null"/>.</remarks>
+        /// <returns>A list of <see cref="TestItem"/> objects representing all test items in the database. Returns an empty list
+        /// if no items are found or if an error occurs during retrieval.</returns>
+        public List<TestItem> GetAllTestItems()
+        {
+            // Init then retrieve a list of TestItem objects from the database into a list
+            try
+            {
+                InitSync();
                 return conn.Table<TestItem>().ToList();
             }
             catch (Exception ex)
@@ -142,5 +192,31 @@ namespace FrienDex.Data
 
             return new List<TestItem>();
         }
-    } 
+
+        /// <summary>
+        /// Asynchronously retrieves all test items from the database.
+        /// </summary>
+        /// <remarks>If an error occurs while accessing the database, the method returns an empty list and
+        /// updates the <c>StatusMessage</c> property with the error details. The returned list will never be <see
+        /// langword="null"/>.</remarks>
+        /// <returns>A list of <see cref="TestItem"/> objects representing all test items in the database. Returns an empty list
+        /// if no items are found or if an error occurs during retrieval.</returns>
+        public async Task<List<TestItem>> GetAllTestItemsAsync()
+        {
+            // Init then retrieve a list of TestItem objects from the database into a list
+            try
+            {
+                await Init();
+                return await connAsync.Table<TestItem>().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
+            }
+
+            return new List<TestItem>();
+        }
+
+
+    }
 }

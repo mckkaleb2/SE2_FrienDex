@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FrienDex.Models
+namespace FrienDex.Models.Entities
 {
     [Table("TestItems")]
     public class TestItem

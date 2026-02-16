@@ -1,4 +1,4 @@
-﻿using FrienDex.Models;
+﻿using FrienDex.Models.Entities;
 using System.Collections.Generic;
 
 
@@ -26,6 +26,7 @@ namespace FrienDex
         }
 
 
+        #region SyncronousDatabaseOperations
         public void OnNewButtonClicked(object sender, EventArgs args)
         {
             statusMessage.Text = "";
@@ -41,6 +42,25 @@ namespace FrienDex
             List<TestItem> testItems = App.TestItemRepo.GetAllTestItems();
             testItemsList.ItemsSource = testItems;
         }
+        #endregion syncronousDatabaseOperations
+
+        #region asyncDatabaseOperations
+        public async void OnNewButtonClickedAsync(object sender, EventArgs args)
+        {
+            statusMessage.Text = "";
+
+            await App.TestItemRepo.AddNewTestItemAsync(newTestItem.Text);
+            statusMessage.Text = App.TestItemRepo.StatusMessage;
+        }
+
+        public async void OnGetButtonClickedAsync(object sender, EventArgs args)
+        {
+            statusMessage.Text = "";
+
+            List<TestItem> testItems = await App.TestItemRepo.GetAllTestItemsAsync();
+            testItemsList.ItemsSource = testItems;
+        }
+        #endregion asyncDatabaseOperations
 
     }
 }

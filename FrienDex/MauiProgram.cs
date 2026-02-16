@@ -18,14 +18,18 @@ namespace FrienDex
 
             //NOTE: after the statements that add the MainPage page as a singleton service to the app
 
-            string dbPath = Constants.DatabasePath;
-            builder.Services.AddSingleton<TestItemRepository>(s => ActivatorUtilities.CreateInstance<TestItemRepository>(s, dbPath));
 
 #region ServiceRegistration_Pages
             //builder.Services.AddSingleton<TodoListPage>();
             //builder.Services.AddTransient<TodoItemPage>();
 #endregion ServiceRegistration_Pages
-            builder.Services.AddSingleton<FrienDexDatabase>();
+
+            string dbPath = Constants.DatabasePath;
+            
+            // NOTE: Use FrienDexDatabase as a template to create Repository.cs files for other entities! It contains basic Async CRRUD functions as well as logging!
+            //builder.Services.AddSingleton<FrienDexDatabase>();
+            builder.Services.AddSingleton<TestItemRepository>(s => ActivatorUtilities.CreateInstance<TestItemRepository>(s, dbPath));
+
 
 
 #if DEBUG
