@@ -4,9 +4,13 @@
              x:Class="FrienDex.MainPage"
              Title="MainPage">
     <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+        <Button
+            Text="Rooms"
+            Clicked="RoomButtonClicked"    
+            />
+        <Button
+            Text="Rolodex"
+            Clicked="RolodexButtonClicked"    
+            />
     </VerticalStackLayout>
 </ContentPage>
