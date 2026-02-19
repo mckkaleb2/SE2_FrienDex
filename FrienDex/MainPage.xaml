@@ -2,15 +2,57 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FrienDex.MainPage"
-             Title="MainPage">
-    <VerticalStackLayout>
-        <Button
-            Text="Rooms"
-            Clicked="RoomButtonClicked"    
-            />
-        <Button
-            Text="Rolodex"
-            Clicked="RolodexButtonClicked"    
-            />
-    </VerticalStackLayout>
+             Title="Home">
+    <Grid RowDefinitions="*,Auto" ColumnDefinitions="*,*">
+        
+        <!-- Content Area -->
+        <StackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                     Padding="16" VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="Welcome to FrienDex" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center" />
+        </StackLayout>
+        
+        <!-- Rooms Tab Button -->
+        <Border Grid.Row="1" Grid.Column="0"
+                StrokeThickness="0"
+                Padding="0"
+                HeightRequest="80">
+            <StackLayout Spacing="4" VerticalOptions="Center" HorizontalOptions="Center">
+                <Image Source="Resources/Images/box.svg" 
+                       WidthRequest="28"
+                       HeightRequest="28"
+                       HorizontalOptions="Center" />
+                <Label Text="Rooms" 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <StackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="RoomButtonClicked" />
+                </StackLayout.GestureRecognizers>
+            </StackLayout>
+        </Border>
+        
+        <!-- Rolodex Tab Button -->
+        <Border Grid.Row="1" Grid.Column="1"
+                StrokeThickness="0"
+                Padding="0"
+                HeightRequest="80">
+            <StackLayout Spacing="4" VerticalOptions="Center" HorizontalOptions="Center">
+                <Image Source="Resources/Images/users.svg" 
+                       WidthRequest="28"
+                       HeightRequest="28"
+                       HorizontalOptions="Center" />
+                <Label Text="Rolodex" 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <StackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="RolodexButtonClicked" />
+                </StackLayout.GestureRecognizers>
+            </StackLayout>
+        </Border>
+        
+    </Grid>
 </ContentPage>
