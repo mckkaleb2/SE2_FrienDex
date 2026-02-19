@@ -46,42 +46,45 @@ namespace FrienDex.Data
             /*if (_hasBeenInitialized)
                 return;*/
             if (connAsync != null)
+            {
+                await Console.Out.WriteLineAsync($"DB Path: {_dbPath} Exists:{File.Exists(_dbPath)} Size:{(File.Exists(_dbPath) ? new FileInfo(_dbPath).Length : 0)}");
                 return;
-                        
-            //conn = new SQLiteAsyncConnection(Constants.DatabasePath);
-            //await connection.OpenAsync();
-            
-            try
-            {
-                connAsync = new SQLiteAsyncConnection(_dbPath);
-                await connAsync.CreateTableAsync<TestItem>();
-
-                /*
-                                var createTableCmd = connection.CreateCommand();
-                                createTableCmd.CommandText = @"
-                            CREATE TABLE IF NOT EXISTS Tag (
-                                ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                                Title TEXT NOT NULL,
-                                Color TEXT NOT NULL
-                            );";
-                                await createTableCmd.ExecuteNonQueryAsync();
-
-                                createTableCmd.CommandText = @"
-                            CREATE TABLE IF NOT EXISTS ProjectsTags (
-                                ProjectID INTEGER NOT NULL,
-                                TagID INTEGER NOT NULL,
-                                PRIMARY KEY(ProjectID, TagID)
-                            );";
-                                await createTableCmd.ExecuteNonQueryAsync();
-                */
-
-
-            } //end try
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error creating tables");
-                throw;
             }
+                //conn = new SQLiteAsyncConnection(Constants.DatabasePath);
+                //await connection.OpenAsync();
+
+                try
+                {
+                    connAsync = new SQLiteAsyncConnection(_dbPath);
+                    await connAsync.CreateTableAsync<TestItem>();
+
+                    /*
+                                    var createTableCmd = connection.CreateCommand();
+                                    createTableCmd.CommandText = @"
+                                CREATE TABLE IF NOT EXISTS Tag (
+                                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    Title TEXT NOT NULL,
+                                    Color TEXT NOT NULL
+                                );";
+                                    await createTableCmd.ExecuteNonQueryAsync();
+
+                                    createTableCmd.CommandText = @"
+                                CREATE TABLE IF NOT EXISTS ProjectsTags (
+                                    ProjectID INTEGER NOT NULL,
+                                    TagID INTEGER NOT NULL,
+                                    PRIMARY KEY(ProjectID, TagID)
+                                );";
+                                    await createTableCmd.ExecuteNonQueryAsync();
+                    */
+
+                    await Console.Out.WriteLineAsync($"DB Path: {_dbPath} Exists:{File.Exists(_dbPath)} Size:{(File.Exists(_dbPath) ? new FileInfo(_dbPath).Length : 0)}");
+
+                } //end try
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error creating tables");
+                    throw;
+                }
 
             _hasBeenInitialized = true;
         }

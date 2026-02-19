@@ -40,3 +40,5 @@ namespace FrienDex
         }
     }
 }
+
+// leaving this here in case its useful later https://learn.microsoft.com/en-my/answers/questions/2139912/issues-with-mawi-net-and-sqlite-on-android
