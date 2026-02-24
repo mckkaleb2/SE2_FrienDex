@@ -14,11 +14,15 @@ namespace FrienDex
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
+            builder.Services.AddDbContext<Data.DexContext>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
-
+            using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<Data.DexContext>();
+                db.Database.EnsureCreated();
+            }
             return builder.Build();
         }
     }
