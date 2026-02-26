@@ -21,6 +21,9 @@ namespace FrienDex
             using (var scope = builder.Services.BuildServiceProvider().CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<Data.DexContext>();
+#if DEBUG
+                db.Database.EnsureDeleted();
+#endif
                 db.Database.EnsureCreated();
             }
             return builder.Build();
