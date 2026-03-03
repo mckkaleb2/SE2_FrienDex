@@ -17,9 +17,9 @@ public partial class RoomsPage : ContentPage
 public class RoomsPageViewModel : INotifyPropertyChanged
 {
 	private readonly Page _page;
-	private ObservableCollection<Room> rooms = new();
+	private ObservableCollection<DummyRoom> rooms = new();
 
-	public ObservableCollection<Room> Rooms
+	public ObservableCollection<DummyRoom> Rooms
 	{
 		get => rooms;
 		set
@@ -38,9 +38,9 @@ public class RoomsPageViewModel : INotifyPropertyChanged
 	public RoomsPageViewModel(Page page)
 	{
 		_page = page;
-		Rooms = new ObservableCollection<Room>();
+		Rooms = new ObservableCollection<DummyRoom>();
 		AddRoomCommand = new Command(OnAddRoom);
-		RoomSelectedCommand = new Command<Room>(OnRoomSelected);
+		RoomSelectedCommand = new Command<DummyRoom>(OnRoomSelected);
 
 		// TODO: Load rooms from your data source
 		LoadRooms();
@@ -51,8 +51,8 @@ public class RoomsPageViewModel : INotifyPropertyChanged
     private void LoadRooms()
 	{
 		// Replace with actual data loading
-		Rooms.Add(new Room { Name = "Study Group", Description = "Computer Science" });
-		Rooms.Add(new Room { Name = "Gaming", Description = "Multiplayer games" });
+		Rooms.Add(new DummyRoom { Name = "Study Group", Description = "Computer Science" });
+		Rooms.Add(new DummyRoom { Name = "Gaming", Description = "Multiplayer games" });
 	}
 
 	private void OnAddRoom()
@@ -64,7 +64,7 @@ public class RoomsPageViewModel : INotifyPropertyChanged
 		});
 	}
 
-	private void OnRoomSelected(Room room)
+	private void OnRoomSelected(DummyRoom room)
 	{
 		// TODO: Navigate to room details
 		if (room != null)
@@ -84,7 +84,7 @@ public class RoomsPageViewModel : INotifyPropertyChanged
 	}
 }
 
-public class Room
+public class DummyRoom
 {
 	public string Name { get; set; } = string.Empty;
 	public string Description { get; set; } = string.Empty;

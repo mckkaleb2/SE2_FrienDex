@@ -7,18 +7,25 @@ namespace FrienDex.Data.Entities
     public class Person
     {
         public int Id { get; set; }
+        /// <summary>
+        /// Gets or sets the first name of the person.
+        /// </summary>
         public string? FirstName { get; set; }
+        /// <summary>
+        /// Gets or sets the last name of the person.
+        /// </summary>
         public string? LastName { get; set; }
+        /// <summary>
+        /// Gets or sets the IsFavorite property, indicating whether the person is marked as a favorite.
+        /// </summary>
         public bool? IsFavorite { get; set; }
-        // These could be added to an Entry. Doesn't need to be associated with Person.
-        // public DateTime? Birthday { get; set; }
-        // public string? Gender { get; set; }
-        // public string? Pronouns { get; set; }
-        // public int? Ratings { get; set; }
-
-
-        // public List<Room> Rooms = new List<Room>();
-        // public List<Entry> Entries = new List<Entry>();
-
+        /// <summary>
+        /// Gets or sets the DexEntry associated with this person. This property may be null if no entry is linked to the person.
+        /// </summary>
+        public DexEntry? DexEntry { get; set; }
+        /// <summary>
+        /// Gets or sets the collection of rooms associated with this person. This collection can be modified to add or remove rooms as needed. Each room represents a distinct space or context in which the person is involved.
+        /// </summary>
+        public List<Room> Rooms { get; set; } = new List<Room>();
     }
 }
