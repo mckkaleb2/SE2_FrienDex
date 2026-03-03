@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FrienDex.Data.Entities;
+﻿using FrienDex.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using FrienDex.Data.Entities;
 
 namespace FrienDex.Data
 {
@@ -26,6 +22,12 @@ namespace FrienDex.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<DexEntry>()
+                .HasOne(d => d.Person)
+                .WithOne(p => p.DexEntry)
+                .HasForeignKey<DexEntry>(d => d.PersonId)
+                .IsRequired();
+
             modelBuilder.Entity<Block>()
                 .HasDiscriminator<BlockType>("BlockType")
                 .HasValue<TextBlock>(BlockType.TextBlock)
@@ -34,7 +36,6 @@ namespace FrienDex.Data
                 .HasValue<EventBlock>(BlockType.EventBlock)
                 .HasValue<RelationshipBlock>(BlockType.RelationshipBlock)
                 .HasValue<ContactBlock>(BlockType.ContactBlock);
-
         }
     }
 }
