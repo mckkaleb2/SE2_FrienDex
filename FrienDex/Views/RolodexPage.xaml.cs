@@ -1,3 +1,5 @@
+
+using FrienDex.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -54,12 +56,17 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 		Contacts.Add(new Contact { Name = "Bob Johnson", Room = null });
 	}
 
+	//  private void OnAddContact(object sender, EventArgs e)
+	//  {
+	//Navigation.PushAsync(new CreatePersonPage);
+	//  }
+
 	private void OnAddContact()
 	{
 		// TODO: Navigate to add contact page or show dialog
 		MainThread.BeginInvokeOnMainThread(async () =>
 		{
-			await _page.DisplayAlertAsync("Add Contact", "Add contact functionality coming soon", "OK");
+			await Shell.Current.GoToAsync(nameof(CreatePersonPage));
 		});
 	}
 
