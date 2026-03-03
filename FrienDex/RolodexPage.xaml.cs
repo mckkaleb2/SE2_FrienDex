@@ -54,14 +54,25 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 		Contacts.Add(new Contact { Name = "Bob Johnson", Room = null });
 	}
 
-	private void OnAddContact()
-	{
-		// TODO: Navigate to add contact page or show dialog
-		MainThread.BeginInvokeOnMainThread(async () =>
-		{
-			await _page.DisplayAlertAsync("Add Contact", "Add contact functionality coming soon", "OK");
-		});
-	}
+private void OnAddContact()
+{
+    MainThread.BeginInvokeOnMainThread(async () =>
+    {
+        var addPage = new AddContactPage();
+
+        // go to the Add page
+        await _page.Navigation.PushAsync(addPage);
+
+        // wait for Save/Cancel
+        var newContact = await addPage.ResultTcs.Task;
+
+        // if Save was pressed, add it
+        if (newContact != null)
+        {
+            Contacts.Add(newContact);
+        }
+    });
+}
 
 	private void OnContactSelected(Contact contact)
 	{
