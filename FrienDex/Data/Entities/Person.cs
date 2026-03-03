@@ -4,9 +4,28 @@ using System.Text;
 
 namespace FrienDex.Data.Entities
 {
-    // This is a stub class for the Person entity. It will be implemented in the Person_CRUD branch.
     public class Person
     {
         public int Id { get; set; }
+        /// <summary>
+        /// Gets or sets the first name of the person.
+        /// </summary>
+        public string? FirstName { get; set; }
+        /// <summary>
+        /// Gets or sets the last name of the person.
+        /// </summary>
+        public string? LastName { get; set; }
+        /// <summary>
+        /// Gets or sets the IsFavorite property, indicating whether the person is marked as a favorite.
+        /// </summary>
+        public bool? IsFavorite { get; set; }
+        /// <summary>
+        /// Gets or sets the DexEntry associated with this person. This property may be null if no entry is linked to the person.
+        /// </summary>
+        public DexEntry? DexEntry { get; set; }
+        /// <summary>
+        /// Gets or sets the collection of rooms associated with this person. This collection can be modified to add or remove rooms as needed. Each room represents a distinct space or context in which the person is involved.
+        /// </summary>
+        public List<Room> Rooms { get; set; } = new List<Room>();
     }
 }
