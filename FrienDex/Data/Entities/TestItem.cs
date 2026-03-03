@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FrienDex.Data
+namespace FrienDex.Data.Entities
 {
     public class TestItem
     {
