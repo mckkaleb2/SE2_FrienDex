@@ -20,4 +20,9 @@ public partial class MainPage : ContentPage
     {
         Navigation.PushAsync(new RolodexPage());
     }
+
+    private void DebugButtonClicked(object sender, TappedEventArgs e)
+    {
+        Navigation.PushAsync(new DebugPage());
+    }
 }
