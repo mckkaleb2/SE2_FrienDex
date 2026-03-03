@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using FrienDex.Data.Entities;
 
 namespace FrienDex;
 
@@ -56,13 +57,19 @@ public class RoomsPageViewModel : INotifyPropertyChanged
 	}
 
 	private void OnAddRoom()
-	{
-		// TODO: Navigate to add room page or show dialog
-		MainThread.BeginInvokeOnMainThread(async () =>
-		{
-			await _page.DisplayAlertAsync("Add Room", "Add room functionality coming soon", "OK");
-		});
-	}
+{
+    MainThread.BeginInvokeOnMainThread(async () =>
+    {
+        var addPage = new AddRoomPage();
+        await _page.Navigation.PushAsync(addPage);
+
+        var newRoom = await addPage.ResultTcs.Task;
+        if (newRoom != null)
+        {
+            Rooms.Add(newRoom);
+        }
+    });
+}
 
 	private void OnRoomSelected(DummyRoom room)
 	{

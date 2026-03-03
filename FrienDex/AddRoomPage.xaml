@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FrienDex.AddRoomPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Add Room">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+
+            <Label Text="Room Name" FontAttributes="Bold" />
+            <Entry Placeholder="e.g., Study Group"
+                   Text="{Binding Name}" />
+
+            <Label Text="Description" FontAttributes="Bold" />
+            <Editor AutoSize="TextChanges"
+                    Placeholder="e.g., Computer Science"
+                    HeightRequest="100"
+                    Text="{Binding Description}" />
+
+            <HorizontalStackLayout Spacing="12" Margin="0,20,0,0">
+                <Button Text="Save"
+                        Command="{Binding SaveCommand}"
+                        HorizontalOptions="FillAndExpand" />
+                <Button Text="Cancel"
+                        Command="{Binding CancelCommand}"
+                        HorizontalOptions="FillAndExpand" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
