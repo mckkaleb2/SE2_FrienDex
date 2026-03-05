@@ -1,3 +1,4 @@
+using FrienDex.Data.ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -5,20 +6,9 @@ namespace FrienDex.Views;
 
 public partial class CreatePersonPage : ContentPage
 {
-	public CreatePersonPage()
+	public CreatePersonPage(CreatePersonVM vm)
 	{
 		InitializeComponent();
-		//BindingContext = new CreatePersonPageViewModel(this);
+		this.BindingContext = vm;
 	}
 }
-
-//public class CreatePersonPageViewModel : INotifyPropertyChanged
-//{
-//    private readonly Page _page;
-    
-//    public CreatePersonPageViewModel(Page page)
-//    {
-//        _page = page;
-
-//    }
-//}

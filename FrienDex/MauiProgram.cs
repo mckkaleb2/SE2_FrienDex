@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FrienDex.Data.ViewModels;
+using FrienDex.Services;
+using FrienDex.Views;
+using Microsoft.Extensions.Logging;
 
 namespace FrienDex
 {
@@ -26,6 +29,10 @@ namespace FrienDex
 #endif
                 db.Database.EnsureCreated();
             }
+
+            builder.Services.AddSingleton<IPersonRepo, PersonRepo>();
+            builder.Services.AddTransient<CreatePersonVM>();
+            builder.Services.AddTransient<CreatePersonPage>();
             return builder.Build();
         }
     }
