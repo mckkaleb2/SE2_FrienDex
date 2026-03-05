@@ -3,51 +3,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FrienDex.MainPage"
              Title="">
-    <Grid RowDefinitions="*,Auto" ColumnDefinitions="*,*">
+    <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
         
         <!-- Content Area -->
-        <StackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
-                     Padding="16" VerticalOptions="Start" HorizontalOptions="Center">
+        <StackLayout Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center">
             <Image Source="Resources/Images/title.svg"
-                       HorizontalOptions="Center" />
+                   WidthRequest="450"
+           HorizontalOptions="Center"/>
+        </StackLayout>
 
-            <!-- Rolodex Tab Button -->
-            <StackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                <Image Source="Resources/Images/users.svg" 
-           WidthRequest="56"
-           HeightRequest="56"
-           HorizontalOptions="Center" />
-                <Label Text="Rolodex" 
-           FontSize="14"
-           FontAttributes="Bold"
-           HorizontalTextAlignment="Center" />
+        <StackLayout Grid.ColumnSpan="2" Grid.Row="1">
+            <!-- Rolodex Button -->
+            <StackLayout VerticalOptions="Start" HorizontalOptions="Center">
+                <Image Source="Resources/Images/rolodex_button.svg" 
+                       MaximumWidthRequest="360" />
                 <StackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RolodexButtonClicked" />
                 </StackLayout.GestureRecognizers>
             </StackLayout>
 
             <!-- Rooms Tab Button -->
-            <StackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                <Image Source="Resources/Images/box.svg" 
-           WidthRequest="56"
-           HeightRequest="56"
-           HorizontalOptions="Center" />
-                <Label Text="Rooms" 
-           FontSize="14"
-           FontAttributes="Bold"
-           HorizontalTextAlignment="Center" />
+            <StackLayout Padding="8" VerticalOptions="Start" HorizontalOptions="Center">
+                <Image Source="Resources/Images/room_button.svg" 
+                       MaximumWidthRequest="350" />
                 <StackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RoomButtonClicked" />
                 </StackLayout.GestureRecognizers>
             </StackLayout>
-
         </StackLayout>
 
 
-        <StackLayout Spacing="8" VerticalOptions="End" HorizontalOptions="Center">
+        <StackLayout Grid.Row="2" Spacing="8" VerticalOptions="End" HorizontalOptions="Center">
             <Image Source="Resources/Images/box.svg" 
-           WidthRequest="56"
-           HeightRequest="56"
+           WidthRequest="48"
+           HeightRequest="48"
            HorizontalOptions="Center" />
             <Label Text="DEBUG" 
            FontSize="14"
@@ -59,4 +48,8 @@
         </StackLayout>
 
     </Grid>
+    
+    
+    
+    
 </ContentPage>
