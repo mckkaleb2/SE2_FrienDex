@@ -16,6 +16,8 @@ public partial class RolodexPage : ContentPage
 	}
 }
 
+// Change all instances of 'Contact' class reference to 'Person'.
+
 public class RolodexPageViewModel : INotifyPropertyChanged
 {
 	private readonly Page _page;
@@ -46,7 +48,7 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 
 		// TODO: Load contacts from your data source
 		LoadContacts();
-	}
+    }
 
 	private void LoadContacts()
 	{

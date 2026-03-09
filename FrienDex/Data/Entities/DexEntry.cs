@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace FrienDex.Data.Entities
@@ -15,6 +16,8 @@ namespace FrienDex.Data.Entities
         /// <remarks>Assigning a null value to this property may result in a null reference exception when
         /// accessing the person's details. Ensure that a valid Person object is provided.</remarks>
         public required Person Person { get; set; }
+        [ForeignKey("Person")]
+        public int PersonId { get; set; }
         /// <summary>
         /// Gets or sets the collection of blocks associated with this instance.
         /// </summary>

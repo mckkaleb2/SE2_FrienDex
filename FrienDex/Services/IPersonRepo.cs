@@ -5,10 +5,13 @@ using FrienDex.Data.Entities;
 
 namespace FrienDex.Services
 {
-    public interface IPersonRepo
+    public partial interface IPersonRepo
     {
         // CREATE
         Task<Person> CreateAsync(Person newPerson);
+
+        // CREATE with Lists
+        Task<IEnumerable<Person>> CreateWithListAsync(List<Person> newPeople);
 
         // READALL
         Task<ICollection<Person>> ReadAllAsync();
