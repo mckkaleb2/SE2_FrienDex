@@ -9,7 +9,6 @@ namespace FrienDex.Data.Entities
     public class DexEntry
     {
         public int Id { get; set; }
-        public int PersonId { get; set; }
         /// <summary>
         /// Gets or sets the person associated with this entry.
         /// </summary>
