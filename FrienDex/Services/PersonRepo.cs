@@ -58,7 +58,7 @@ namespace FrienDex.Services
                         //        +$"\n\n---------------- SEED DATA ASYNC --- log ---------\n\n");
                         
                         + "\n\n\t{FirstName} {LastName}\n\n"
-                        //    Console.WriteLine(
+                        //    System.Diagnostics.Debug.WriteLine(
                         + $"\n\n----- 1 -------- CreateUserDexHolder (batch) --- console ----\n\n"
                         //        + $"An error occurred while adding lists to the database. {ex.Message}"
                         //        + $"\n\n----- 2 -------- SEED DATA ASYNC --- console ----\n\n"

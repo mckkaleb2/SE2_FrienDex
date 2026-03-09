@@ -36,7 +36,7 @@ namespace FrienDex.Services
                         + $"An error occurred while adding lists to the database. And saving a person to the DB {ex.Message}"
                         //        +$"\n\n---------------- SEED DATA ASYNC --- log ---------\n\n");
                         + "\n\n\t{FirstName} {LastName}\n\n"
-                        //    Console.WriteLine(
+                        //    System.Diagnostics.Debug.WriteLine(
                         + $"\n\n----- 1 -------- CreatePerson (batch) --- console ----\n\n"
                         //        + $"An error occurred while adding lists to the database. {ex.Message}"
                         //        + $"\n\n----- 2 -------- SEED DATA ASYNC --- console ----\n\n"
