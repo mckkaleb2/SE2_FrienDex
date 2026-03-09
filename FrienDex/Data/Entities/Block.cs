@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static Android.Provider.Contacts;
+using static Android.Util.EventLogTags;
+using static Java.Util.Jar.Attributes;
 
 namespace FrienDex.Data.Entities
 {
@@ -13,6 +16,16 @@ namespace FrienDex.Data.Entities
         /// <remarks>The block type influences how the block interacts with other components and may
         /// affect rendering or processing logic.</remarks>
         public required BlockType Type { get; set; }
+
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}";
+            return formatter;
+            //return base.ToString();
+        }
+
     }
     public class TextBlock : Block
     {
@@ -25,7 +38,17 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.TextBlock;
         }
-    }
+
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tContent: {Content}";
+            return formatter;
+            //return base.ToString();
+        }
+    } // end of TextBlock class
     public class ImageBlock : Block
     {
         /// <summary>
@@ -36,7 +59,17 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.ImageBlock;
         }
-    }
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tImageUrl: {ImageUrl}";
+            return formatter;
+            //return base.ToString();
+        }
+
+    } // end of ImageBlock class
     public class DatePickerBlock : Block
     {
         /// <summary>
@@ -47,7 +80,17 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.DatePickerBlock;
         }
-    }
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tSelectedDate: {SelectedDate}";
+            return formatter;
+            //return base.ToString();
+        }
+
+    } // end of DatePickerBlock class
     public class EventBlock : Block
     {
         /// <summary>
@@ -70,6 +113,19 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.EventBlock;
         }
+
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tEventName: {EventName}"
+                + $"\n\tEventDate: {EventDate}"
+                + $"\n\tEventComments: {EventComments}";
+            return formatter;
+            //return base.ToString();
+        }
+
     }
     public class RelationshipBlock : Block
     {
@@ -91,7 +147,20 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.RelationshipBlock;
         }
-    }
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tRelationshipName: {RelationshipName}"
+                + $"\n\tRelationshipDescription: {RelationshipDescription}"
+                + $"\n\tRelatedPersonId: {(RelatedPerson != null ? RelatedPerson.Id.ToString() : "null")}";
+            return formatter;
+            //return base.ToString();
+        }
+
+
+    } // end of RelationshipBlock class
     public class ContactBlock : Block
     {
         /// <summary>
@@ -108,5 +177,17 @@ namespace FrienDex.Data.Entities
         {
             Type = BlockType.ContactBlock;
         }
-    }
+        public override string ToString()
+        {
+            string formatter =
+                $"Block - {Id}"
+                + $"\n\tType: {Type}"
+                + $"\n\tContactType: {ContactType}"
+                + $"\n\tContactValue: {ContactValue}";
+            return formatter;
+            //return base.ToString();
+        }
+
+
+    } //end of ContactBlock class
 }

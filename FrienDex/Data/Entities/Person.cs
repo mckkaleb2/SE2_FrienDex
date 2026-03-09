@@ -27,5 +27,17 @@ namespace FrienDex.Data.Entities
         /// Gets or sets the collection of rooms associated with this person. This collection can be modified to add or remove rooms as needed. Each room represents a distinct space or context in which the person is involved.
         /// </summary>
         public List<Room> Rooms { get; set; } = new List<Room>();
+
+        public override string ToString()
+        {
+            string formatter =
+                $"PERSON - {Id}"
+                +$"\n\t\'{FirstName}\' \'{LastName}\'"
+                +$"\n\tIsFavorite: {IsFavorite}"
+                +$"\n\tDexEntry: {(DexEntry != null ? DexEntry.Id.ToString() : "null")}"
+                +$"\n\tRooms: {(Rooms != null ? string.Join(", ", Rooms.Select(r => r.Id)) : "null")}";
+            return formatter;
+            //return base.ToString();
+        }
     }
 }

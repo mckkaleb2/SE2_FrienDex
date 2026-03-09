@@ -33,12 +33,12 @@ namespace FrienDex
 
 
 #if DEBUG
-            System.Diagnostics.Debug.Write(linePrefix, "Adding VMs and Pages to Services");
+            System.Diagnostics.Debug.Write($"{linePrefix}Adding VMs and Pages to Services\n");
 #endif
             builder.Services.AddTransient<CreatePersonVM>();
             builder.Services.AddTransient<CreatePersonPage>();
 #if DEBUG
-            System.Diagnostics.Debug.Write(linePrefix, "Done! Adding VMs and Pages to Services");
+            System.Diagnostics.Debug.Write($"{linePrefix}Done! Adding VMs and Pages to Services\n");
 #endif
 
 

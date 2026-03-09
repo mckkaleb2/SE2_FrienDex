@@ -30,6 +30,11 @@ namespace FrienDex.Data.ViewModels
             // 3.) Save to Repo
             await _repo.CreateAsync(newPerson);
 
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"\n\n\n\n\t\tNew Person Created: {newPerson.FirstName} {newPerson.LastName}");
+            System.Diagnostics.Debug.WriteLine($"\n\nNew Person: {newPerson.ToString()}\n\n\n");
+#endif
+
             // 4.) Reset Transcient Object
             newPerson = new Person();
             OnPropertyChanged(nameof(newPerson));

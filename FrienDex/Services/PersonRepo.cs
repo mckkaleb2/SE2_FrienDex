@@ -27,6 +27,9 @@ namespace FrienDex.Services
         {
             await _db.People.AddAsync(newPerson);
             await _db.SaveChangesAsync();
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"\n\n\n\t\tATTEMPTING TO CREATE A PERSON\n\n\n");
+#endif
             return newPerson;
         }
         public async Task<IEnumerable<Person>> CreateWithListAsync(List<Person> newPeople)

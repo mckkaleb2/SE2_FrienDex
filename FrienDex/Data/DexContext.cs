@@ -20,10 +20,10 @@ namespace FrienDex.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            System.Diagnostics.Debug.WriteLine("\nSETTING A NEW ONCONFIGURING");
+            System.Diagnostics.Debug.WriteLine("\n\t\tSETTING A NEW ONCONFIGURING\n\n");
             optionsBuilder
                 .UseSqlite($"Filename={_Path}")
-                
+                // TODO: Create a proper logger that we can use for LogTo()
                 .LogTo(Console.WriteLine) // Log EF Core Evets to the console
                                           //.LogTo(System.Diagnostics.Debug.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information) // Log EF Core Evets to the console
                                           // Alternatively, we could use .UseAsyncSeeding() for better performance, but .UseSeeding() is simpler for now.
@@ -46,9 +46,9 @@ namespace FrienDex.Data
                         context.Set<Person>().Add(new Person { Id = 1, FirstName = "Alice" });
                         context.SaveChanges();
                         testPerson1 = context.Set<Person>().FirstOrDefault(p => p.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already exists in the database.\n\n");
 
 
                     var testPerson2 = context.Set<Person>().FirstOrDefault(p => p.Id == 2);
@@ -57,9 +57,9 @@ namespace FrienDex.Data
                         context.Set<Person>().Add(new Person { Id = 2, FirstName = "Bob" });
                         context.SaveChanges();
                         testPerson2 = context.Set<Person>().FirstOrDefault(p => p.Id == 2);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Person 2 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 2 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 2 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 2 already exists in the database.\n\n");
                     #endregion seedPeopleSync
 
                     #region seedEntriesSync
@@ -69,9 +69,9 @@ namespace FrienDex.Data
                         context.Set<DexEntry>().Add(new DexEntry { Id = 1, PersonId = 1, Person = testPerson1! });
                         context.SaveChanges();
                         testDexEntry1 = context.Set<DexEntry>().FirstOrDefault(e => e.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Person 1's DexEntry added to in the database.");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 1's DexEntry added to in the database.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Person 1's DexEntry already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 1's DexEntry already exists in the database.\n\n");
 
                     var testDexEntry2 = context.Set<DexEntry>().FirstOrDefault(p => p.Id == 2);
                     if (testDexEntry2 == null)
@@ -80,9 +80,9 @@ namespace FrienDex.Data
                         context.SaveChanges();
                         testDexEntry2 = context.Set<DexEntry>().FirstOrDefault(p => p.Id == 2)
                             ?? throw new Exception("Failed to retrieve testDexEntry2 after adding it to the database.");
-                        System.Diagnostics.Debug.Write(linePrefix, "Person 2's DexEntry added to in the database.");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 2's DexEntry added to in the database.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Person 2's DexEntry already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 2's DexEntry already exists in the database.\n\n");
                     #endregion seedEntriesSync
 
                     #region seedRoomsSync
@@ -92,9 +92,9 @@ namespace FrienDex.Data
                         context.Set<Room>().Add(new Room { Id = 1, Name = "Room A", Description = "This is a test room that was added during seeding" });
                         context.SaveChanges();
                         testRoom1 = context.Set<Room>().FirstOrDefault(e => e.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room A to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room A to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Room A already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tRoom A already exists in the database.\n\n");
 
                     var testRoom2 = context.Set<Room>().FirstOrDefault(p => p.Id == 2);
                     if (testRoom2 == null)
@@ -102,9 +102,9 @@ namespace FrienDex.Data
                         context.Set<Room>().Add(new Room { Id = 2, Name = "Room B", Description = "This is a test room that was added during seeding" });
                         context.SaveChanges();
                         testRoom2 = context.Set<Room>().FirstOrDefault(p => p.Id == 2);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Boom 2 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room 2 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Boom 2 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tRoom 2 already exists in the database.\n\n");
                     #endregion seedRoomsSync
 
 
@@ -112,47 +112,47 @@ namespace FrienDex.Data
                     {
                         testRoom1.People.Add(testPerson1!);
                         context.SaveChanges();
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room A to Person 1");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room A to Person 1\n\n");
                         if (!testPerson1!.Rooms.Any(r => r.Id == testRoom1.Id))
                         {
                             testPerson1.Rooms.Add(testRoom1);
                             context.SaveChanges();
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to Room A");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to Room A\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already has Room A in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already has Room A in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom A already has Person 1 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom A already has Person 1 in its People collection.\n\n");
 
                     if (!testRoom2!.People.Any(p => p.Id == testPerson1!.Id))
                     {
                         testRoom2.People.Add(testPerson1!);
                         context.SaveChanges();
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room B to Person 1");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room B to Person 1\n\n");
                         if (!testPerson1!.Rooms.Any(r => r.Id == testRoom2.Id))
                         {
                             testPerson1.Rooms.Add(testRoom2);
                             context.SaveChanges();
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to Room B");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to Room B\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already has Room B in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already has Room B in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom B already has Person 1 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom B already has Person 1 in its People collection.\n\n");
 
 
                     if (!testRoom2!.People.Any(p => p.Id == testPerson2!.Id))
                     {
                         testRoom2.People.Add(testPerson2!);
                         context.SaveChanges();
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room B to Person 2");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room B to Person 2\n\n");
                         if (!testPerson2!.Rooms.Any(r => r.Id == testRoom2.Id))
                         {
                             testPerson2.Rooms.Add(testRoom2);
                             context.SaveChanges();
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 2 to Room B");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 2 to Room B\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 2 already has Room B in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 2 already has Room B in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom B already has Person 2 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom B already has Person 2 in its People collection.\n\n");
 
                     System.Diagnostics.Debug.WriteLine(logSuffix);
 
@@ -175,9 +175,9 @@ namespace FrienDex.Data
                         context.Set<Person>().Add(new Person { Id = 1, FirstName = "Alice" });
                         await context.SaveChangesAsync(cancellationToken);
                         testPerson1 = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already exists in the database.\n\n");
 
 
                     var testPerson2 = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == 2);
@@ -186,9 +186,9 @@ namespace FrienDex.Data
                         context.Set<Person>().Add(new Person { Id = 2, FirstName = "Bob" });
                         await context.SaveChangesAsync(cancellationToken);
                         testPerson2 = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == 2);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Person 2 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 2 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 2 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 2 already exists in the database.\n\n");
                     #endregion seedPeopleAsyncronous
 
                     #region seedEntriesAsyncronous
@@ -198,9 +198,9 @@ namespace FrienDex.Data
                         context.Set<DexEntry>().Add(new DexEntry { Id = 1, PersonId = 1, Person = testPerson1! });
                         await context.SaveChangesAsync(cancellationToken);
                         testDexEntry1 = await context.Set<DexEntry>().FirstOrDefaultAsync(e => e.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Person 1's DexEntry added to in the database.");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 1's DexEntry added to in the database.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Person 1's DexEntry already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 1's DexEntry already exists in the database.\n\n");
 
                     var testDexEntry2 = await context.Set<DexEntry>().FirstOrDefaultAsync(p => p.Id == 2);
                     if (testDexEntry2 == null)
@@ -209,9 +209,9 @@ namespace FrienDex.Data
                         await context.SaveChangesAsync(cancellationToken);
                         testDexEntry2 = await context.Set<DexEntry>().FirstOrDefaultAsync(p => p.Id == 2)
                             ?? throw new Exception("Failed to retrieve testDexEntry2 after adding it to the database.");
-                        System.Diagnostics.Debug.Write(linePrefix, "Person 2's DexEntry added to in the database.");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 2's DexEntry added to in the database.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Person 2's DexEntry already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 2's DexEntry already exists in the database.\n\n");
                     #endregion seedEntriesAsyncronous
 
                     #region seedRoomsAsyncronous
@@ -221,9 +221,9 @@ namespace FrienDex.Data
                         context.Set<Room>().Add(new Room { Id = 1, Name = "Room A", Description = "This is a test room that was added during seeding" });
                         await context.SaveChangesAsync(cancellationToken);
                         testRoom1 = await context.Set<Room>().FirstOrDefaultAsync(e => e.Id == 1);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room A to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room A to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Room A already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tRoom A already exists in the database.\n\n");
 
                     var testRoom2 = await context.Set<Room>().FirstOrDefaultAsync(p => p.Id == 2);
                     if (testRoom2 == null)
@@ -231,9 +231,9 @@ namespace FrienDex.Data
                         context.Set<Room>().Add(new Room { Id = 2, Name = "Room B", Description = "This is a test room that was added during seeding" });
                         await context.SaveChangesAsync(cancellationToken);
                         testRoom2 = await context.Set<Room>().FirstOrDefaultAsync(p => p.Id == 2);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Boom 2 to the Database");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room 2 to the Database\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "Boom 2 already exists in the database.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tRoom 2 already exists in the database.\n\n");
                     #endregion seedRoomsAsyncronous
 
 
@@ -241,48 +241,48 @@ namespace FrienDex.Data
                     {
                         testRoom1.People.Add(testPerson1!);
                         await context.SaveChangesAsync(cancellationToken);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room A to Person 1");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room A to Person 1\n\n");
                         if (!testPerson1!.Rooms.Any(r => r.Id == testRoom1.Id))
                         {
                             testPerson1.Rooms.Add(testRoom1);
                             await context.SaveChangesAsync(cancellationToken);
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to Room A");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to Room A\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already has Room A in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already has Room A in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom A already has Person 1 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom A already has Person 1 in its People collection.\n\n");
 
 
                     if (!testRoom2!.People.Any(p => p.Id == testPerson1!.Id))
                     {
                         testRoom2.People.Add(testPerson1!);
                         await context.SaveChangesAsync(cancellationToken);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room B to Person 1");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room B to Person 1\n\n");
                         if (!testPerson1!.Rooms.Any(r => r.Id == testRoom2.Id))
                         {
                             testPerson1.Rooms.Add(testRoom2);
                             await context.SaveChangesAsync(cancellationToken);
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 1 to Room B");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to Room B\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 1 already has Room B in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 1 already has Room B in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom B already has Person 1 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom B already has Person 1 in its People collection.\n\n");
 
 
                     if (!testRoom2!.People.Any(p => p.Id == testPerson2!.Id))
                     {
                         testRoom2.People.Add(testPerson2!);
                         await context.SaveChangesAsync(cancellationToken);
-                        System.Diagnostics.Debug.Write(linePrefix, "Added Room B to Person 2");
+                        System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Room B to Person 2\n\n");
                         if (!testPerson2!.Rooms.Any(r => r.Id == testRoom2.Id))
                         {
                             testPerson2.Rooms.Add(testRoom2);
                             await context.SaveChangesAsync(cancellationToken);
-                            System.Diagnostics.Debug.Write(linePrefix, "Added Person 2 to Room B");
+                            System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 2 to Room B\n\n");
                         }
-                        else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tPerson 2 already has Room B in their Rooms collection.");
+                        else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tPerson 2 already has Room B in their Rooms collection.\n\n");
                     }
-                    else System.Diagnostics.Debug.Write(linePrefix, "NOTE:\t\tRoom B already has Person 2 in its People collection.");
+                    else System.Diagnostics.Debug.Write($"{linePrefix}\t\tNOTE:\t\tRoom B already has Person 2 in its People collection.\n\n");
 
                     System.Diagnostics.Debug.WriteLine(logSuffix);
                 }) // END .UseAsyncSeeding

@@ -25,5 +25,17 @@ namespace FrienDex.Data.Entities
         /// of multiple individuals related to the entity. The collection is initialized to an empty list when the
         /// property is created.</remarks>
         public List<Person> People { get; set; } = new List<Person>();
+
+        public override string ToString()
+        {
+            string formatter =
+                $"Room - {Id}"
+                + $"\n\tName: {Name}"
+                + $"\n\tDescription: {Description}"
+                + $"\n\tPeople: {(People != null ? string.Join(", ", People.Select(p => p.Id)) : "null")}";
+            return formatter;
+            //return base.ToString();
+        }
+
     }
 }

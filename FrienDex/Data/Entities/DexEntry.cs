@@ -23,5 +23,16 @@ namespace FrienDex.Data.Entities
         /// <remarks>The collection can be modified to add or remove blocks as needed. Each block
         /// represents a distinct unit of functionality or data within the context of this instance.</remarks>
         public List<Block> Blocks { get; set; } = new List<Block>();
+        public override string ToString()
+        {
+            string formatter =
+                $"DexEntry - {Id}"
+                //+ $"\n\t\'{FirstName}\' \'{LastName}\'"
+                + $"\n\tPersonId: {(Person != null ? Person.Id.ToString() : "null")}"
+                + $"\n\tBlocks: {(Blocks != null ? string.Join(", ", Blocks.Select(b => b.Id)) : "null")}";
+            return formatter;
+            //return base.ToString();
+        }
+
     }
 }
