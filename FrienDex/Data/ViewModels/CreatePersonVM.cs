@@ -12,7 +12,7 @@ namespace FrienDex.Data.ViewModels
     {
         private readonly IPersonRepo _repo;
 
-        // 1.) Create Transcient Object - what the entry field binds to
+        // 1.) Create Transient Object - what the entry field binds to
         public Person newPerson { get; set; } = new Person();
 
         // 2.) Create Command - what the button binds to
@@ -30,11 +30,15 @@ namespace FrienDex.Data.ViewModels
             // 3.) Save to Repo
             await _repo.CreateAsync(newPerson);
 
-            // 4.) Reset Transcient Object
+            // 4.) Reset Transient Object
             newPerson = new Person();
             OnPropertyChanged(nameof(newPerson));
 
-            await Shell.Current.DisplayAlertAsync("Success", "New entry successfully created.", "OK");
+            string doesItWork = "";
+
+            await doesItWork = _repo.ReadAsync()
+
+            await Shell.Current.DisplayAlertAsync("Success", , "OK");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

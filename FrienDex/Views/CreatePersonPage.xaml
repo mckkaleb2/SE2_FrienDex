@@ -8,10 +8,10 @@
     <VerticalStackLayout Spacing="15" Padding="20">
         <Label Text="First Name: " />
         <Entry Placeholder="First Name"
-               Text="{Binding NewPerson.FirstName, Mode=TwoWay}" />
+               Text="{Binding newPerson.FirstName, Mode=TwoWay}" />
         <Label Text="Last Name:" />
         <Entry Placeholder="Last Name"
-               Text="{Binding NewPerson.LastName, Mode=TwoWay}" />
+               Text="{Binding newPerson.LastName, Mode=TwoWay}" />
 
         <Button Text="Create Entry"
                 Command="{Binding SaveCommand}" />

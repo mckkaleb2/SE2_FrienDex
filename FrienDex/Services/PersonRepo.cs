@@ -77,9 +77,9 @@ namespace FrienDex.Services
             return await _db.People.ToListAsync();
         }
 
-        public Task<Person?> ReadAsync(int id)
+        public async Task<Person?> ReadAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _db.People.FindAsync(id);
         }
 
         public Task UpdateAsync(int id, Person person)
