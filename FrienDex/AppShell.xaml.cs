@@ -9,6 +9,8 @@ namespace FrienDex
             InitializeComponent();
             // Registered a Route to the Create Person Page because its stupid and needs help.
             Routing.RegisterRoute(nameof(CreatePersonPage), typeof(CreatePersonPage));
+            Routing.RegisterRoute(nameof(RoomsPage), typeof(RoomsPage));
+
         }
     }
 }
