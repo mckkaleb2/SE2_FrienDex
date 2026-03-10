@@ -1,91 +1,94 @@
+using FrienDex.Data.Entities;
+using FrienDex.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using FrienDex.Views;
 
 namespace FrienDex;
 
 public partial class RoomsPage : ContentPage
 {
-	public RoomsPage()
-	{
-		InitializeComponent();
-		BindingContext = new RoomsPageViewModel(this);
-	}
+    public RoomsPage(IRoomRepo roomRepo)
+    {
+        InitializeComponent();
+        BindingContext = new RoomsPageViewModel(this, roomRepo);
+    }
 }
 
 public class RoomsPageViewModel : INotifyPropertyChanged
 {
-	private readonly Page _page;
-	private ObservableCollection<DummyRoom> rooms = new();
+    private readonly Page _page;
+    private readonly IRoomRepo _roomRepo;
+    private ObservableCollection<Room> rooms = new();
 
-	public ObservableCollection<DummyRoom> Rooms
-	{
-		get => rooms;
-		set
-		{
-			if (rooms != value)
-			{
-				rooms = value;
-				OnPropertyChanged();
-			}
-		}
-	}
+    public ObservableCollection<Room> Rooms
+    {
+        get => rooms;
+        set
+        {
+            if (rooms != value)
+            {
+                rooms = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
-	public ICommand AddRoomCommand { get; }
-	public ICommand RoomSelectedCommand { get; }
+    public ICommand AddRoomCommand { get; }
+    public ICommand RoomSelectedCommand { get; }
 
-	public RoomsPageViewModel(Page page)
-	{
-		_page = page;
-		Rooms = new ObservableCollection<DummyRoom>();
-		AddRoomCommand = new Command(OnAddRoom);
-		RoomSelectedCommand = new Command<DummyRoom>(OnRoomSelected);
+    public RoomsPageViewModel(Page page, IRoomRepo roomRepo)
+    {
+        _page = page;
+        _roomRepo = roomRepo;
+        Rooms = new ObservableCollection<Room>();
+        AddRoomCommand = new Command(OnAddRoom);
+        RoomSelectedCommand = new Command<Room>(OnRoomSelected);
 
-		// TODO: Load rooms from your data source
-		LoadRooms();
-	}
+        LoadRooms();
+    }
+    
     /// <summary>
     /// Fetches the list of rooms from the data source and populates the Rooms collection.
     /// </summary>
-    private void LoadRooms()
-	{
-		// Replace with actual data loading
-		Rooms.Add(new DummyRoom { Name = "Study Group", Description = "Computer Science" });
-		Rooms.Add(new DummyRoom { Name = "Gaming", Description = "Multiplayer games" });
-	}
+    private async void LoadRooms()
+    {
+        var roomsFromRepo = await _roomRepo.ReadAllAsync();
+        foreach (var room in roomsFromRepo)
+        {
+            Rooms.Add(room);
+        }
+    }
 
-	private void OnAddRoom()
-	{
-		// TODO: Navigate to add room page or show dialog
-		MainThread.BeginInvokeOnMainThread(async () =>
-		{
-			await _page.DisplayAlertAsync("Add Room", "Add room functionality coming soon", "OK");
-		});
-	}
+    private async void OnAddRoom()
+    {
+        var addPage = new CreateRoomPage(_roomRepo);
+        await _page.Navigation.PushAsync(addPage);
 
-	private void OnRoomSelected(DummyRoom room)
-	{
-		// TODO: Navigate to room details
-		if (room != null)
-		{
-			MainThread.BeginInvokeOnMainThread(async () =>
-			{
-				await _page.DisplayAlertAsync("Room Selected", $"Selected: {room.Name}", "OK");
-			});
-		}
-	}
+        var newRoom = await addPage.ResultTcs.Task;
+        if (newRoom != null)
+        {
+            Rooms.Add(newRoom);
+        }
+    }
 
-	public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnRoomSelected(Room room)
+    {
+        if (room != null)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await _page.DisplayAlertAsync("Room Selected", $"Selected: {room.Name}", "OK");
+            });
+        }
+    }
 
-	protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-	{
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-}
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-public class DummyRoom
-{
-	public string Name { get; set; } = string.Empty;
-	public string Description { get; set; } = string.Empty;
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

@@ -77,6 +77,9 @@
 	  <MauiXaml Update="Views\CreatePersonPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\CreateRoomPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\RolodexPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

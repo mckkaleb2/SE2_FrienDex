@@ -30,6 +30,7 @@ namespace FrienDex
 
             #region ServiceRegistration_Pages
             builder.Services.AddSingleton<IPersonRepo, PersonRepo>();
+            builder.Services.AddSingleton<IRoomRepo, RoomRepo>();
 
 
 #if DEBUG

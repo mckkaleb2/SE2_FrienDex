@@ -11,9 +11,9 @@ public partial class MainPage : ContentPage
         _db = db;
     }
 
-    private void RoomButtonClicked(object sender, EventArgs e)
+    private async void RoomButtonClicked(object sender, EventArgs e)
     {
-        Navigation.PushAsync(new RoomsPage());
+        await Shell.Current.GoToAsync(nameof(RoomsPage));
     }
 
     private void RolodexButtonClicked(object sender, EventArgs e)
