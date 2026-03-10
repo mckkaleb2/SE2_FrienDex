@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static Android.Provider.Contacts;
-using static Android.Util.EventLogTags;
-using static Java.Util.Jar.Attributes;
+//using static Android.Provider.Contacts;
+//using static Android.Util.EventLogTags;
+//using static Java.Util.Jar.Attributes;
 
 namespace FrienDex.Data.Entities
 {

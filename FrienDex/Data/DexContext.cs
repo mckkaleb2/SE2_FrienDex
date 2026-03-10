@@ -24,7 +24,7 @@ namespace FrienDex.Data
             optionsBuilder
                 .UseSqlite($"Filename={_Path}")
                 // TODO: Create a proper logger that we can use for LogTo()
-                .LogTo(Console.WriteLine) // Log EF Core Evets to the console
+                //.LogTo(Console.WriteLine) // Log EF Core Evets to the console
                                           //.LogTo(System.Diagnostics.Debug.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information) // Log EF Core Evets to the console
                                           // Alternatively, we could use .UseAsyncSeeding() for better performance, but .UseSeeding() is simpler for now.
                                           // .UseAsyncSeeding(async (context, _, cancellationToken) =>

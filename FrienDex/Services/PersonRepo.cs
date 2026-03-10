@@ -1,4 +1,5 @@
-﻿using FrienDex.Data;
+﻿//using Android.Content;
+using FrienDex.Data;
 using FrienDex.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -27,11 +28,18 @@ namespace FrienDex.Services
         {
             await _db.People.AddAsync(newPerson);
             await _db.SaveChangesAsync();
+            var tempPerson = _db.People.FirstOrDefault(p => p.Id == newPerson.Id);
+            await _db.Set<DexEntry>().AddAsync(new DexEntry { Person = tempPerson });
+            await _db.SaveChangesAsync();
+
 #if DEBUG
             System.Diagnostics.Debug.WriteLine($"\n\n\n\t\tATTEMPTING TO CREATE A PERSON\n\n\n");
 #endif
             return newPerson;
         }
+
+
+
         public async Task<IEnumerable<Person>> CreateWithListAsync(List<Person> newPeople)
         {
             // Create a list to people to return
@@ -50,12 +58,13 @@ namespace FrienDex.Services
                 try
                 {
                     await _db.SaveChangesAsync();
-                    _logger.LogInformation("Person created & saved in the Database using batch method.");
+                    //_logger.LogInformation("Person created & saved in the Database using batch method.");
+                    System.Diagnostics.Debug.WriteLine("Person created & saved in the Database using batch method.");
 
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(
+                    System.Diagnostics.Debug.WriteLine(//_logger.LogError(
                         $"\n\n---------------- CreateUserDexHolder (batch) --- log ---------\n\n"
                         + $"An error occurred while adding lists to the database. And saving a person to the DB {ex.Message}"
                         //        +$"\n\n---------------- SEED DATA ASYNC --- log ---------\n\n");
