@@ -15,6 +15,7 @@ namespace FrienDex.Services
 
         // READALL
         Task<ICollection<Person>> ReadAllAsync();
+        Task<ICollection<Person>> ReadAllHierarchyAsync();
 
         // READ
         Task<Person?> ReadAsync(int id);

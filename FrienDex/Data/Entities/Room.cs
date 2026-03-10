@@ -30,9 +30,9 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Room - {Id}"
-                + $"\n\tName: {Name}"
-                + $"\n\tDescription: {Description}"
-                + $"\n\tPeople: {(People != null ? string.Join(", ", People.Select(p => p.Id)) : "null")}";
+                + $"\n\tR- Name: {Name}"
+                + $"\n\tR- Description: {Description}"
+                + $"\n\tR- People: {(People != null ? string.Join(", ", People.Select(p => p.Id)) : "null")}";
             return formatter;
             //return base.ToString();
         }

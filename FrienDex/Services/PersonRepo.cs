@@ -80,6 +80,16 @@ namespace FrienDex.Services
             return await _db.People.ToListAsync();
         }
 
+        public async Task<ICollection<Person>> ReadAllHierarchyAsync()
+        {
+            return await _db.People
+                .Include(p => p.DexEntry)
+                .ThenInclude(e => e.Blocks)
+                .Include(p => p.Rooms)
+                .ToListAsync();
+        }
+
+
         public Task<Person?> ReadAsync(int id)
         {
             throw new NotImplementedException();

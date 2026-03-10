@@ -21,7 +21,7 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}";
+                + $"\n\tB- Type: {Type}";
             return formatter;
             //return base.ToString();
         }
@@ -43,8 +43,8 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tContent: {Content}";
+                + $"\n\tBtxt- Type: {Type}"
+                + $"\n\tBtxt- Content: {Content}";
             return formatter;
             //return base.ToString();
         }
@@ -63,8 +63,8 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tImageUrl: {ImageUrl}";
+                + $"\n\tBimg- Type: {Type}"
+                + $"\n\tBimg- ImageUrl: {ImageUrl}";
             return formatter;
             //return base.ToString();
         }
@@ -84,8 +84,8 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tSelectedDate: {SelectedDate}";
+                + $"\n\tBdte- Type: {Type}"
+                + $"\n\tBdte- SelectedDate: {SelectedDate}";
             return formatter;
             //return base.ToString();
         }
@@ -118,10 +118,10 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tEventName: {EventName}"
-                + $"\n\tEventDate: {EventDate}"
-                + $"\n\tEventComments: {EventComments}";
+                + $"\n\tBevt- Type: {Type}"
+                + $"\n\tBevt- EventName: {EventName}"
+                + $"\n\tBevt- EventDate: {EventDate}"
+                + $"\n\tB- EventComments: {EventComments}";
             return formatter;
             //return base.ToString();
         }
@@ -151,10 +151,10 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tRelationshipName: {RelationshipName}"
-                + $"\n\tRelationshipDescription: {RelationshipDescription}"
-                + $"\n\tRelatedPersonId: {(RelatedPerson != null ? RelatedPerson.Id.ToString() : "null")}";
+                + $"\n\tBrel- Type: {Type}"
+                + $"\n\tBrel- RelationshipName: {RelationshipName}"
+                + $"\n\tBrel- RelationshipDescription: {RelationshipDescription}"
+                + $"\n\tBrel- RelatedPersonId: {(RelatedPerson != null ? RelatedPerson.Id.ToString() : "null")}";
             return formatter;
             //return base.ToString();
         }
@@ -181,9 +181,9 @@ namespace FrienDex.Data.Entities
         {
             string formatter =
                 $"Block - {Id}"
-                + $"\n\tType: {Type}"
-                + $"\n\tContactType: {ContactType}"
-                + $"\n\tContactValue: {ContactValue}";
+                + $"\n\tBctc- Type: {Type}"
+                + $"\n\tBctc- ContactType: {ContactType}"
+                + $"\n\tBctc- ContactValue: {ContactValue}";
             return formatter;
             //return base.ToString();
         }

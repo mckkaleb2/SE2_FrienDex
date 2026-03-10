@@ -28,8 +28,8 @@ namespace FrienDex.Data.Entities
             string formatter =
                 $"DexEntry - {Id}"
                 //+ $"\n\t\'{FirstName}\' \'{LastName}\'"
-                + $"\n\tPersonId: {(Person != null ? Person.Id.ToString() : "null")}"
-                + $"\n\tBlocks: {(Blocks != null ? string.Join(", ", Blocks.Select(b => b.Id)) : "null")}";
+                + $"\n\tE- PersonId: {(Person != null ? Person.Id.ToString() : "null")}"
+                + $"\n\tE- Blocks: {(Blocks != null ? string.Join(", ", Blocks.Select(b => b.Id)) : "null")}";
             return formatter;
             //return base.ToString();
         }

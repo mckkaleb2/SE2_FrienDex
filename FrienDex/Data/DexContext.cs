@@ -38,12 +38,16 @@ namespace FrienDex.Data
 
                     System.Diagnostics.Debug.WriteLine(logPrefix);
                     //Cons ole.WriteLine(logPrefix);
+                    Person personLoader = new Person { Id = 1, FirstName = "Alice" };
+                    DexEntry dexLoader = new DexEntry { Id = 1, PersonId = 1 , Person = personLoader};
+                    personLoader.DexEntry = dexLoader;
 
                     #region seedPeopleSync
                     var testPerson1 = context.Set<Person>().FirstOrDefault(p => p.Id == 1);
                     if (testPerson1 == null)
                     {
-                        context.Set<Person>().Add(new Person { Id = 1, FirstName = "Alice" });
+                        //context.Set<Person>().Add(new Person { Id = 1, FirstName = "Alice" });
+                        context.Set<Person>().Add(personLoader);
                         context.SaveChanges();
                         testPerson1 = context.Set<Person>().FirstOrDefault(p => p.Id == 1);
                         System.Diagnostics.Debug.Write($"{linePrefix}\t\tAdded Person 1 to the Database\n\n");
@@ -66,7 +70,7 @@ namespace FrienDex.Data
                     var testDexEntry1 = context.Set<DexEntry>().FirstOrDefault(e => e.Id == 1);
                     if (testDexEntry1 == null)
                     {
-                        context.Set<DexEntry>().Add(new DexEntry { Id = 1, PersonId = 1, Person = testPerson1! });
+                        context.Set<DexEntry>().Add(testPerson1!.DexEntry);
                         context.SaveChanges();
                         testDexEntry1 = context.Set<DexEntry>().FirstOrDefault(e => e.Id == 1);
                         System.Diagnostics.Debug.Write($"{linePrefix}\t\tPerson 1's DexEntry added to in the database.\n\n");
@@ -76,6 +80,8 @@ namespace FrienDex.Data
                     var testDexEntry2 = context.Set<DexEntry>().FirstOrDefault(p => p.Id == 2);
                     if (testDexEntry2 == null)
                     {
+                        testPerson2!.DexEntry = new DexEntry { Id = 2, PersonId = 2, Person = testPerson2! };
+
                         context.Set<DexEntry>().Add(new DexEntry { Id = 2, PersonId = 2, Person = testPerson2! });
                         context.SaveChanges();
                         testDexEntry2 = context.Set<DexEntry>().FirstOrDefault(p => p.Id == 2)

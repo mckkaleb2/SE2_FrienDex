@@ -30,12 +30,22 @@ namespace FrienDex.Data.Entities
 
         public override string ToString()
         {
+            string roomRepeater = "";
+            
+            foreach (Room r in Rooms)
+            {
+                roomRepeater += "\n";
+                roomRepeater += r.ToString();
+                roomRepeater += "\n\t_-_-_-_-_-_";
+            }
+
             string formatter =
                 $"PERSON - {Id}"
-                +$"\n\t\'{FirstName}\' \'{LastName}\'"
-                +$"\n\tIsFavorite: {IsFavorite}"
-                +$"\n\tDexEntry: {(DexEntry != null ? DexEntry.Id.ToString() : "null")}"
-                +$"\n\tRooms: {(Rooms != null ? string.Join(", ", Rooms.Select(r => r.Id)) : "null")}";
+                +$"\n\tP- \'{FirstName}\' \'{LastName}\'"
+                +$"\n\tP- IsFavorite: {IsFavorite}"
+                +$"\n\tP- DexEntry: \n\t----{(DexEntry != null ? DexEntry.ToString() : "null")}\n\t----"
+                +$"\n\tP- Rooms: \n\t----{(Rooms.Count > 0 ? roomRepeater : "None yet")}\n\t----";
+                //+$"\n\tRooms: \n\t----{(Rooms != null ? string.Join(", ", Rooms.Select(r => r.Id).ToString()) : "null")}\n\t----";
             return formatter;
             //return base.ToString();
         }

@@ -1,4 +1,5 @@
 
+using FrienDex.Services;
 using FrienDex.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,11 +10,44 @@ namespace FrienDex;
 
 public partial class RolodexPage : ContentPage
 {
-	public RolodexPage()
+	public RolodexPage(IPersonRepo repo)
 	{
 		InitializeComponent();
 		BindingContext = new RolodexPageViewModel(this);
+		_repo = repo;
 	}
+
+	private readonly IPersonRepo _repo;
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Put your C# code here that needs to run when the page appears.
+        System.Diagnostics.Debug.WriteLine("\n\n\n\t\tRolodexPage is appearing\n\n");
+
+#if DEBUG
+        var data = await _repo.ReadAllHierarchyAsync();
+		foreach (var person in data)
+		{
+			System.Diagnostics.Debug.WriteLine($"\n\n\tPerson: {person.ToString()}\n\n");
+        }
+#endif
+
+        // Example tasks:
+        // * Refreshing data from a service
+        // * Updating UI elements
+        // * Starting animations
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        // Put code here that needs to run when the page disappears (e.g., stopping animations).
+        System.Diagnostics.Debug.WriteLine("\n\n\n\t\tRolodexPage is disappearing\n\n");
+    }
+
 }
 
 // Change all instances of 'Contact' class reference to 'Person'.
@@ -83,6 +117,8 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 			});
 		}
 	}
+
+	
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 
