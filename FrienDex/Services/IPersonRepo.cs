@@ -14,7 +14,7 @@ namespace FrienDex.Services
         Task<IEnumerable<Person>> CreateWithListAsync(List<Person> newPeople);
 
         // READALL
-        Task<ICollection<Person>> ReadAllAsync();
+        Task<List<Person>> ReadAllAsync();
         Task<ICollection<Person>> ReadAllHierarchyAsync();
 
         // READ

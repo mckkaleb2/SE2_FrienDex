@@ -4,7 +4,7 @@
              x:Class="FrienDex.Views.CreatePersonPage"
              Title="Add an Entry">
 
-    <!-- FirstName, LastName, IsFavorite -->
+    <!-- FirstName, LastName -->
     <VerticalStackLayout Spacing="15" Padding="20">
         <Label Text="First Name: " />
         <Entry Placeholder="First Name"
