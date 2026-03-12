@@ -84,7 +84,7 @@ namespace FrienDex.Services
             return returnedPeople;
         }
 
-        public async Task<ICollection<Person>> ReadAllAsync()
+        public async Task<List<Person>> ReadAllAsync()
         {
             return await _db.People.ToListAsync();
         }

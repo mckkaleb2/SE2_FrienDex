@@ -1,4 +1,7 @@
 
+//using Android.App.People;
+using FrienDex.Data.ViewModels;
+using FrienDex.Data.Entities;
 using FrienDex.Services;
 using FrienDex.Views;
 using System.Collections.ObjectModel;
@@ -10,11 +13,22 @@ namespace FrienDex;
 
 public partial class RolodexPage : ContentPage
 {
-	public RolodexPage(IPersonRepo repo)
+	//public ReadAllPeopleVM _viewModel;
+
+	public ObservableCollection<Person> People { get; set; } = new();
+
+    public RolodexPage(IPersonRepo repo)
 	{
 		InitializeComponent();
-		BindingContext = new RolodexPageViewModel(this);
+
 		_repo = repo;
+		BindingContext = this;
+		//BindingContext = new RolodexPageViewModel(this);
+		//_repo = repo;
+
+		// ReadAll stuff (unsure if it will work yet)
+		//BindingContext = vm;
+		//_viewModel = vm;
 	}
 
 	private readonly IPersonRepo _repo;
@@ -23,24 +37,33 @@ public partial class RolodexPage : ContentPage
     {
         base.OnAppearing();
 
-        // Put your C# code here that needs to run when the page appears.
+		// Put your C# code here that needs to run when the page appears.
+		var people = await _repo.ReadAllAsync();
+
+		People.Clear();
+		foreach(var person in people)
+		{
+			People.Add(person);
+		}
+        People.Add(new Person { FirstName = "Jonathan", LastName = "Motherius" });
+
         System.Diagnostics.Debug.WriteLine("\n\n\n\t\tRolodexPage is appearing\n\n");
 
 #if DEBUG
-        var data = await _repo.ReadAllHierarchyAsync();
+		var data = await _repo.ReadAllHierarchyAsync();
 		foreach (var person in data)
 		{
 			System.Diagnostics.Debug.WriteLine($"\n\n\tPerson: {person.ToString()}\n\n");
-        }
+		}
 #endif
 
-        // Example tasks:
-        // * Refreshing data from a service
-        // * Updating UI elements
-        // * Starting animations
-    }
+		// Example tasks:
+		// * Refreshing data from a service
+		// * Updating UI elements
+		// * Starting animations
+	}
 
-    protected override void OnDisappearing()
+	protected override void OnDisappearing()
     {
         base.OnDisappearing();
 
@@ -48,6 +71,14 @@ public partial class RolodexPage : ContentPage
         System.Diagnostics.Debug.WriteLine("\n\n\n\t\tRolodexPage is disappearing\n\n");
     }
 
+	private async void NavigateToCreatePage(object sender, EventArgs e)
+	{
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Shell.Current.GoToAsync(nameof(CreatePersonPage));
+        });
+        //await Navigation.PushAsync(new CreatePersonPage());
+    }
 }
 
 // Change all instances of 'Contact' class reference to 'Person'.
@@ -55,6 +86,7 @@ public partial class RolodexPage : ContentPage
 public class RolodexPageViewModel : INotifyPropertyChanged
 {
 	private readonly Page _page;
+	private readonly PersonRepo _repo;
 	private ObservableCollection<Contact> contacts = new();
 
 	public ObservableCollection<Contact> Contacts
@@ -73,9 +105,11 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 	public ICommand AddContactCommand { get; }
 	public ICommand ContactSelectedCommand { get; }
 
-	public RolodexPageViewModel(Page page)
+	public RolodexPageViewModel(Page page)//, PersonRepo repo)
 	{
 		_page = page;
+		//_repo = repo;
+		
 		Contacts = new ObservableCollection<Contact>();
 		AddContactCommand = new Command(OnAddContact);
 		ContactSelectedCommand = new Command<Contact>(OnContactSelected);
@@ -84,18 +118,25 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 		LoadContacts();
     }
 
-	private void LoadContacts()
-	{
+	// Not sure why this exists yet. It was generated to allow RolodexPageViewModel to accept multiple parameter.
+	//public RolodexPageViewModel(RolodexPage rolodexPage)
+	//{
+	//}
+
+	private async Task LoadContacts()
+	{ 
 		// Replace with actual data loading
 		Contacts.Add(new Contact { Name = "John Doe", Room = "Study Group" });
 		Contacts.Add(new Contact { Name = "Jane Smith", Room = "Gaming" });
 		Contacts.Add(new Contact { Name = "Bob Johnson", Room = null });
+
+		//await _repo.ReadAllHierarchyAsync();
 	}
 
-	//  private void OnAddContact(object sender, EventArgs e)
-	//  {
-	//Navigation.PushAsync(new CreatePersonPage);
-	//  }
+	//private void OnAddContact(object sender, EventArgs e)
+	//{
+	//	Navigation.PushAsync(new CreatePersonPage);
+	//}
 
 	private void OnAddContact()
 	{
@@ -117,8 +158,6 @@ public class RolodexPageViewModel : INotifyPropertyChanged
 			});
 		}
 	}
-
-	
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 
