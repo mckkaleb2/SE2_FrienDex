@@ -35,9 +35,11 @@
                     <StackLayout Padding="12" Spacing="8" Margin="0,0,0,12">
                         <Label FontSize="18" FontAttributes="Bold">
                             <Label.Text>
-                                <MultiBinding StringFormat="{}{0} {1}">
+                                <MultiBinding StringFormat="{}{0} - {1} {2}">
+                                    <Binding Path="Id"/>
                                     <Binding Path="FirstName" />
                                     <Binding Path="LastName" />
+                                    <Binding Path="IsFavorite" />
                                 </MultiBinding>
                             </Label.Text>
                         </Label>

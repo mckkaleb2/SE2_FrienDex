@@ -32,24 +32,6 @@
             </StackLayout>
         </StackLayout>
 
-
-        <StackLayout Grid.Row="2" Spacing="8" VerticalOptions="End" HorizontalOptions="Center">
-            <Image Source="Resources/Images/box.svg" 
-           WidthRequest="48"
-           HeightRequest="48"
-           HorizontalOptions="Center" />
-            <Label Text="DEBUG" 
-           FontSize="14"
-           FontAttributes="Bold"
-           HorizontalTextAlignment="Center" />
-            <StackLayout.GestureRecognizers>
-                <TapGestureRecognizer Tapped="DebugButtonClicked" />
-            </StackLayout.GestureRecognizers>
-        </StackLayout>
-
     </Grid>
-    
-    
-    
-    
+     
 </ContentPage>

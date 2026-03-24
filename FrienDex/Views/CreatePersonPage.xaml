@@ -12,6 +12,8 @@
         <Label Text="Last Name:" />
         <Entry Placeholder="Last Name"
                Text="{Binding newPerson.LastName, Mode=TwoWay}" />
+        <Label Text="Favorite: " />
+        <RadioButton IsChecked="{Binding newPerson.IsFavorite}"/>
 
         <Button Text="Create Entry"
                 Command="{Binding SaveCommand}" />
