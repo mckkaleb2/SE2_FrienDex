@@ -55,7 +55,7 @@ public partial class RolodexPage : ContentPage
 			PeopleCollectionView.SelectedItem = null;
 
 			// Navigate to ViewPerson page with the person's Id
-			await Shell.Current.GoToAsync($"{nameof(ViewPerson)}?PersonId={selectedPerson.Id}");
+			await Shell.Current.GoToAsync($"{nameof(ViewPersonPage)}?PersonId={selectedPerson.Id}");
 		}
 	}
 

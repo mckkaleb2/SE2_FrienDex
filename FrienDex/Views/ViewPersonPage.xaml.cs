@@ -7,13 +7,13 @@ using Microsoft.Maui.Graphics;
 namespace FrienDex.Views;
 
 [QueryProperty(nameof(PersonId), "PersonId")]
-public partial class ViewPerson : ContentPage
+public partial class ViewPersonPage : ContentPage
 {
 	public int PersonId { get; set; }
     private readonly IPersonRepo _personRepo;
     private Person? _person;
     
-    public ViewPerson(IPersonRepo personRepo)
+    public ViewPersonPage(IPersonRepo personRepo)
 	{
 		InitializeComponent();
         _personRepo = personRepo;
