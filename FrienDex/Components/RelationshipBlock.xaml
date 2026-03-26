@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FrienDex.Components.RelationshipBlock">
+    <Border
+        StrokeThickness="0"
+        BackgroundColor="{DynamicResource CardBackgroundColor}"
+        Padding="16"
+        StrokeShape="RoundRectangle 12">
+
+        <VerticalStackLayout Spacing="6">
+
+            <!-- Relationship Name -->
+            <Label
+                Text="{Binding RelationshipName, Source={x:Reference Root}}"
+                FontSize="18"
+                FontAttributes="Bold" />
+
+            <!-- Relationship Description (optional) -->
+            <Label
+                Text="{Binding RelationshipDescription, Source={x:Reference Root}}"
+                FontSize="14"
+                TextColor="Gray" />
+
+            <!-- Related Person -->
+            <Label
+                Text="{Binding RelatedPerson.FullName, Source={x:Reference Root}}"
+                FontSize="16"
+                FontAttributes="Italic" />
+
+        </VerticalStackLayout>
+
+    </Border>
+</ContentView>
