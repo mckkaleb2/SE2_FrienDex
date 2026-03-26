@@ -1,12 +1,12 @@
 namespace FrienDex.Components;
 
-public partial class ImageBlock : ContentView
+public partial class ImageBlockView : ContentView
 {
     public static readonly BindableProperty ImageUrlProperty =
         BindableProperty.Create(
             nameof(ImageUrl),
             typeof(string),
-            typeof(ImageBlock),
+            typeof(ImageBlockView),
             string.Empty);
 
     public string ImageUrl
@@ -15,7 +15,7 @@ public partial class ImageBlock : ContentView
         set => SetValue(ImageUrlProperty, value);
     }
 
-    public ImageBlock()
+    public ImageBlockView()
     {
         InitializeComponent();
     }

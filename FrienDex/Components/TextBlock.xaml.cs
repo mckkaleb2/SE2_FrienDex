@@ -1,12 +1,12 @@
 namespace FrienDex.Components;
 
-public partial class TextBlock : ContentView
+public partial class TextBlockView : ContentView
 {
     public static readonly BindableProperty TextProperty =
         BindableProperty.Create(
             nameof(Text),
             typeof(string),
-            typeof(TextBlock),
+            typeof(TextBlockView),
             string.Empty);
 
     public string Text
@@ -15,7 +15,7 @@ public partial class TextBlock : ContentView
         set => SetValue(TextProperty, value);
     }
 
-    public TextBlock()
+    public TextBlockView()
     {
         InitializeComponent();
     }

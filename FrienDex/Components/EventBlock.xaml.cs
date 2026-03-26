@@ -1,12 +1,12 @@
 namespace FrienDex.Components;
 
-public partial class EventBlock : ContentView
+public partial class EventBlockView : ContentView
 {
     public static readonly BindableProperty EventNameProperty =
         BindableProperty.Create(
             nameof(EventName),
             typeof(string),
-            typeof(EventBlock),
+            typeof(EventBlockView),
             string.Empty);
 
     public string EventName
@@ -19,7 +19,7 @@ public partial class EventBlock : ContentView
         BindableProperty.Create(
             nameof(EventDate),
             typeof(DateTime),
-            typeof(EventBlock),
+            typeof(EventBlockView),
             DateTime.Now);
 
     public DateTime EventDate
@@ -32,7 +32,7 @@ public partial class EventBlock : ContentView
         BindableProperty.Create(
             nameof(EventComments),
             typeof(string),
-            typeof(EventBlock),
+            typeof(EventBlockView),
             null);
 
     public string? EventComments
@@ -40,7 +40,7 @@ public partial class EventBlock : ContentView
         get => (string?)GetValue(EventCommentsProperty);
         set => SetValue(EventCommentsProperty, value);
     }
-    public EventBlock()
+    public EventBlockView()
 	{
 		InitializeComponent();
 	}

@@ -99,12 +99,14 @@ public partial class ViewPersonPage : ContentPage
         // Set DexEntry content
         if (_person.DexEntry != null)
         {
-            DexEntryContent.Text = _person.DexEntry.ToString();
-        }
-        else
-        {
-            DexEntryContent.Text = "No additional details available";
-            DexEntryContent.TextColor = Colors.Gray;
+            if (_person.DexEntry.Blocks != null && _person.DexEntry.Blocks.Count > 0)
+            {
+                BlocksList.Blocks = _person.DexEntry.Blocks;
+            }
+            else
+            {
+                BlocksList.Blocks = Array.Empty<Block>();
+            }
         }
     }
 

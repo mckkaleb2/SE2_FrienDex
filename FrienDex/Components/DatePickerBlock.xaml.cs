@@ -1,12 +1,12 @@
 namespace FrienDex.Components;
 
-public partial class DatePickerBlock : ContentView
+public partial class DatePickerBlockView : ContentView
 {
     public static readonly BindableProperty DateTitleProperty =
         BindableProperty.Create(
             nameof(DateTitle),
             typeof(string),
-            typeof(DatePickerBlock),
+            typeof(DatePickerBlockView),
             string.Empty);
 
     public string DateTitle
@@ -19,7 +19,7 @@ public partial class DatePickerBlock : ContentView
         BindableProperty.Create(
             nameof(DateDescription),
             typeof(string),
-            typeof(DatePickerBlock),
+            typeof(DatePickerBlockView),
             string.Empty);
 
     public string DateDescription
@@ -32,7 +32,7 @@ public partial class DatePickerBlock : ContentView
         BindableProperty.Create(
             nameof(SelectedDate),
             typeof(DateTime),
-            typeof(DatePickerBlock),
+            typeof(DatePickerBlockView),
             DateTime.Now);
 
     public DateTime SelectedDate
@@ -40,7 +40,7 @@ public partial class DatePickerBlock : ContentView
         get => (DateTime)GetValue(SelectedDateProperty);
         set => SetValue(SelectedDateProperty, value);
     }
-    public DatePickerBlock()
+    public DatePickerBlockView()
 	{
 		InitializeComponent();
 	}

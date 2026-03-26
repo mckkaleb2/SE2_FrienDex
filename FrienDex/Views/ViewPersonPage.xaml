@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:FrienDex.Components"
              x:Class="FrienDex.Views.ViewPersonPage"
              Title="ViewPerson"
              Padding="0">
@@ -56,25 +57,15 @@
                 <!-- DexEntry Section -->
                 <VerticalStackLayout Spacing="8">
                     <Label 
-                        Text="Details"
+                        Text="Blocks"
                         FontSize="16"
                         FontAttributes="Bold" />
-                    <Border 
-                        x:Name="DexEntryBorder"
-                        Stroke="#E0E0E0"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 8,8,8,8"
-                        Padding="12"
-                        MinimumHeightRequest="100">
-                        <VerticalStackLayout>
-                            <Label 
-                                x:Name="DexEntryContent"
-                                FontSize="14"
-                                LineHeight="1.4" />
-                        </VerticalStackLayout>
-                    </Border>
+
+                    <controls:BlockListView
+                        x:Name="BlocksList"
+                        Margin="0,0,0,20" />
                 </VerticalStackLayout>
-                
+
             </VerticalStackLayout>
         </ScrollView>
         

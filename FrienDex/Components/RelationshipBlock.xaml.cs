@@ -2,13 +2,13 @@ using FrienDex.Data.Entities;
 
 namespace FrienDex.Components;
 
-public partial class RelationshipBlock : ContentView
+public partial class RelationshipBlockView : ContentView
 {
     public static readonly BindableProperty RelationshipNameProperty =
         BindableProperty.Create(
             nameof(RelationshipName),
             typeof(string),
-            typeof(RelationshipBlock),
+            typeof(RelationshipBlockView),
             string.Empty);
 
     public string RelationshipName
@@ -21,7 +21,7 @@ public partial class RelationshipBlock : ContentView
         BindableProperty.Create(
             nameof(RelationshipDescription),
             typeof(string),
-            typeof(RelationshipBlock),
+            typeof(RelationshipBlockView),
             null);
 
     public string? RelationshipDescription
@@ -34,7 +34,7 @@ public partial class RelationshipBlock : ContentView
         BindableProperty.Create(
             nameof(RelatedPerson),
             typeof(Person),
-            typeof(RelationshipBlock),
+            typeof(RelationshipBlockView),
             null);
 
     public Person RelatedPerson
@@ -42,7 +42,7 @@ public partial class RelationshipBlock : ContentView
         get => (Person)GetValue(RelatedPersonProperty);
         set => SetValue(RelatedPersonProperty, value);
     }
-    public RelationshipBlock()
+    public RelationshipBlockView()
 	{
 		InitializeComponent();
 	}
