@@ -50,7 +50,7 @@ public partial class ViewPersonPage : ContentPage
         NameLabel.Text = $"{_person.FirstName} {_person.LastName}".Trim();
 
         // Set favorite indicator
-        if (_person.IsFavorite.HasValue && _person.IsFavorite.Value)
+        if (_person.IsFavorite)
         {
             FavoriteIndicator.Text = "⭐";
             FavoriteLabel.Text = "Favorite";
