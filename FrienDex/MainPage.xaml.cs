@@ -25,8 +25,9 @@ public partial class MainPage : ContentPage
         Navigation.PushAsync(new RolodexPage(_repo));
     }
 
-    private void DebugButtonClicked(object sender, TappedEventArgs e)
-    {
-        Navigation.PushAsync(new DebugPage());
-    }
+    
+    //private void DebugButtonClicked(object sender, TappedEventArgs e)
+    //{
+    //    Navigation.PushAsync(new DebugPage());
+    //}
 }

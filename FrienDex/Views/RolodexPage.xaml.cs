@@ -25,10 +25,25 @@ public partial class RolodexPage : ContentPage
 		var people = await _repo.ReadAllAsync();
 
 		People.Clear();
-		foreach(var person in people)
-		{
-			People.Add(person);
-		}
+        // Favorite Priority Queue
+        People.Add(new Person { FirstName = "Jonathan", LastName = "Motherius", IsFavorite = true });
+        foreach (var person in people)
+		    {
+            if (person.IsFavorite == true)
+			      {
+                People.Add(person);
+            }
+        }
+
+        // Everybody Else
+        foreach (var person in people)
+        {
+            if (person.IsFavorite == false)
+            {
+                People.Add(person);
+            }
+        }
+
 
         Debug.WriteLine("\n\n\n\t\tRolodexPage is appearing\n\n");
 

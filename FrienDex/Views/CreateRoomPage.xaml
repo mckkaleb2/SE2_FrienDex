@@ -15,8 +15,6 @@
 
         <Button Text="Save"
                 Command="{Binding SaveCommand}" />
-        <Button Text="Cancel"
-                Command="{Binding CancelCommand}" />
     </VerticalStackLayout>
 
 </ContentPage>

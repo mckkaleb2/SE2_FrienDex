@@ -18,7 +18,7 @@ namespace FrienDex.Data.Entities
         /// <summary>
         /// Gets or sets the IsFavorite property, indicating whether the person is marked as a favorite.
         /// </summary>
-        public bool? IsFavorite { get; set; }
+        public bool IsFavorite { get; set; } = false;
         /// <summary>
         /// Gets or sets the DexEntry associated with this person. This property may be null if no entry is linked to the person.
         /// </summary>
