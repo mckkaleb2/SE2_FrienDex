@@ -101,7 +101,15 @@ namespace FrienDex.Services
 
         public Task<Person?> ReadAsync(int id)
         {
-            throw new NotImplementedException();
+            var person = _db.People.FirstOrDefault(p => p.Id == id);
+            if (person == null)
+            {
+                return Task.FromResult<Person?>(null);
+            }
+            else
+            {
+                return Task.FromResult<Person?>(person);
+            }
         }
 
         public Task UpdateAsync(int id, Person person)

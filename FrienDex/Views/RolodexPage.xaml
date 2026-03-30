@@ -5,31 +5,12 @@
              Title="Rolodex">
     <Grid RowDefinitions="*,Auto" Padding="16">
         
-        <!-- Scrollable Contacts List -->
-        <!--<CollectionView Grid.Row="0"
-                        ItemsSource="{Binding Contacts}"
-                        SelectionMode="Single"
-                        SelectionChangedCommand="{Binding ContactSelectedCommand}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="12" Spacing="8" Margin="0,0,0,12">
-                        <Label Text="{Binding Name}" 
-                               FontSize="18" 
-                               FontAttributes="Bold" />
-                        <Label Text="{Binding Room, StringFormat='Room: {0}'}" 
-                               FontSize="14" 
-                               Opacity="0.7" />
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>-->
-        
         <!-- Person List -->
-        <!-- This is essentially a copy of the Contact list, but for the Person object.-->
-        <CollectionView Grid.Row="0"
+        <CollectionView x:Name="PeopleCollectionView"
+                        Grid.Row="0"
                         ItemsSource="{Binding People}"
                         SelectionMode="Single"
-                        SelectionChangedCommand="{Binding PersonSelectedCommand}">
+                        SelectionChanged="OnPersonSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Padding="12" Spacing="8" Margin="0,0,0,12">
@@ -43,9 +24,6 @@
                                 </MultiBinding>
                             </Label.Text>
                         </Label>
-                        <!--<Label Text="{Binding Room, StringFormat='Room: {0}'}"
-                               FontSize="14"
-                               Opacity="0.7" />-->
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -55,7 +33,6 @@
         <Button Grid.Row="1"
                 Text="Add Contact"
                 Clicked="NavigateToCreatePage"
-                Command="{Binding AddContactCommand}"
                 Padding="12,16"
                 CornerRadius="8"
                 FontSize="16"

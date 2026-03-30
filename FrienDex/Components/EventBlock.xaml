@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FrienDex.Components.EventBlockView">
+    <Border
+        StrokeThickness="0"
+        BackgroundColor="{DynamicResource CardBackgroundColor}"
+        Padding="16"
+        StrokeShape="RoundRectangle 12">
+
+        <VerticalStackLayout Spacing="6">
+
+            <!-- Event Name -->
+            <Label
+                Text="{Binding EventName, Source={x:Reference Root}}"
+                FontSize="18"
+                FontAttributes="Bold" />
+
+            <!-- Event Date -->
+            <Label
+                Text="{Binding EventDate, Source={x:Reference Root}, StringFormat='{0:MMMM d, yyyy h:mm tt}'}"
+                FontSize="16"
+                FontAttributes="Italic" />
+
+            <Label
+                Text="{Binding EventComments, Source={x:Reference Root}}"
+                FontSize="14"
+                TextColor="Gray"
+                IsVisible="{Binding EventComments, Source={x:Reference Root}, Converter={StaticResource StringNotNullOrEmpty}}" />
+            
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

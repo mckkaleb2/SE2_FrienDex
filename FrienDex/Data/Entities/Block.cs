@@ -76,6 +76,14 @@ namespace FrienDex.Data.Entities
         /// Gets or sets the selected date for this block, which allows users to choose a specific date relevant to the context of the block.
         /// </summary>
         public required DateTime SelectedDate { get; set; }
+        /// <summary>
+        /// Gets or sets the textual description of the date associated with this instance.
+        /// </summary>
+        public required string DateDescription { get; set; }
+        /// <summary>
+        /// Gets or sets rhe title of the date block.    
+        /// </summary>
+        public required string DateTitle { get; set; }  
         public DatePickerBlock()
         {
             Type = BlockType.DatePickerBlock;
