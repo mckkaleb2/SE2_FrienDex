@@ -29,15 +29,17 @@ namespace FrienDex
             builder.Services.AddDbContext<Data.DexContext>();
 
             #region ServiceRegistration_Pages
-            builder.Services.AddSingleton<IPersonRepo, PersonRepo>();
-            builder.Services.AddSingleton<IRoomRepo, RoomRepo>();
-
+            builder.Services.AddScoped<IPersonRepo, PersonRepo>();
+            builder.Services.AddScoped<IRoomRepo, RoomRepo>();
+            builder.Services.AddScoped<IBlockRepo, BlockRepo>();
 
 #if DEBUG
             System.Diagnostics.Debug.Write($"{linePrefix}Adding VMs and Pages to Services\n");
 #endif
             builder.Services.AddTransient<CreatePersonVM>();
             builder.Services.AddTransient<CreatePersonPage>();
+            builder.Services.AddTransient<AddBlockPage>();
+            builder.Services.AddTransient<ViewPersonPage>();
 #if DEBUG
             System.Diagnostics.Debug.Write($"{linePrefix}Done! Adding VMs and Pages to Services\n");
 #endif

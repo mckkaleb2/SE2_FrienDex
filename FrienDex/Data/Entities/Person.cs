@@ -28,6 +28,8 @@ namespace FrienDex.Data.Entities
         /// </summary>
         public List<Room> Rooms { get; set; } = new List<Room>();
 
+        public string FullName => $"{FirstName} {LastName}".Trim();
+
         public override string ToString()
         {
             string roomRepeater = "";

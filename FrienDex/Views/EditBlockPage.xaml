@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FrienDex.Views.EditBlockPage"
+             Title="Edit Block"
+             Padding="20">
+
+    <VerticalStackLayout Spacing="15">
+
+        <!-- Block Type Display -->
+        <VerticalStackLayout Spacing="8">
+            <Label 
+                Text="Block Type"
+                FontSize="14"
+                FontAttributes="Bold" />
+            <Label 
+                x:Name="BlockTypeLabel"
+                FontSize="16"
+                TextColor="#666" />
+        </VerticalStackLayout>
+
+        <!-- Scrollable Content Area -->
+        <ScrollView>
+            <VerticalStackLayout 
+                x:Name="EditContentStack"
+                Spacing="12">
+
+                <!-- TextBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="TextBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Content" FontSize="14" FontAttributes="Bold" />
+                    <Editor 
+                        x:Name="TextContentEditEditor"
+                        Placeholder="Enter text..."
+                        HeightRequest="150"
+                        BackgroundColor="#F5F5F5" />
+                </VerticalStackLayout>
+
+                <!-- ImageBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="ImageBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Image URL" FontSize="14" FontAttributes="Bold" />
+                    <Entry 
+                        x:Name="ImageUrlEditEntry"
+                        Placeholder="https://example.com/image.jpg"
+                        BackgroundColor="#F5F5F5" />
+                </VerticalStackLayout>
+
+                <!-- DatePickerBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="DatePickerBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Title" FontSize="14" FontAttributes="Bold" />
+                    <Entry 
+                        x:Name="DateTitleEditEntry"
+                        Placeholder="Enter title..."
+                        BackgroundColor="#F5F5F5" />
+                    <Label Text="Description" FontSize="14" FontAttributes="Bold" />
+                    <Editor 
+                        x:Name="DateDescriptionEditEditor"
+                        Placeholder="Enter description..."
+                        HeightRequest="100"
+                        BackgroundColor="#F5F5F5" />
+                    <Label Text="Select Date" FontSize="14" FontAttributes="Bold" />
+                    <DatePicker 
+                        x:Name="SelectedDateEditPicker" />
+                </VerticalStackLayout>
+
+                <!-- EventBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="EventBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Event Name" FontSize="14" FontAttributes="Bold" />
+                    <Entry 
+                        x:Name="EventNameEditEntry"
+                        Placeholder="Enter event name..."
+                        BackgroundColor="#F5F5F5" />
+                    <Label Text="Event Date &amp; Time" FontSize="14" FontAttributes="Bold" />
+                    <DatePicker 
+                        x:Name="EventDateEditPicker" />
+                    <TimePicker 
+                        x:Name="EventTimeEditPicker" />
+                    <Label Text="Comments (Optional)" FontSize="14" FontAttributes="Bold" />
+                    <Editor 
+                        x:Name="EventCommentsEditEditor"
+                        Placeholder="Enter comments..."
+                        HeightRequest="100"
+                        BackgroundColor="#F5F5F5" />
+                </VerticalStackLayout>
+
+                <!-- ContactBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="ContactBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Contact Type" FontSize="14" FontAttributes="Bold" />
+                    <Picker 
+                        x:Name="ContactTypeEditPicker"
+                        Title="Select contact type..."
+                        ItemsSource="{Binding ContactTypes}" />
+                    <Label Text="Contact Value" FontSize="14" FontAttributes="Bold" />
+                    <Entry 
+                        x:Name="ContactValueEditEntry"
+                        Placeholder="Enter contact information..."
+                        BackgroundColor="#F5F5F5" />
+                </VerticalStackLayout>
+
+                <!-- RelationshipBlock Content -->
+                <VerticalStackLayout 
+                    x:Name="RelationshipBlockEditContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Relationship Name" FontSize="14" FontAttributes="Bold" />
+                    <Entry 
+                        x:Name="RelationshipNameEditEntry"
+                        Placeholder="e.g., Sibling, Friend..."
+                        BackgroundColor="#F5F5F5" />
+                    <Label Text="Description (Optional)" FontSize="14" FontAttributes="Bold" />
+                    <Editor 
+                        x:Name="RelationshipDescriptionEditEditor"
+                        Placeholder="Enter description..."
+                        HeightRequest="100"
+                        BackgroundColor="#F5F5F5" />
+                    <Label Text="Related Person" FontSize="14" FontAttributes="Bold" />
+                    <Picker 
+                        x:Name="RelatedPersonEditPicker"
+                        Title="Select a person..."
+                        ItemsSource="{Binding People}" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">
+            <Button 
+                Text="Cancel"
+                Clicked="OnCancelClicked"
+                HorizontalOptions="Fill"
+                BackgroundColor="#E0E0E0"
+                TextColor="Black" />
+            <Button 
+                Text="Delete"
+                Clicked="OnDeleteClicked"
+                HorizontalOptions="Fill"
+                BackgroundColor="#FF3B30"
+                TextColor="White" />
+            <Button 
+                Text="Save"
+                Clicked="OnSaveClicked"
+                HorizontalOptions="Fill"
+                BackgroundColor="#34C759"
+                TextColor="White" />
+        </HorizontalStackLayout>
+
+    </VerticalStackLayout>
+
+</ContentPage>

@@ -11,6 +11,8 @@ namespace FrienDex
             Routing.RegisterRoute(nameof(CreatePersonPage), typeof(CreatePersonPage));
             Routing.RegisterRoute(nameof(RoomsPage), typeof(RoomsPage));
             Routing.RegisterRoute(nameof(ViewPersonPage), typeof(ViewPersonPage));
+            Routing.RegisterRoute("editblock", typeof(EditBlockPage));
+            Routing.RegisterRoute("addblock", typeof(AddBlockPage)); 
         }
     }
 }
