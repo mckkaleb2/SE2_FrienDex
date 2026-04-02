@@ -8,9 +8,10 @@
     <ContentView.Resources>
         <templates:BlockTemplateSelector x:Key="BlockTemplateSelector" />
     </ContentView.Resources>
-
-    <CollectionView
-        ItemsSource="{Binding Blocks, Source={x:Reference Root}}"
-        ItemTemplate="{StaticResource BlockTemplateSelector}"
-        Margin="0,8" />
+    <VerticalStackLayout>
+        <CollectionView
+            ItemsSource="{Binding Blocks, Source={x:Reference Root}}"
+            ItemTemplate="{StaticResource BlockTemplateSelector}"
+            Margin="0,8" />
+    </VerticalStackLayout>
 </ContentView>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FrienDex.Data.Entities;assembly=FrienDex"
+             x:Class="FrienDex.Views.AddBlockPage"
+             Title="Add Block"
+             Padding="20">
+
+    <Grid RowDefinitions="Auto, *, Auto" RowSpacing="15">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label 
+                Text="Select Block Type"
+                FontSize="18"
+                FontAttributes="Bold" />
+            <Picker 
+                x:Name="BlockTypePicker"
+                Title="Choose a type..."
+                SelectedIndexChanged="OnBlockTypeChanged"
+                ItemsSource="{Binding BlockTypes}" />
+        </VerticalStackLayout>
+
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout 
+                x:Name="ContentStack"
+                Spacing="12">
+
+                <VerticalStackLayout 
+                    x:Name="TextBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Content" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Editor 
+                            x:Name="TextContentEditor"
+                            Placeholder="Enter text..."
+                            HeightRequest="150"
+                            BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout 
+                    x:Name="ImageBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Image URL" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Entry 
+                            x:Name="ImageUrlEntry"
+                            Placeholder="https://example.com/image.jpg"
+                            BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout 
+                    x:Name="DatePickerBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Title" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Entry 
+                            x:Name="DateTitleEntry"
+                            Placeholder="Enter title..."
+                            BackgroundColor="Transparent" />
+                    </Border>
+
+                    <Label Text="Description" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Editor 
+                            x:Name="DateDescriptionEditor"
+                            Placeholder="Enter description..."
+                            HeightRequest="100"
+                            BackgroundColor="Transparent" />
+                    </Border>
+
+                    <Label Text="Select Date" FontSize="14" FontAttributes="Bold" />
+                    <DatePicker x:Name="SelectedDatePicker" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout 
+                    x:Name="EventBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Event Name" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Entry 
+                            x:Name="EventNameEntry"
+                            Placeholder="Enter event name..."
+                            BackgroundColor="Transparent" />
+                    </Border>
+
+                    <Label Text="Event Date &amp; Time" FontSize="14" FontAttributes="Bold" />
+                    <DatePicker x:Name="EventDatePicker" />
+                    <TimePicker 
+                        x:Name="EventTimePicker"
+                        Time="12:00" />
+
+                    <Label Text="Comments (Optional)" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Editor 
+                            x:Name="EventCommentsEditor"
+                            Placeholder="Enter comments..."
+                            HeightRequest="100"
+                            BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout 
+                    x:Name="ContactBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Contact Type" FontSize="14" FontAttributes="Bold" />
+                    <Picker 
+                        x:Name="ContactTypePicker"
+                        Title="Select contact type..."
+                        ItemsSource="{Binding ContactTypes}" />
+
+                    <Label Text="Contact Value" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Entry 
+                            x:Name="ContactValueEntry"
+                            Placeholder="Enter contact information..."
+                            BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout 
+                    x:Name="RelationshipBlockContent"
+                    IsVisible="False"
+                    Spacing="8">
+                    <Label Text="Relationship Name" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Entry 
+                            x:Name="RelationshipNameEntry"
+                            Placeholder="e.g., Sibling, Friend..."
+                            BackgroundColor="Transparent" />
+                    </Border>
+
+                    <Label Text="Description (Optional)" FontSize="14" FontAttributes="Bold" />
+                    <Border StrokeShape="RoundRectangle 5" Padding="5">
+                        <Editor 
+                            x:Name="RelationshipDescriptionEditor"
+                            Placeholder="Enter description..."
+                            HeightRequest="100"
+                            BackgroundColor="Transparent" />
+                    </Border>
+
+                    <Label Text="Related Person" FontSize="14" FontAttributes="Bold" />
+                    <Picker 
+                        x:Name="RelatedPersonPicker"
+                        Title="Select a person..."
+                        ItemsSource="{Binding People}"
+                        ItemDisplayBinding="{Binding FullName}" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+
+        <HorizontalStackLayout Grid.Row="2" Spacing="10" HorizontalOptions="Center">
+            <Button 
+                Text="Cancel"
+                Clicked="OnCancelClicked"
+                WidthRequest="120"
+                BackgroundColor="#E0E0E0"
+                TextColor="Black" />
+            <Button 
+                Text="Add Block"
+                Clicked="OnAddBlockClicked"
+                WidthRequest="120"
+                BackgroundColor="#FF6B6B"
+                TextColor="White" />
+        </HorizontalStackLayout>
+
+    </Grid>
+</ContentPage>

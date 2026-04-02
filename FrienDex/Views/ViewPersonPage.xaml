@@ -61,28 +61,42 @@
                         FontSize="16"
                         FontAttributes="Bold" />
 
-                    <controls:BlockListView
-                        x:Name="BlocksList"
+                    <VerticalStackLayout
+                        x:Name="BlocksContainer"
+                        Spacing="12"
                         Margin="0,0,0,20" />
                 </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>
         
-        <!-- Edit FAB (Floating Action Button) -->
-        <Button 
-            Grid.Row="1"
-            Text="✏️ Edit"
-            Clicked="OnEditClicked"
-            Margin="20"
-            CornerRadius="25"
-            HorizontalOptions="End"
-            VerticalOptions="End"
-            Padding="20,10"
-            BackgroundColor="#FF6B6B"
-            TextColor="White"
-            FontAttributes="Bold"
-            FontSize="16" />
+        <!-- Buttons Container -->
+        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10" Padding="20" HorizontalOptions="EndAndExpand">
+            
+            <!-- Add Block FAB (Hidden by default) -->
+            <Button 
+                x:Name="AddBlockButton"
+                Text="➕ Add Block"
+                Clicked="OnAddBlockClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                BackgroundColor="#007AFF"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="16"
+                IsVisible="False" />
+            
+            <!-- Edit FAB -->
+            <Button 
+                Text="✏️ Edit"
+                Clicked="OnEditClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                BackgroundColor="#FF6B6B"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="16" />
+        </StackLayout>
         
     </Grid>
     
