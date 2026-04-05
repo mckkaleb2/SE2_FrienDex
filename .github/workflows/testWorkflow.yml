@@ -45,6 +45,8 @@ jobs:
         run: |
             cd ${{ github.workspace }}
             echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
+            echo 'test line' > testReleaseRunNumber${{ github.run_number }}.txt
+            echo 'test line' > testReleaseRunID${{ github.run_id }}.txt
             dir
             gh release list
             gh release create ${{ github.ref_name }}-development-v${{ github.run_attempt }}
