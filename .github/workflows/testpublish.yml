@@ -40,5 +40,5 @@ jobs:
                 repo_token: ${{ secrets.GITHUB_TOKEN }}
                 file: ./**/*-Signed.apk
                 tag: ${{ github.ref }}
-                overwite: true
+                overwrite: true
                 body: "This is my release text"
