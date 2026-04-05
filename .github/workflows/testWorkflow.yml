@@ -45,7 +45,7 @@ jobs:
         run: |
             cd ${{ github.workspace }}
             echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
-            gh release upload ${{ github.event.release.tag_name }} testReleaseText${{ github.run_attempt }}.txt
+            gh release upload ${{ github.ref }}-development-v${{ github.run_attempt }} testReleaseText${{ github.run_attempt }}.txt
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
