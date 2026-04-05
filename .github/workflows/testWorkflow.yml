@@ -13,6 +13,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# Make sure the GITHUB_TOKEN has permission to upload to our releases
+permissions:
+  contents: write
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -35,8 +39,16 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
-      - name: Create a dummy text file
-        run: echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
+
+      - name: 'package release'
+        run: |
+            cd ${{ github.workspace }}
+            echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
+            gh release upload ${{ github.event.release.tag_name }} testReleaseText${{ github.run_attempt }}.txt
+        env:
+            GITHUB_TOKEN: ${{ github.TOKEN }}
+        shell: bash
+
 
       - name: Upload files to release
         uses: svenstaro/upload-release-action@v2
