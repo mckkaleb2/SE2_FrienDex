@@ -22,8 +22,8 @@ jobs:
               with:
                 dotnet-version: '10.0.x'
             
-            - name: Run a one-line script
-              run: gh release upload --help
+            # - name: Run a one-line script
+            #   run: gh release upload --help
 
 
 
@@ -53,4 +53,15 @@ jobs:
             #     target_commit: ${{ github.ref }}
             #     overwrite: true
             #     body: "This is my release text"
+
+            - name: 'package release'
+              run: |
+                dir
+                gh release list
+                gh release create ${{ github.ref_name }}-release-v${{ github.run_attempt }}
+                gh release upload ${{ github.ref_name }}-release-v${{ github.run_attempt }} ./**/*-Signed.apk
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
+
 
