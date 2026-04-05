@@ -63,9 +63,10 @@ jobs:
 
             - name: 'package release'
               run: |
-                dir
                 gh release list
-                gh release create ${{ github.ref_name }}-release-v${{ github.run_number }} --target ${{ GitHub.ref_name }}
+                echo ''
+                gh release create ${{ github.ref_name }}-release-v${{ github.run_number }} -p --target ${{ GitHub.ref }}
+                echo ''
                 gh release upload ${{ github.ref_name }}-release-v${{ github.run_number }} ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
