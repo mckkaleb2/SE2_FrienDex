@@ -36,8 +36,7 @@ jobs:
           echo test, and deploy your project.
 
       - name: Create a dummy text file
-        run:
-          echo 'test line' > testReleaseText.txt
+        run: echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
 
       - name: Upload files to release
         uses: svenstaro/upload-release-action@v2
