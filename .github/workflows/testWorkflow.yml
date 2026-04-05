@@ -38,7 +38,7 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-          gh release --help
+          gh release upload --help
 
 
       - name: 'package release'
