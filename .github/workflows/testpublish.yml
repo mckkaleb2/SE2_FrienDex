@@ -39,6 +39,7 @@ jobs:
               with:
                 repo_token: ${{ secrets.GITHUB_TOKEN }}
                 file: ./**/*-Signed.apk
-                tag: ${{ github.ref }}
+                tag: ${{ github.ref }}-test
+                target-commit: ${{ github.ref }}
                 overwrite: true
                 body: "This is my release text"
