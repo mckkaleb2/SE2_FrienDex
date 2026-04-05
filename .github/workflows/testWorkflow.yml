@@ -44,7 +44,8 @@ jobs:
       - name: 'package release'
         run: |
             cd ${{ github.workspace }}
-            echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
+            echo 'test line' > testReleaseText${{ github.run_number }}.txt
+            echo 'test line' > testReleaseRunAttempt${{ github.run_attempt }}.txt
             echo 'test line' > testReleaseRunNumber${{ github.run_number }}.txt
             echo 'test line' > testReleaseRunID${{ github.run_id }}.txt
             dir
