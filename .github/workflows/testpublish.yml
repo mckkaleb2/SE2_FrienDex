@@ -5,8 +5,8 @@ on:
     pull_request:
         branches: ["workflow-building"]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
 
 # Make sure the GITHUB_TOKEN has permission to upload to our releases
 permissions:
