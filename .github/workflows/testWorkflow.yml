@@ -38,6 +38,7 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+          gh release --help
 
 
       - name: 'package release'
@@ -46,16 +47,6 @@ jobs:
             echo 'test line' > testReleaseText${{ github.run_attempt }}.txt
             gh release upload ${{ github.event.release.tag_name }} testReleaseText${{ github.run_attempt }}.txt
         env:
-            GITHUB_TOKEN: ${{ github.TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
 
-
-      - name: Upload files to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./**/testReleaseText${{ github.run_attempt }}.txt
-          tag: textfile-release-test
-          target_commit: ${{ github.ref }}
-          overwrite: true
-          body: "This is my release text"
