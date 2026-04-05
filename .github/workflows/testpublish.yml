@@ -5,8 +5,13 @@ on:
     pull_request:
         branches: ["workflow-building"]
 
-        # Allows you to run this workflow manually from the Actions tab
-    workflow_dispatch:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Make sure the GITHUB_TOKEN has permission to upload to our releases
+permissions:
+  contents: write
+
 jobs:
     build-android:
         runs-on: windows-latest
@@ -17,6 +22,11 @@ jobs:
               with:
                 dotnet-version: '10.0.x'
             
+            - name: Run a one-line script
+              run: gh release upload --help
+
+
+
             - name: Install MAUI workload
               run: dotnet workload install maui
 
@@ -34,12 +44,13 @@ jobs:
             - name: Run a one-line script
               run: echo Hello, world!
 
-            - name: Upload binaries to release
-              uses: svenstaro/upload-release-action@v2
-              with:
-                repo_token: ${{ secrets.GITHUB_TOKEN }}
-                file: ./**/*-Signed.apk
-                tag: ${{ github.ref }}-test
-                target_commit: ${{ github.ref }}
-                overwrite: true
-                body: "This is my release text"
+            # - name: Upload binaries to release
+            #   uses: svenstaro/upload-release-action@v2
+            #   with:
+            #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+            #     file: ./**/*-Signed.apk
+            #     tag: ${{ github.ref }}-test
+            #     target_commit: ${{ github.ref }}
+            #     overwrite: true
+            #     body: "This is my release text"
+
