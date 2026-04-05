@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 env:
-    APP_NAME: com.companyname.FrienDex
-    RELEASE_PATH: .\FrienDex\bin\Release\net10.0-android\
+    APP_NAME: com.companyname.friendex
+    RELEASE_PATH: FrienDex\bin\Release\net10.0-android\
     APP_SUFFIX: -Signed.apk
 
 jobs:
