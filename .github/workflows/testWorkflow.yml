@@ -34,3 +34,17 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+      - name: Create a dummy text file
+        run:
+          echo 'test line' > testReleaseText.txt
+
+      - name: Upload files to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./**/testReleaseText.txt
+          tag: textfile-release-test
+          target_commit: ${{ github.ref }}
+          overwrite: true
+          body: "This is my release text"
