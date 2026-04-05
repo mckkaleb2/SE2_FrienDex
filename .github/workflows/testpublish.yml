@@ -14,7 +14,7 @@ permissions:
 
 env:
     APP_NAME: com.companyname.friendex
-    RELEASE_PATH: FrienDex\bin\Release\net10.0-android\
+    RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
     APP_SUFFIX: -Signed.apk
 
 jobs:
