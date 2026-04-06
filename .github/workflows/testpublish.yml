@@ -25,6 +25,7 @@ env:
     APP_SUFFIX: -Signed.apk
 
 jobs:
+    #region Versioning
     #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
     # DISCLAIMER: Created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
     version:
@@ -186,13 +187,13 @@ jobs:
             echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
             echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
+    #endregion Versioning
 
 
 
 
 
-
-
+    #region Change-Filter
     # JOB to run change detection
     changes:
       runs-on: windows-latest
@@ -264,10 +265,10 @@ jobs:
     #     - name: 'docfiles changed'
     #       run: |
     #         echo 'docfiles have changed'
+    #endregion Change-Filter
 
 
-
-
+    #region Build-Android
     # JOB to build and package an APK and publish to Releases
     build-android:
         # needs: changes
@@ -298,6 +299,11 @@ jobs:
             - name: Read major into env
               shell: bash
               run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
+
+            - name: Run a one-line script to check major
+              run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
+            - name: Run a one-line script to check version
+              run: echo "App Version - ${{ env.APP_VERSION }}"
 
             - name: Setup .NET
               uses: actions/setup-dotnet@v5
@@ -338,5 +344,7 @@ jobs:
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
+    #endregion Build-Android
+
 
 
