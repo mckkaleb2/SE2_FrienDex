@@ -9,14 +9,43 @@
         <StackLayout Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center">
             <Image Source="Resources/Images/title.svg"
                    WidthRequest="450"
+                   ZIndex="1"
            HorizontalOptions="Center"/>
+            <Label  Text="FrienDex" ZIndex="-2" FontSize="24"
+                        FontAttributes="Bold" HorizontalOptions="Center" >
+                <Label.Opacity>
+                    <OnPlatform x:TypeArguments="x:Double" default="0.5">
+                        <On Platform="Android" Value="0.0" />
+                        <On Platform="WinUI" Value="1.0" />
+                    </OnPlatform>
+                </Label.Opacity>
+            </Label>
         </StackLayout>
 
         <StackLayout Grid.ColumnSpan="2" Grid.Row="1">
             <!-- Rolodex Button -->
             <StackLayout VerticalOptions="Start" HorizontalOptions="Center">
-                <Image Source="Resources/Images/rolodex_button.svg" 
-                       MaximumWidthRequest="360" />
+                <Label  Text="Rolodex" ZIndex="-2" FontSize="24"
+                        FontAttributes="Bold" HorizontalOptions="Center" >
+                    <Label.Opacity>
+                        <OnPlatform x:TypeArguments="x:Double" default="0.5">
+                            <On Platform="Android" Value="0.0" />
+                            <On Platform="WinUI" Value="1.0" />
+                        </OnPlatform>
+                    </Label.Opacity>
+                </Label>
+
+                    <!--<Image ZIndex="1" Source="Resources/Images/rolodex_button.svg"-->
+                <Image ZIndex="1"
+                       MaximumWidthRequest="360" >
+                    <Image.Source>
+                        <OnPlatform x:TypeArguments="ImageSource">
+                            <On Platform="Android" Value="Resources/Images/rolodex_button.svg" />
+                            <On Platform="WinUI" Value="Resources/Images/rolodex_button.png" />
+                        </OnPlatform>
+                    </Image.Source>
+                </Image>
+
                 <StackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RolodexButtonClicked" />
                 </StackLayout.GestureRecognizers>
@@ -24,6 +53,15 @@
 
             <!-- Rooms Tab Button -->
             <StackLayout Padding="8" VerticalOptions="Start" HorizontalOptions="Center">
+                <Label  Text="Rooms" ZIndex="-2" FontSize="24"
+                        FontAttributes="Bold" HorizontalOptions="Center" >
+                    <Label.Opacity>
+                        <OnPlatform x:TypeArguments="x:Double" default="0.5">
+                            <On Platform="Android" Value="0.0" />
+                            <On Platform="WinUI" Value="1.0" />
+                        </OnPlatform>
+                    </Label.Opacity>
+                </Label>
                 <Image Source="Resources/Images/room_button.svg" 
                        MaximumWidthRequest="350" />
                 <StackLayout.GestureRecognizers>
