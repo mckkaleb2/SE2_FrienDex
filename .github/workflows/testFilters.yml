@@ -1,0 +1,80 @@
+name: 'Filter by changes - MAUI CI/CD'
+on:
+    push:
+        branches: ["workflow-building"]
+    pull_request:
+        branches: ["workflow-building"]
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+# Make sure the GITHUB_TOKEN has permission to upload to our releases
+permissions:
+  contents: write
+
+env:
+    APP_NAME: com.companyname.friendex
+    RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
+    APP_SUFFIX: -Signed.apk
+
+jobs:
+    #JOB to run change detection
+    changes:
+        runs-on: windows-latest
+        # Required permissions
+        permissions:
+          pull-requests: read
+        # Set job outputs to values from filter step
+        outputs:
+          gitfiles: ${{ steps.filter.outputs.gitfiles }}
+          projectfiles: ${{ steps.filter.outputs.projectfiles }}
+          docs: ${{ steps.filter.outputs.docs }}
+        steps:
+          # For pull requests it's not necessary to checkout the code
+          - uses: actions/checkout@v6
+          - uses: dorny/paths-filter@v4
+            id: filter
+            with:
+              filters: |
+                gitfiles:
+                  - '.github/workflows/**'
+                  - '.gitignore'
+                projectfiles:
+                  - 'FrienDex/**'
+                  - 'FrienDex.slnx'
+                docs:
+                  - '.docs/**'
+
+    # JOB to build and test gitfiles
+    gitFilesDetection:
+      needs: changes
+      if: ${{ needs.changes.outputs.gitfiles == 'true' }}
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: 'gitfiles changed'
+          run: |
+            echo 'gitfiles have changed'
+
+    # JOB to build and test gitfiles
+    projectFilesDetection:
+      needs: changes
+      if: ${{ needs.changes.outputs.projectfiles == 'true' }}
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: 'projectfiles changed'
+          run: |
+            echo 'projectfiles have changed'
+
+    # JOB to build and test gitfiles
+    docFilesDetection:
+      needs: changes
+      if: ${{ needs.changes.outputs.docs == 'true' }}
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: 'docfiles changed'
+          run: |
+            echo 'docfiles have changed'
+

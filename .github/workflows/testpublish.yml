@@ -1,4 +1,4 @@
-name: MAUI CI/CD
+name: 'Build, Publish, Release - MAUI CI/CD'
 on:
     push:
         branches: ["workflow-building"]
@@ -22,20 +22,24 @@ jobs:
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v6
+
             - name: Setup .NET
               uses: actions/setup-dotnet@v5
               with:
                 dotnet-version: '10.0.x'
 
-            # - name: Run a one-line script
-            #   run: gh release upload --help
-
+            # TODO: Add a paths changed filter here
+            # Relevant Files/Paths to monitor for changes:
+                # \.github\workflows\*
+                # \FrienDex\*
+                # .gitignore
+                # FrienDex.slnx
 
 
             - name: Install MAUI workload
               run: dotnet workload install maui
 
-            - name: Build
+            - name: Build and Publish APK
               run:
                   dotnet publish
                   -f net10.0-android
@@ -47,19 +51,6 @@ jobs:
             - name: List build output
               run: ls -R ./**/*-Signed.apk
 
-
-            - name: Run a one-line script
-              run: echo Hello, world!
-
-            # - name: Upload binaries to release
-            #   uses: svenstaro/upload-release-action@v2
-            #   with:
-            #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-            #     file: ./**/*-Signed.apk
-            #     tag: ${{ github.ref }}-test
-            #     target_commit: ${{ github.ref }}
-            #     overwrite: true
-            #     body: "This is my release text"
 
             - name: 'package release'
               run: |
