@@ -2,8 +2,15 @@ name: 'Build, Publish, Release - MAUI CI/CD'
 on:
     push:
         #branches: ["workflow-building"]
+        branches:
+          - master
+          - '**'  # All feature branches
+
     pull_request:
         #branches: ["workflow-building"]
+        branches:
+          - master
+          - '**'  # All feature branches
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -18,6 +25,157 @@ env:
     APP_SUFFIX: -Signed.apk
 
 jobs:
+    #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
+    # DISCLAIMER: Created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
+    version:
+      name: Compute & Apply Version
+      runs-on: ubuntu-latest
+
+      permissions:
+        contents: write  # Needed to push tags
+
+      steps:
+        # ── 1. Checkout with full history so git rev-list works correctly ──────
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0   # Full clone – required for tag/commit counting
+            fetch-tags: true
+
+        # ── 2. Compute the version string ──────────────────────────────────────
+        - name: Compute version
+          id: version
+          run: |
+            set -euo pipefail
+
+            BRANCH="${GITHUB_REF_NAME}"
+            SHA="${GITHUB_SHA}"
+            SHORT_SHA="${SHA:0:7}"
+
+            # ── Find the latest minor tag (format: X.Y) ───────────────────────
+            # Tags are expected to follow semver major.minor (e.g. 1.3, 2.0)
+            LATEST_MINOR_TAG=$(git tag --list '[0-9]*.[0-9]*' \
+              | grep -E '^[0-9]+\.[0-9]+$' \
+              | sort -t. -k1,1n -k2,2n \
+              | tail -1 || true)
+
+            if [[ -z "$LATEST_MINOR_TAG" ]]; then
+              echo "No existing minor tag found. Defaulting to 0.1 base."
+              LATEST_MINOR_TAG="0.1"
+              MAJOR=0
+              MINOR=1
+            else
+              MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
+              MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
+            fi
+
+            # ── Count commits since the latest minor tag ───────────────────────
+            # Uses the ancestry-path to count only commits reachable from HEAD
+            # that are NOT reachable from the tag, following the linear path.
+            if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
+              COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
+                --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
+            else
+              # Tag doesn't physically exist yet (first run bootstrap)
+              COMMITS_SINCE=$(git rev-list HEAD --count)
+            fi
+
+            # ── Build the version string depending on branch ───────────────────
+            if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
+              # master: every merged PR bumps the minor version
+              NEW_MINOR=$(( MINOR + 1 ))
+              VERSION="${MAJOR}.${NEW_MINOR}"
+              IS_RELEASE=true
+            else
+              # Feature branch: sanitise the branch name (replace / and spaces)
+              SAFE_BRANCH=$(echo "$BRANCH" \
+                | tr '/' '-' \
+                | tr ' ' '-' \
+                | sed 's/[^a-zA-Z0-9._-]/-/g' \
+                | sed 's/--*/-/g' \
+                | sed 's/^-//;s/-$//')
+
+              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
+              IS_RELEASE=false
+            fi
+
+            echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
+            echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
+            echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
+
+            echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
+            echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
+
+            echo "──────────────────────────────────────────"
+            echo "  Branch         : ${BRANCH}"
+            echo "  Base tag       : ${LATEST_MINOR_TAG}"
+            echo "  Commits since  : ${COMMITS_SINCE}"
+            echo "  Computed ver   : ${VERSION}"
+            echo "  Is release     : ${IS_RELEASE}"
+            echo "──────────────────────────────────────────"
+
+        # ── 3. Write the version to a file (consumable by your build tooling) ──
+        - name: Write VERSION file
+          run: echo "$VERSION" > VERSION
+
+        - name: Upload VERSION artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: version-file
+            path: VERSION
+
+        # ── 4. Tag the commit on master only ──────────────────────────────────
+        - name: Create and push git tag (master only)
+          if: env.IS_RELEASE == 'true'
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Guard against tagging the same version twice (idempotent)
+            if git rev-parse "$VERSION" >/dev/null 2>&1; then
+              echo "Tag ${VERSION} already exists – skipping."
+            else
+              git tag "$VERSION"
+              git push origin "$VERSION"
+              echo "Pushed tag: ${VERSION}"
+            fi
+
+        # ── 5. Create a GitHub Release on master ──────────────────────────────
+        - name: Create GitHub Release (master only)
+          if: env.IS_RELEASE == 'true'
+          uses: softprops/action-gh-release@v2
+          with:
+            tag_name: ${{ env.VERSION }}
+            name: "Release ${{ env.VERSION }}"
+            body: |
+              ## Release ${{ env.VERSION }}
+
+              **Previous base version:** `${{ env.LATEST_MINOR_TAG }}`
+              **Commit:** `${{ github.sha }}`
+              **Triggered by:** ${{ github.actor }}
+            draft: false
+            prerelease: false
+
+        # ── 6. Summary ────────────────────────────────────────────────────────
+        - name: Write job summary
+          run: |
+            echo "## 🏷️ Version: \`${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo ""                               >> "$GITHUB_STEP_SUMMARY"
+            echo "| Field | Value |"              >> "$GITHUB_STEP_SUMMARY"
+            echo "|-------|-------|"              >> "$GITHUB_STEP_SUMMARY"
+            echo "| Branch | \`${GITHUB_REF_NAME}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
+            echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
+
+
+
+
+
+
+
     # JOB to run change detection
     changes:
       runs-on: windows-latest
@@ -97,9 +255,23 @@ jobs:
     build-android:
         # needs: changes
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
+        # Declare dependency on the versioning job so its artifact is available
+        needs: version
         runs-on: windows-latest
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v4
+
+
+            - name: Download VERSION artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: VERSION #version-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
+
+
+            - name: Read version into env
+              shell: bash
+              run: echo "APP_VERSION=$(cat ./artifacts/VERSION)" >> "$GITHUB_ENV"
 
             - name: Setup .NET
               uses: actions/setup-dotnet@v5
@@ -110,26 +282,33 @@ jobs:
               run: dotnet workload install maui
 
             - name: Build and Publish APK
-              run:
+              run: >-
                   dotnet publish
                   -f net10.0-android
                   -c Release
                   -p:AndroidPackageFormat=apk
-                  #-p:ApplicatonVersion=
-                  #-p:ApplicatonDisplayVersion=
+                  -p:ApplicationVersion=${{ env.APP_VERSION }}
+                  -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
 
             - name: List build output
               run: ls -R ./**/*-Signed.apk
 
-              # TODO SemVer modified for feature branches
 
             - name: 'package release'
+            #gh release create ${{ github.ref_name }}-release-v${{ github.run_number }} -p --target ${{ GitHub.ref }}
+            #gh release upload ${{ github.ref_name }}-release-v${{ github.run_number }} ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
               run: |
                 gh release list
                 echo ''
-                gh release create ${{ github.ref_name }}-release-v${{ github.run_number }} -p --target ${{ GitHub.ref }}
+                gh release create "$APP_VERSION" \
+                  --prerelease \
+                  --target "$GITHUB_REF" \
+                  --title "Release $APP_VERSION" \
+                  --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+
                 echo ''
-                gh release upload ${{ github.ref_name }}-release-v${{ github.run_number }} ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
+                gh release upload "$APP_VERSION" \
+                  "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
