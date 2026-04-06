@@ -1,0 +1,151 @@
+name: Release Versioning by Claude
+
+on:
+  push:
+    branches:
+      - master
+      - '**'  # All feature branches
+
+jobs:
+  version:
+    name: Compute & Apply Version
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # Needed to push tags
+
+    steps:
+      # ── 1. Checkout with full history so git rev-list works correctly ──────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Full clone – required for tag/commit counting
+          fetch-tags: true
+
+      # ── 2. Compute the version string ──────────────────────────────────────
+      - name: Compute version
+        id: version
+        run: |
+          set -euo pipefail
+
+          BRANCH="${GITHUB_REF_NAME}"
+          SHA="${GITHUB_SHA}"
+          SHORT_SHA="${SHA:0:7}"
+
+          # ── Find the latest minor tag (format: X.Y) ───────────────────────
+          # Tags are expected to follow semver major.minor (e.g. 1.3, 2.0)
+          LATEST_MINOR_TAG=$(git tag --list '[0-9]*.[0-9]*' \
+            | grep -E '^[0-9]+\.[0-9]+$' \
+            | sort -t. -k1,1n -k2,2n \
+            | tail -1 || true)
+
+          if [[ -z "$LATEST_MINOR_TAG" ]]; then
+            echo "No existing minor tag found. Defaulting to 0.1 base."
+            LATEST_MINOR_TAG="0.1"
+            MAJOR=0
+            MINOR=1
+          else
+            MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
+            MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
+          fi
+
+          # ── Count commits since the latest minor tag ───────────────────────
+          # Uses the ancestry-path to count only commits reachable from HEAD
+          # that are NOT reachable from the tag, following the linear path.
+          if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
+            COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
+              --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
+          else
+            # Tag doesn't physically exist yet (first run bootstrap)
+            COMMITS_SINCE=$(git rev-list HEAD --count)
+          fi
+
+          # ── Build the version string depending on branch ───────────────────
+          if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
+            # master: every merged PR bumps the minor version
+            NEW_MINOR=$(( MINOR + 1 ))
+            VERSION="${MAJOR}.${NEW_MINOR}"
+            IS_RELEASE=true
+          else
+            # Feature branch: sanitise the branch name (replace / and spaces)
+            SAFE_BRANCH=$(echo "$BRANCH" \
+              | tr '/' '-' \
+              | tr ' ' '-' \
+              | sed 's/[^a-zA-Z0-9._-]/-/g' \
+              | sed 's/--*/-/g' \
+              | sed 's/^-//;s/-$//')
+
+            VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
+            IS_RELEASE=false
+          fi
+
+          echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
+          echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
+          echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
+
+          echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
+          echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
+
+          echo "──────────────────────────────────────────"
+          echo "  Branch         : ${BRANCH}"
+          echo "  Base tag       : ${LATEST_MINOR_TAG}"
+          echo "  Commits since  : ${COMMITS_SINCE}"
+          echo "  Computed ver   : ${VERSION}"
+          echo "  Is release     : ${IS_RELEASE}"
+          echo "──────────────────────────────────────────"
+
+      # ── 3. Write the version to a file (consumable by your build tooling) ──
+      - name: Write VERSION file
+        run: echo "$VERSION" > VERSION
+
+      - name: Upload VERSION artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-file
+          path: VERSION
+
+      # ── 4. Tag the commit on master only ──────────────────────────────────
+      - name: Create and push git tag (master only)
+        if: env.IS_RELEASE == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Guard against tagging the same version twice (idempotent)
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag ${VERSION} already exists – skipping."
+          else
+            git tag "$VERSION"
+            git push origin "$VERSION"
+            echo "Pushed tag: ${VERSION}"
+          fi
+
+      # ── 5. Create a GitHub Release on master ──────────────────────────────
+      - name: Create GitHub Release (master only)
+        if: env.IS_RELEASE == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body: |
+            ## Release ${{ env.VERSION }}
+
+            **Previous base version:** `${{ env.LATEST_MINOR_TAG }}`
+            **Commit:** `${{ github.sha }}`
+            **Triggered by:** ${{ github.actor }}
+          draft: false
+          prerelease: false
+
+      # ── 6. Summary ────────────────────────────────────────────────────────
+      - name: Write job summary
+        run: |
+          echo "## 🏷️ Version: \`${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo ""                               >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |"              >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|"              >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${GITHUB_REF_NAME}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
+          echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
