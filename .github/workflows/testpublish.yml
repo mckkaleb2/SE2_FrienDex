@@ -106,14 +106,6 @@ jobs:
               with:
                 dotnet-version: '10.0.x'
 
-            # TODO: Add a paths changed filter here
-            # Relevant Files/Paths to monitor for changes:
-                # \.github\workflows\*
-                # \FrienDex\*
-                # .gitignore
-                # FrienDex.slnx
-
-
             - name: Install MAUI workload
               run: dotnet workload install maui
 
@@ -129,6 +121,7 @@ jobs:
             - name: List build output
               run: ls -R ./**/*-Signed.apk
 
+              # TODO SemVer modified for feature branches
 
             - name: 'package release'
               run: |
