@@ -265,7 +265,7 @@ jobs:
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
               with:
-                name: VERSION #version-file   # Must match the upload-artifact name in the versioning job
+                name: version-file   # Must match the upload-artifact name in the versioning job
                 path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
 
 
