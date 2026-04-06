@@ -47,56 +47,56 @@ jobs:
                 - 'docs/**'
 
     # JOB to build and test gitfiles
-    gitFilesDetection:
-      needs: changes
-      if: ${{ needs.changes.outputs.gitfiles == 'true' }}
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v6
-        - name: 'gitfiles changed'
-          run: |
-            echo 'gitfiles have changed'
+    # gitFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.gitfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'gitfiles changed'
+    #       run: |
+    #         echo 'gitfiles have changed'
 
     # JOB to build and test projectfiles
-    projectFilesDetection:
-      needs: changes
-      if: ${{ needs.changes.outputs.projectfiles == 'true' }}
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v6
-        - name: 'projectfiles changed'
-          run: |
-            echo 'projectfiles have changed'
+    # projectFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.projectfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'projectfiles changed'
+    #       run: |
+    #         echo 'projectfiles have changed'
 
     # JOB to build and test files that should trigger a build
-    multiDetection:
-      needs: changes
-      if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v6
-        - name: 'projectfiles or gitfiles changed'
-          run: |
-            echo 'projectfiles or gitfiles have changed'
+    # multiDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'projectfiles or gitfiles changed'
+    #       run: |
+    #         echo 'projectfiles or gitfiles have changed'
 
     # JOB to build and test gitfiles
-    docFilesDetection:
-      needs: changes
-      if: ${{ needs.changes.outputs.docs == 'true' }}
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v6
-        - name: 'docfiles changed'
-          run: |
-            echo 'docfiles have changed'
+    # docFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.docs == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'docfiles changed'
+    #       run: |
+    #         echo 'docfiles have changed'
 
 
 
 
-
+    # JOB to build and package an APK and publish to Releases
     build-android:
-        needs: changes
-        if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
+        # needs: changes
+        # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v6
