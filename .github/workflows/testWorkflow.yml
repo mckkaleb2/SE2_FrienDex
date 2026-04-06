@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: ENV variable tests
+name: 'ENV variable tests'
 
 # Controls when the workflow will run
 on:
@@ -50,8 +50,8 @@ jobs:
             echo 'test line' > testReleaseRunID${{ github.run_id }}.txt
             dir
             gh release list
-            gh release create ${{ github.ref_name }}-development-v${{ github.run_number }}
-            gh release upload ${{ github.ref_name }}-development-v${{ github.run_number }} testReleaseText${{ github.run_number }}.txt
+            # gh release create ${{ github.ref_name }}-development-v${{ github.run_number }}
+            # gh release upload ${{ github.ref_name }}-development-v${{ github.run_number }} testReleaseText${{ github.run_number }}.txt
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash

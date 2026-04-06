@@ -13,7 +13,7 @@ on:
           - '**'  # All feature branches
 
     # Allows you to run this workflow manually from the Actions tab
-    workflow_dispatch:
+    # workflow_dispatch:
 
 # Make sure the GITHUB_TOKEN has permission to upload to our releases
 permissions:
@@ -27,7 +27,7 @@ env:
 jobs:
     #region Versioning
     #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
-    # DISCLAIMER: Created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
+    # DISCLAIMER: Job created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
     version:
       name: Compute & Apply Version
       runs-on: ubuntu-latest
@@ -314,21 +314,19 @@ jobs:
               run: dotnet workload install maui
 
             - name: Build and Publish APK
-            # -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }}
               run: >-
-                  dotnet publish
-                  -f net10.0-android
-                  -c Release
-                  -p:AndroidPackageFormat=apk
-                  -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
-
+                dotnet publish
+                -f net10.0-android
+                -c Release
+                -p:AndroidPackageFormat=apk
+                -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
+            # -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
+              
             - name: List build output
               run: ls -R ./**/*-Signed.apk
 
 
             - name: 'package release'
-            #gh release create ${{ github.ref_name }}-release-v${{ github.run_number }} -p --target ${{ GitHub.ref }}
-            #gh release upload ${{ github.ref_name }}-release-v${{ github.run_number }} ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
               run: |
                 gh release list
                 echo ''

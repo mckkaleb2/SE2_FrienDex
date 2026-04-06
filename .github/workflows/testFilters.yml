@@ -1,9 +1,9 @@
-name: 'Filter by changes - MAUI CI/CD'
+name: 'WIP - Filter by changes - MAUI CI/CD'
 on:
-    push:
-        branches: ["workflow-building"]
-    pull_request:
-        branches: ["workflow-building"]
+    # push:
+    #     branches: ["workflow-building"]
+    # pull_request:
+    #     branches: ["workflow-building"]
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -61,6 +61,17 @@ jobs:
     projectFilesDetection:
       needs: changes
       if: ${{ needs.changes.outputs.projectfiles == 'true' }}
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: 'projectfiles changed'
+          run: |
+            echo 'projectfiles have changed'
+
+    # JOB to build and test projectfiles
+    multiDetection:
+      needs: changes
+      if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
       runs-on: windows-latest
       steps:
         - uses: actions/checkout@v6
