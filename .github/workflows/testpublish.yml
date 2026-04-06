@@ -68,6 +68,9 @@ jobs:
               MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
               MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
             fi
+            
+            echo "major version: $MAJOR"
+            echo "minor version: $MINOR"
 
             # ── Count commits since the latest minor tag ───────────────────────
             # Uses the ancestry-path to count only commits reachable from HEAD
@@ -104,7 +107,8 @@ jobs:
             echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
             echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
             
-            echo "MAJOR=${MAJOR}"         >> "$GITHUB_OUTPUT"
+            echo "MAJOR=${MAJOR}"         >> "$GITHUB_ENV"
+            echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
 
             echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
             echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
