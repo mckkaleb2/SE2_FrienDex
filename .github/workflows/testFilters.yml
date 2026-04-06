@@ -57,7 +57,7 @@ jobs:
           run: |
             echo 'gitfiles have changed'
 
-    # JOB to build and test gitfiles
+    # JOB to build and test projectfiles
     projectFilesDetection:
       needs: changes
       if: ${{ needs.changes.outputs.projectfiles == 'true' }}
