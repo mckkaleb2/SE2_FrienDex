@@ -99,9 +99,12 @@ jobs:
               IS_RELEASE=false
             fi
 
+            # ----------- export Bash Env Variables to GitHub Output variables ----
             echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
             echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
             echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
+            
+            echo "MAJOR=${MAJOR}"         >> "$GITHUB_OUTPUT"
 
             echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
             echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
@@ -112,17 +115,27 @@ jobs:
             echo "  Commits since  : ${COMMITS_SINCE}"
             echo "  Computed ver   : ${VERSION}"
             echo "  Is release     : ${IS_RELEASE}"
+            echo "  Major ver      : ${MAJOR}"
             echo "──────────────────────────────────────────"
 
         # ── 3. Write the version to a file (consumable by your build tooling) ──
         - name: Write VERSION file
           run: echo "$VERSION" > VERSION
-
+        
+        - name: Write MAJOR file
+          run: echo "$MAJOR" > MAJOR
+        
         - name: Upload VERSION artifact
           uses: actions/upload-artifact@v4
           with:
             name: version-file
             path: VERSION
+
+        - name: Upload MAJOR artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: major-file
+            path: MAJOR
 
         # ── 4. Tag the commit on master only ──────────────────────────────────
         - name: Create and push git tag (master only)
@@ -267,11 +280,20 @@ jobs:
               with:
                 name: version-file   # Must match the upload-artifact name in the versioning job
                 path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
-
-
+              
             - name: Read version into env
               shell: bash
               run: echo "APP_VERSION=$(cat ./artifacts/VERSION)" >> "$GITHUB_ENV"
+            
+            - name: Download MAJOR artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: major-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
+              
+            - name: Read major into env
+              shell: bash
+              run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
 
             - name: Setup .NET
               uses: actions/setup-dotnet@v5
@@ -287,7 +309,7 @@ jobs:
                   -f net10.0-android
                   -c Release
                   -p:AndroidPackageFormat=apk
-                  -p:ApplicationVersion=${{ env.APP_VERSION }}
+                  -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }}
                   -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
 
             - name: List build output
