@@ -321,7 +321,7 @@ jobs:
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
             # -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
-              
+
             - name: List build output
               run: ls -R ./**/*-Signed.apk
 
@@ -342,7 +342,114 @@ jobs:
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
+            
     #endregion Build-Android
 
+    #region Build-Android
+    # JOB to build and package an APK and publish to Releases
+    build-android:
+        # needs: changes
+        # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
+        # Declare dependency on the versioning job so its artifact is available
+        needs: version
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+
+            - name: Download VERSION artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: version-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
+              
+            - name: Read version into env
+              shell: bash
+              run: echo "APP_VERSION=$(cat ./artifacts/VERSION)" >> "$GITHUB_ENV"
+            
+            - name: Download MAJOR artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: major-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
+              
+            - name: Read major into env
+              shell: bash
+              run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
+
+            - name: Run a one-line script to check major
+              run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
+            - name: Run a one-line script to check version
+              run: echo "App Version - ${{ env.APP_VERSION }}"
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v5
+              with:
+                dotnet-version: '10.0.x'
+
+            - name: Install MAUI workload
+              run: dotnet workload install maui
+
+
+            - name: Build and Publish EXE
+              run: >-
+                
+                dotnet publish
+                -f net10.0-windows
+                -c Release
+                -p:WindowsPackageType=None
+                -p:SelfContained=true
+                -p:WindowsAppSDKSelfContained=true
+              # Source - https://stackoverflow.com/a/74418046
+              # Posted by DksDev
+              # Retrieved 2026-04-06, License - CC BY-SA 4.0
+
+
+            - name: List build output
+              run: ls -R ./**/*-Signed.apk
+
+
+            # - name: 'package release'
+            #   run: |
+            #     gh release list
+            #     echo ''
+            #     gh release create "$APP_VERSION" \
+            #       --prerelease \
+            #       --target "$GITHUB_REF" \
+            #       --title "Release $APP_VERSION" \
+            #       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+
+            #     echo ''
+            #     gh release upload "$APP_VERSION" \
+            #       "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+            #   env:
+            #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            #   shell: bash
+            
+
+            - name: 'package release'
+              run: |
+                gh release list
+                echo ''
+                
+                # Check if release already exists
+                if gh release view "$APP_VERSION" >/dev/null 2>&1; then
+                  echo "Release $APP_VERSION already exists, uploading artifact..."
+                else
+                  echo "Creating pre-release $APP_VERSION..."
+                  gh release create "$APP_VERSION" \
+                    --prerelease \
+                    --target "$GITHUB_SHA" \
+                    --title "Release $APP_VERSION" \
+                    --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                fi
+                
+                echo ''
+                gh release upload "$APP_VERSION" \
+                  "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
+    #endregion Build-Windows
 
 
