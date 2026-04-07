@@ -148,10 +148,10 @@ namespace FrienDex.Services
         //    }
         //}
 
-        public async Task<Person?> ReadAsync(int id)
-        {
-            return await _db.People.FirstOrDefaultAsync(p => p.Id == id);
-        }
+        //public async Task<Person?> ReadAsync(int id)
+        //{
+        //    return await _db.People.FirstOrDefaultAsync(p => p.Id == id);
+        //}
         public async Task UpdateAsync(int id, Person person)
         {
             await _dbLock.WaitAsync();
