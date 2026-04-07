@@ -42,6 +42,6 @@ public partial class EventBlockView : ContentView
     }
     public EventBlockView()
 	{
-		InitializeComponent();
+        InitializeComponent();
 	}
 }
