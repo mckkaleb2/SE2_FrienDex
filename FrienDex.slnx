@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="FrienDex/FrienDex.csproj" />
+  <Project Path="FrienDex/FrienDex.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="FrienDex_Test/FrienDex_Test.csproj" Id="2e9448d1-44b8-43ff-bd68-560ce3b31c17" />
 </Solution>
