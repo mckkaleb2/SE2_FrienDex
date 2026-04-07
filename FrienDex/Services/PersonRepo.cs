@@ -99,17 +99,22 @@ namespace FrienDex.Services
         }
 
 
-        public Task<Person?> ReadAsync(int id)
+        //public Task<Person?> ReadAsync(int id)
+        //{
+        //    var person = _db.People.FirstOrDefault(p => p.Id == id);
+        //    if (person == null)
+        //    {
+        //        return Task.FromResult<Person?>(null);
+        //    }
+        //    else
+        //    {
+        //        return Task.FromResult<Person?>(person);
+        //    }
+        //}
+
+        public async Task<Person?> ReadAsync(int id)
         {
-            var person = _db.People.FirstOrDefault(p => p.Id == id);
-            if (person == null)
-            {
-                return Task.FromResult<Person?>(null);
-            }
-            else
-            {
-                return Task.FromResult<Person?>(person);
-            }
+            return await _db.People.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public Task UpdateAsync(int id, Person person)
