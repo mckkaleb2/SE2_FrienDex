@@ -16,11 +16,13 @@
                     <StackLayout Padding="12" Spacing="8" Margin="0,0,0,12">
                         <Label FontSize="18" FontAttributes="Bold">
                             <Label.Text>
+                                <!--
                                 <MultiBinding Converter="{StaticResource BooleanObjectSelectorConverter}">
                                     <Binding Path="IsFavorite" />
                                     <Binding Path="Resources/Images/favempty.svg"/>
                                     <Binding Path="Resources/Images/favfilled.svg"/>
                                 </MultiBinding>
+                                -->
                                 <MultiBinding StringFormat="{} {0} - {1} {2}">
                                     <Binding Path="Id"/>
                                     <Binding Path="FirstName" />
