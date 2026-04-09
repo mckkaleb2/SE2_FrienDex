@@ -21,6 +21,7 @@ public partial class ViewRoomPage : ContentPage
         base.OnNavigatedTo(args);
 		if (RoomId != 0)
 		{
+			People.Clear();
 			_ = LoadRoomDetails();
 		}
 	}
@@ -45,5 +46,10 @@ public partial class ViewRoomPage : ContentPage
 	{
 		RoomNameLabel.Text = "Error loading room";
 		RoomDescriptionLabel.Text = "";
+    }
+
+    private async void OnAddButtonClicked(object sender, EventArgs e)
+    {
+		await Shell.Current.GoToAsync($"AddMemberRoomPage?RoomId={RoomId}");
     }
 }
