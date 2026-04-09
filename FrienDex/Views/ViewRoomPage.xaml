@@ -58,14 +58,23 @@
             </CollectionView>
 
             <Button 
-        Text="+ Add Member"
-        Clicked="OnAddButtonClicked"
-        CornerRadius="25"
-        Padding="20,10"
-        BackgroundColor="#FF6B6B"
-        TextColor="White"
-        FontAttributes="Bold"
-        FontSize="16" />
+                Text="+ Add Members"
+                Clicked="OnAddButtonClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                BackgroundColor="#FF6B6B"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="16" />
+            <Button 
+                Text="- Remove Members"
+                Clicked="OnRemoveButtonClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                BackgroundColor="DarkCyan"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="16" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

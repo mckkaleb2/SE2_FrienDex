@@ -113,6 +113,9 @@
 	  <MauiXaml Update="Views\EditBlockPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\RemoveMemberRoomPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\RolodexPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

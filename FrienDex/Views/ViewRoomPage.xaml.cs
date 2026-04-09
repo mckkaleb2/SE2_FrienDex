@@ -52,4 +52,8 @@ public partial class ViewRoomPage : ContentPage
     {
 		await Shell.Current.GoToAsync($"AddMemberRoomPage?RoomId={RoomId}");
     }
+	private async void OnRemoveButtonClicked(object sender, EventArgs e)
+	{
+		await Shell.Current.GoToAsync($"RemoveMemberRoomPage?RoomId={RoomId}");
+    }
 }
