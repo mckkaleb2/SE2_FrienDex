@@ -15,24 +15,47 @@ namespace FrienDex.Data
         public DbSet<Block> Blocks { get; set; }
 
         // _Path is nullable for testing purposes
-        private readonly string? _Path;
+        private string? _Path;
 
         // Constructor used for testing that allows a database for testing that does not rely upon Maui services.
         public DexContext(DbContextOptions<DexContext> options) : base(options)
         {
+            string logPrefix = "\n\n---------------- DexContext((DbContextOptions<DexContext> options) SYNC --- log ---------\n\n";
+            string logSuffix = "\n\n----- END ------ DexContext((DbContextOptions<DexContext> options) SYNC --- log ---------\n\n";
+            string linePrefix = "\n\t>\t-- ";
+
+            // missing a _Path declaration here. was causing some issues. Added to OnConfiguring, so if options aren't passed in from the Tests project, it should be able to adjust accordingly
+
+            System.Diagnostics.Debug.WriteLine(logPrefix);
+            System.Diagnostics.Debug.WriteLine(logSuffix);
         }
         public DexContext()
         {
+            string logPrefix = "\n\n---------------- DexContext() SYNC --- log ---------\n\n";
+            string logSuffix = "\n\n----- END ------ DexContext() SYNC --- log ---------\n\n";
+            string linePrefix = "\n\t>\t-- ";
+
+            System.Diagnostics.Debug.WriteLine(logPrefix);
+
             _Path = Path.Combine(FileSystem.AppDataDirectory, "dex.db");
+            System.Diagnostics.Debug.WriteLine(logSuffix);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             System.Diagnostics.Debug.WriteLine("\n\t\tSETTING A NEW ONCONFIGURING\n\n");
-            
+
+
+
             // If statement used for testing purposes.
             // Allows for alternate options when testing, but doesn't affect normal operations.
-            if(!optionsBuilder.IsConfigured)
+            // Only configure the file path if options weren't passed to the constructor
+            if (!optionsBuilder.IsConfigured)
             {
+
+                // Standard MAUI local path - added to account for No People table found error
+                _Path = Path.Combine(FileSystem.AppDataDirectory, "dex.db");
+
+
                 optionsBuilder
                     .UseSqlite($"Filename={_Path}")
                 // TODO: Create a proper logger that we can use for LogTo()
@@ -54,8 +77,15 @@ namespace FrienDex.Data
                         DexEntry dexLoader = new DexEntry { Id = 1, PersonId = 1, Person = personLoader };
                         personLoader.DexEntry = dexLoader;
 
+
+
                         #region seedPeopleSync
-                        var testPerson1 = context.Set<Person>().FirstOrDefault(p => p.Id == 1);
+                        Person? testPerson1 = null;
+                        try { context.Set<Person>().FirstOrDefault(p => p.Id == 1); }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Write($"{linePrefix}\tCAUGHT EXCEPTION:\t{e.Message}\n\n");
+                        }
                         if (testPerson1 == null)
                         {
                             //context.Set<Person>().Add(new Person { Id = 1, FirstName = "Alice" });
@@ -328,5 +358,6 @@ namespace FrienDex.Data
                 .HasValue<RelationshipBlock>(BlockType.RelationshipBlock)
                 .HasValue<ContactBlock>(BlockType.ContactBlock);
         }
+
     }
 }
