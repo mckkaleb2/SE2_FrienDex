@@ -131,7 +131,8 @@
                     <Picker 
                         x:Name="RelatedPersonEditPicker"
                         Title="Select a person..."
-                        ItemsSource="{Binding People}" />
+                        ItemsSource="{Binding People}"
+						ItemDisplayBinding="{Binding FullName}"/>
                 </VerticalStackLayout>
 
             </VerticalStackLayout>

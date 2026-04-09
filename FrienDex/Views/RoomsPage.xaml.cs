@@ -36,6 +36,21 @@ public class RoomsPageViewModel : INotifyPropertyChanged
         }
     }
 
+    private Room selectedRoom;
+    public Room SelectedRoom
+    {
+        get => selectedRoom;
+        set
+        {
+            if (selectedRoom != value)
+            {
+                selectedRoom = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+
     public ICommand AddRoomCommand { get; }
     public ICommand RoomSelectedCommand { get; }
 
@@ -74,16 +89,13 @@ public class RoomsPageViewModel : INotifyPropertyChanged
         }
     }
 
-    private void OnRoomSelected(Room room)
+    private async void OnRoomSelected(Room room)
     {
-        if (room != null)
-        {
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                await _page.DisplayAlertAsync("Room Selected", $"Selected: {room.Name}", "OK");
-            });
-        }
+        if (room == null) return;
+
+        await Shell.Current.GoToAsync($"{nameof(ViewRoomPage)}?RoomId={room.Id}");
     }
+
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
