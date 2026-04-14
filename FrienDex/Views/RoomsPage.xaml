@@ -1,37 +1,47 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FrienDex.RoomsPage"
-             Title="Rooms">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="FrienDex.RoomsPage"
+    Title="Rooms">
+
     <Grid RowDefinitions="*,Auto" Padding="16">
-        
-        <!-- Scrollable Rooms List -->
-        <CollectionView Grid.Row="0"
-                        ItemsSource="{Binding Rooms}"
-                        SelectionMode="Single"
-                        SelectionChangedCommand="{Binding RoomSelectedCommand}">
+
+        <!-- Rooms List -->
+        <CollectionView
+            ItemsSource="{Binding Rooms}"
+            SelectionMode="Single"
+            SelectionChangedCommand="{Binding RoomSelectedCommand}"
+            SelectionChangedCommandParameter="{Binding SelectedItem, Source={RelativeSource Self}}">
+
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="12" Spacing="8" Margin="0,0,0,12">
-                        <Label Text="{Binding Name}" 
-                               FontSize="18" 
-                               FontAttributes="Bold" />
-                        <Label Text="{Binding Description}" 
-                               FontSize="14" 
-                               Opacity="0.7" />
-                    </StackLayout>
+                    <Grid Padding="12" RowDefinitions="Auto,Auto">
+                        <Label 
+                            Text="{Binding Name}" 
+                            FontSize="18" 
+                            FontAttributes="Bold" />
+
+                        <Label 
+                            Grid.Row="1"
+                            Text="{Binding Description}" 
+                            FontSize="14" 
+                            Opacity="0.7" />
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
+
         </CollectionView>
-        
-        <!-- Fixed Add Room Button -->
-        <Button Grid.Row="1"
-                Text="Add Room"
-                Command="{Binding AddRoomCommand}"
-                Padding="12,16"
-                CornerRadius="8"
-                FontSize="16"
-                FontAttributes="Bold" />
-        
+
+        <!-- Add Room Button -->
+        <Button
+            Grid.Row="1"
+            Text="Add Room"
+            Command="{Binding AddRoomCommand}"
+            Padding="12,16"
+            CornerRadius="8"
+            FontSize="16"
+            FontAttributes="Bold" />
+
     </Grid>
 </ContentPage>

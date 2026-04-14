@@ -8,7 +8,7 @@
         <!-- Content Area -->
         <StackLayout Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center">
             <Image Source="Resources/Images/title.svg"
-                   WidthRequest="450"
+                   WidthRequest="400"
                    ZIndex="1"
            HorizontalOptions="Center"/>
             <Label  Text="FrienDex" ZIndex="-2" FontSize="24"

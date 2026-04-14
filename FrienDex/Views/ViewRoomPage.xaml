@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FrienDex.Views.ViewRoomPage"
+             Title="Room Details">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Room Name -->
+            <Label
+                x:Name="RoomNameLabel"
+                Text="Loading..."
+                FontSize="24"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <!-- Room Description -->
+            <Label
+                x:Name="RoomDescriptionLabel"
+                Text=""
+                FontSize="16"
+                LineBreakMode="WordWrap" />
+
+            <!-- People Header -->
+            <Label
+                Text="People in this Room"
+                FontSize="20"
+                FontAttributes="Bold"
+                Margin="0,20,0,0" />
+
+            <!-- People List -->
+            <CollectionView
+                ItemsSource="{Binding People}"
+                SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+
+                        <Border
+                            StrokeThickness="1"
+                            Padding="12"
+                            Margin="0,6"
+                            StrokeShape="RoundRectangle 8">
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label
+                                    Text="{Binding FullName}"
+                                    FontSize="18"
+                                    FontAttributes="Bold" />
+                            </VerticalStackLayout>
+
+                        </Border>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+            <Button 
+                Text="+ Add Members"
+                Clicked="OnAddButtonClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                FontAttributes="Bold"
+                FontSize="16" />
+            <Button 
+                Text="- Remove Members"
+                Clicked="OnRemoveButtonClicked"
+                CornerRadius="25"
+                Padding="20,10"
+                FontAttributes="Bold"
+                FontSize="16" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

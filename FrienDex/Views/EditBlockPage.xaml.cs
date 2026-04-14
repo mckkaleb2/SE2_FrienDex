@@ -208,7 +208,10 @@ public partial class EditBlockPage : ContentPage
                     }
                     relationshipBlock.RelationshipName = RelationshipNameEditEntry.Text;
                     relationshipBlock.RelationshipDescription = RelationshipDescriptionEditEditor.Text;
-                    relationshipBlock.RelatedPerson = _people[RelatedPersonEditPicker.SelectedIndex];
+                    
+                    // Re-fetch the person to ensure it's tracked by the DbContext
+                    var selectedPerson = _people[RelatedPersonEditPicker.SelectedIndex];
+                    relationshipBlock.RelatedPerson = await _personRepo.ReadAsync(selectedPerson.Id);
                     break;
             }
 
