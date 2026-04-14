@@ -298,34 +298,39 @@ jobs:
               # We use jq to filter client-side rather than relying on GitHub's
               # search index, which can lag behind freshly created releases.
 
+
               RELEASE_COUNT=0
               PRERELEASE_COUNT=0
               PAGE=1
               PER_PAGE=100
 
               while true; do
+                # Fetch the raw array for this page — no --jq here so we can
+                # both filter AND count the page length in one shot below.
                 RESPONSE=$(gh api \
                   --method GET \
                   "repos/${OWNER}/${REPO}/releases" \
                   --field per_page="${PER_PAGE}" \
-                  --field page="${PAGE}" \
-                  --jq ".[] | {prerelease, body}")
+                  --field page="${PAGE}")
 
-                # Break out of loop when a page comes back empty
-                if [[ -z "$RESPONSE" ]]; then
+                # Break when the page is an empty array
+                PAGE_TOTAL=$(echo "$RESPONSE" | jq 'length')
+                if (( PAGE_TOTAL == 0 )); then
                   break
                 fi
 
-                # Count releases whose body starts with our branch marker.
-                # --slurpfile is avoided intentionally; we stream line-delimited
-                # JSON objects through a second jq pass for memory efficiency.
+                # ── Fix: coerce null body to "" before calling test() ─────
+                # Releases created without notes have body: null, which causes
+                # jq's test() to throw "null cannot be matched". The // ""
+                # operator substitutes an empty string for any null value,
+                # making the regex match safely return false instead of erroring.
                 MATCHED_RELEASES=$(echo "$RESPONSE" | \
                   jq -r --arg branch "$BRANCH" \
-                  'select(.body | test("^Branch: " + $branch + " \\|")) |
+                  '.[] | select((.body // "") | test("^Branch: " + $branch + " \\|")) |
                   if .prerelease then "prerelease" else "release" end')
 
                 PAGE_RELEASES=$(echo "$MATCHED_RELEASES" \
-                  | grep -c "^release$"    || true)
+                  | grep -c "^release$" || true)
                 PAGE_PRERELEASES=$(echo "$MATCHED_RELEASES" \
                   | grep -c "^prerelease$" || true)
 
@@ -333,7 +338,6 @@ jobs:
                 PRERELEASE_COUNT=$(( PRERELEASE_COUNT + PAGE_PRERELEASES ))
 
                 # If fewer results than requested, we've hit the last page
-                PAGE_TOTAL=$(echo "$RESPONSE" | jq -s 'length')
                 if (( PAGE_TOTAL < PER_PAGE )); then
                   break
                 fi
