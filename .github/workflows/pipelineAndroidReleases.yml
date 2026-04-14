@@ -491,6 +491,15 @@ jobs:
     #endregion Change-Filter
 
 
+
+    #region check-code
+    # JOB to check the version code based on the output from count-branch-release
+    ## - AppVersionCode must be an int remaining under 10000
+    ## - if the TOTAL_COUNT is >=5000 , create a warning or github issue
+    ## - if the TOTAL_COUNT+1 is >=99,999 , throw an error
+    # TODO: implement check-code job into pipeline
+    #endregion check-code
+
     #region Build-Android
     # JOB to build and package an APK and publish to Releases
     build-android:
@@ -592,7 +601,11 @@ jobs:
             - name: Install MAUI workload
               run: dotnet workload install maui
 
-            #ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
+              
+              # TODO!!: modify the .csproj based on the version codes from earlier
+              ## [ ] - TOTAL_COUNT is likely the way to o here, since it's branch specific
+              ## [ ] - modify the app label if not a release on main to visually identify that it uses a different version 
+              # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
 
             - name: Build and Publish APK
               run: >-
@@ -627,22 +640,38 @@ jobs:
             - name: 'package release'
               run: |
                 gh release list
-                echo '\n\n'
+                echo "\n\n"
                 
-                echo '\nTarget: $GITHUB_SHA'
-                echo '\nTitle $APP_VERSION'
-
+                echo "\nTarget: $GITHUB_SHA"
+                echo "\nTitle $APP_VERSION"
+                echo "\nVersion Code for Branch: $TOTAL_COUNT"
+                
                 # Check if release already exists
                 if gh release view "$APP_VERSION" >/dev/null 2>&1; then
                   echo "Release $APP_VERSION already exists, uploading artifact..."
                 else
-                  echo "Creating pre-release $APP_VERSION..."
-                  gh release create "$APP_VERSION" \
-                    --prerelease \
-                    --target "$GITHUB_SHA" \
-                    --title "Release $APP_VERSION" \
-                    --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
-                fi
+
+                  if ($env:GITHUB_REF -in @('refs/heads/main', 'refs/heads/master'))
+                    # Write-Host "Running on main or master branch"
+                    echo "Creating Release $APP_VERSION..."
+                    gh release create "$APP_VERSION" \
+                      --target "$GITHUB_SHA" \
+                      --title "Release $APP_VERSION" \
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
+
+                  } else {
+                    # Write-Host "Running on other branch"
+                    echo "Creating pre-release $APP_VERSION..."
+                    gh release create "$APP_VERSION" \
+                      --prerelease \
+                      --target "$GITHUB_SHA" \
+                      --title "Release $APP_VERSION" \
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                  }
+                  fi
+
+                fi #end of check if release already exists
                 
                 echo '\n\n'
                 gh release upload "$APP_VERSION" \
