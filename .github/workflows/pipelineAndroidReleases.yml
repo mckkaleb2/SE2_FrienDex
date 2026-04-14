@@ -259,7 +259,144 @@ jobs:
     #endregion Versioning
 
 
+    #region count-releases
+    count-branch-releases:
+        name: Count Releases for Branch
+        runs-on: ubuntu-latest
+        # Run after versioning so any new release is already created before we count
+        needs: version
+        if: ${{ always() }}
 
+        permissions:
+          contents: read
+
+        outputs:
+          release_count:    ${{ steps.count.outputs.release_count }}
+          prerelease_count: ${{ steps.count.outputs.prerelease_count }}
+          total_count:      ${{ steps.count.outputs.total_count }}
+
+        steps:
+          - name: Count releases and pre-releases for this branch
+            id: count
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              BRANCH_NAME:  ${{ github.ref_name }}
+            run: |
+              set -euo pipefail
+
+              OWNER="${GITHUB_REPOSITORY_OWNER}"
+              REPO="${GITHUB_REPOSITORY#*/}"
+              BRANCH="${BRANCH_NAME}"
+
+              echo "Counting releases for branch: ${BRANCH}"
+              echo "Repository: ${OWNER}/${REPO}"
+
+              # ── Paginate through all releases via the GitHub REST API ─────────
+              # The search pattern matches the prefix written into every release
+              # body by the versioning job:
+              #   "Branch: <name> | Commit: <sha>"
+              # We use jq to filter client-side rather than relying on GitHub's
+              # search index, which can lag behind freshly created releases.
+
+              RELEASE_COUNT=0
+              PRERELEASE_COUNT=0
+              PAGE=1
+              PER_PAGE=100
+
+              while true; do
+                RESPONSE=$(gh api \
+                  --method GET \
+                  "repos/${OWNER}/${REPO}/releases" \
+                  --field per_page="${PER_PAGE}" \
+                  --field page="${PAGE}" \
+                  --jq ".[] | {prerelease, body}")
+
+                # Break out of loop when a page comes back empty
+                if [[ -z "$RESPONSE" ]]; then
+                  break
+                fi
+
+                # Count releases whose body starts with our branch marker.
+                # --slurpfile is avoided intentionally; we stream line-delimited
+                # JSON objects through a second jq pass for memory efficiency.
+                MATCHED_RELEASES=$(echo "$RESPONSE" | \
+                  jq -r --arg branch "$BRANCH" \
+                  'select(.body | test("^Branch: " + $branch + " \\|")) |
+                  if .prerelease then "prerelease" else "release" end')
+
+                PAGE_RELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^release$"    || true)
+                PAGE_PRERELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^prerelease$" || true)
+
+                RELEASE_COUNT=$(( RELEASE_COUNT + PAGE_RELEASES ))
+                PRERELEASE_COUNT=$(( PRERELEASE_COUNT + PAGE_PRERELEASES ))
+
+                # If fewer results than requested, we've hit the last page
+                PAGE_TOTAL=$(echo "$RESPONSE" | jq -s 'length')
+                if (( PAGE_TOTAL < PER_PAGE )); then
+                  break
+                fi
+
+                PAGE=$(( PAGE + 1 ))
+              done
+
+              TOTAL_COUNT=$(( RELEASE_COUNT + PRERELEASE_COUNT ))
+
+              echo "──────────────────────────────────────────"
+              echo "  Branch         : ${BRANCH}"
+              echo "  Releases       : ${RELEASE_COUNT}"
+              echo "  Pre-releases   : ${PRERELEASE_COUNT}"
+              echo "  Total          : ${TOTAL_COUNT}"
+              echo "──────────────────────────────────────────"
+
+              echo "release_count=${RELEASE_COUNT}"       >> "$GITHUB_OUTPUT"
+              echo "prerelease_count=${PRERELEASE_COUNT}" >> "$GITHUB_OUTPUT"
+              echo "total_count=${TOTAL_COUNT}"           >> "$GITHUB_OUTPUT"
+
+              echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
+              echo "RELEASE_COUNT=${RELEASE_COUNT}"       >> "$GITHUB_ENV"
+              echo "PRERELEASE_COUNT=${PRERELEASE_COUNT}" >> "$GITHUB_ENV"
+              echo "TOTAL_COUNT=${TOTAL_COUNT}"           >> "$GITHUB_ENV"
+
+          - name: Write job summary
+            run: |
+              echo "## 📦 Release History: \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+              echo ""                                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Type | Count |"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Releases     | \`${RELEASE_COUNT}\`     |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| Pre-releases | \`${PRERELEASE_COUNT}\`  |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| **Total**    | \`${TOTAL_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              
+          # ── Write the version to a file (consumable by your build tooling) ──
+          - name: Write RELEASE_COUNT file
+            run: echo "$RELEASE_COUNT" > RELEASE_COUNT
+          
+          - name: Upload RELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: release-count-file
+              path: RELEASE_COUNT
+
+          - name: Write PRERELEASE_COUNT file
+            run: echo "$PRERELEASE_COUNT" > PRERELEASE_COUNT
+
+          - name: Upload PRERELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: prerelease-count-file
+              path: PRERELEASE_COUNT
+
+          - name: Write TOTAL_COUNT file
+            run: echo "$TOTAL_COUNT" > TOTAL_COUNT
+
+          - name: Upload TOTAL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: total-count-file
+              path: TOTAL_COUNT
+    #endregion count-releases
 
 
     #region Change-Filter
@@ -368,6 +505,53 @@ jobs:
             - name: Read major into env
               shell: bash
               run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
+
+            - name: Download BRANCH artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: branch-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads BRANCH file to ./artifacts/BRANCH
+              
+            - name: Read branch into env
+              shell: bash
+              run: echo "BRANCH=$(cat ./artifacts/BRANCH)" >> "$GITHUB_ENV"
+            
+            - name: Download SAFE_BRANCH artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: safe-branch-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads SAFE_BRANCH file to ./artifacts/SAFE_BRANCH
+              
+            - name: Read safe_branch into env
+              shell: bash
+              run: echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)" >> "$GITHUB_ENV"
+            
+            - name: Download RELEASE_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: release-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads RELEASE_COUNT file to ./artifacts/RELEASE_COUNT
+            - name: Read release-count into env
+              shell: bash
+              run: echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download PRERELEASE_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: prerelease-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads PRERELEASE_COUNT file to ./artifacts/PRERELEASE_COUNT
+            - name: Read prerelease-count into env
+              shell: bash
+              run: echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download TOTAL_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: total-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads TOTAL_COUNT file to ./artifacts/TOTAL_COUNT
+            - name: Read total-count into env
+              shell: bash
+              run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
 
             - name: Run a one-line script to check major
               run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
