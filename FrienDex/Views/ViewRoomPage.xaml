@@ -62,8 +62,6 @@
                 Clicked="OnAddButtonClicked"
                 CornerRadius="25"
                 Padding="20,10"
-                BackgroundColor="#FF6B6B"
-                TextColor="White"
                 FontAttributes="Bold"
                 FontSize="16" />
             <Button 
@@ -71,8 +69,6 @@
                 Clicked="OnRemoveButtonClicked"
                 CornerRadius="25"
                 Padding="20,10"
-                BackgroundColor="DarkCyan"
-                TextColor="White"
                 FontAttributes="Bold"
                 FontSize="16" />
         </VerticalStackLayout>
