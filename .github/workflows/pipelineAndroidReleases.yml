@@ -681,7 +681,9 @@ jobs:
                   echo "Release $APP_VERSION already exists, uploading artifact..."
                 else
 
-                  if ($env:GITHUB_REF -in @('refs/heads/main', 'refs/heads/master'))
+                  echo "New release: $APP_VERSION ! Attempting to createa release..."
+                  echo "Is this on main or master branch?..."
+                  if ($GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master") {
                     # Write-Host "Running on main or master branch"
                     echo "Creating Release $APP_VERSION..."
                     gh release create "$APP_VERSION" \
