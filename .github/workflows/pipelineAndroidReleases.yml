@@ -303,6 +303,7 @@ jobs:
               PRERELEASE_COUNT=0
               PAGE=1
               PER_PAGE=100
+              PAGE_TOTAL=0
 
               while true; do
                 # Fetch the raw array for this page — no --jq here so we can
@@ -346,22 +347,26 @@ jobs:
               done
 
               TOTAL_COUNT=$(( RELEASE_COUNT + PRERELEASE_COUNT ))
+              ALL_COUNT=$(( PAGE_TOTAL ))
 
               echo "──────────────────────────────────────────"
               echo "  Branch         : ${BRANCH}"
               echo "  Releases       : ${RELEASE_COUNT}"
               echo "  Pre-releases   : ${PRERELEASE_COUNT}"
               echo "  Total          : ${TOTAL_COUNT}"
+              echo "  All            : ${ALL_COUNT}"
               echo "──────────────────────────────────────────"
 
               echo "release_count=${RELEASE_COUNT}"       >> "$GITHUB_OUTPUT"
               echo "prerelease_count=${PRERELEASE_COUNT}" >> "$GITHUB_OUTPUT"
               echo "total_count=${TOTAL_COUNT}"           >> "$GITHUB_OUTPUT"
+              echo "all_count=${ALL_COUNT}"           >> "$GITHUB_OUTPUT"
 
               echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
               echo "RELEASE_COUNT=${RELEASE_COUNT}"       >> "$GITHUB_ENV"
               echo "PRERELEASE_COUNT=${PRERELEASE_COUNT}" >> "$GITHUB_ENV"
               echo "TOTAL_COUNT=${TOTAL_COUNT}"           >> "$GITHUB_ENV"
+              echo "ALL_COUNT=${ALL_COUNT}"           >> "$GITHUB_ENV"
 
           - name: Write job summary
             run: |
@@ -400,6 +405,14 @@ jobs:
             with:
               name: total-count-file
               path: TOTAL_COUNT
+          - name: Write ALL_COUNT file
+            run: echo "$ALL_COUNT" > ALL_COUNT
+
+          - name: Upload ALL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: all-count-file
+              path: ALL_COUNT
     #endregion count-releases
 
 
@@ -556,6 +569,15 @@ jobs:
             - name: Read total-count into env
               shell: bash
               run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download ALL_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: all-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads ALL_COUNT file to ./artifacts/ALL_COUNT
+            - name: Read all-count into env
+              shell: bash
+              run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
 
             - name: Run a one-line script to check major
               run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
