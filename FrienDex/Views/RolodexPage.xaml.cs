@@ -26,7 +26,6 @@ public partial class RolodexPage : ContentPage
 
 		People.Clear();
         // Favorite Priority Queue
-        People.Add(new Person { FirstName = "Jonathan", LastName = "Motherius", IsFavorite = true });
         foreach (var person in people)
 		    {
             if (person.IsFavorite == true)
