@@ -348,23 +348,28 @@ jobs:
 
               TOTAL_COUNT=$(( RELEASE_COUNT + PRERELEASE_COUNT ))
               ALL_COUNT=$(( PAGE_TOTAL ))
+              TARGET_COUNT=$(( TOTAL_COUNT + 1 ))
+
 
               echo "──────────────────────────────────────────"
               echo "  Branch         : ${BRANCH}"
               echo "  Releases       : ${RELEASE_COUNT}"
               echo "  Pre-releases   : ${PRERELEASE_COUNT}"
               echo "  Total          : ${TOTAL_COUNT}"
+              echo "  Target         : ${TARGET_COUNT}"
               echo "  All            : ${ALL_COUNT}"
               echo "──────────────────────────────────────────"
 
               echo "release_count=${RELEASE_COUNT}"       >> "$GITHUB_OUTPUT"
               echo "prerelease_count=${PRERELEASE_COUNT}" >> "$GITHUB_OUTPUT"
               echo "total_count=${TOTAL_COUNT}"           >> "$GITHUB_OUTPUT"
+              echo "target_count=${TARGET_COUNT}"         >> "$GITHUB_OUTPUT"
               echo "all_count=${ALL_COUNT}"           >> "$GITHUB_OUTPUT"
 
               echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
               echo "RELEASE_COUNT=${RELEASE_COUNT}"       >> "$GITHUB_ENV"
               echo "PRERELEASE_COUNT=${PRERELEASE_COUNT}" >> "$GITHUB_ENV"
+              echo "TARGET_COUNT=${TARGET_COUNT}"           >> "$GITHUB_ENV"
               echo "TOTAL_COUNT=${TOTAL_COUNT}"           >> "$GITHUB_ENV"
               echo "ALL_COUNT=${ALL_COUNT}"           >> "$GITHUB_ENV"
 
@@ -376,7 +381,10 @@ jobs:
               echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
               echo "| Releases     | \`${RELEASE_COUNT}\`     |" >> "$GITHUB_STEP_SUMMARY"
               echo "| Pre-releases | \`${PRERELEASE_COUNT}\`  |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| All Releases | \`${ALL_COUNT}\`         |" >> "$GITHUB_STEP_SUMMARY"
               echo "| **Total**    | \`${TOTAL_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| **TARGET**   | \`${TARGET_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
               
           # ── Write the version to a file (consumable by your build tooling) ──
           - name: Write RELEASE_COUNT file
@@ -405,6 +413,16 @@ jobs:
             with:
               name: total-count-file
               path: TOTAL_COUNT
+
+          - name: Write TARGET_COUNT file
+            run: echo "$TARGET_COUNT" > TARGET_COUNT
+
+          - name: Upload TARGET_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: target-count-file
+              path: TARGET_COUNT
+
           - name: Write ALL_COUNT file
             run: echo "$ALL_COUNT" > ALL_COUNT
 
@@ -579,6 +597,15 @@ jobs:
               shell: bash
               run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
             
+            - name: Download TARGET_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: target-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads TARGET_COUNT file to ./artifacts/TARGET_COUNT
+            - name: Read target-count into env
+              shell: bash
+              run: echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)" >> "$GITHUB_ENV"
+            
             - name: Download ALL_COUNT artifact
               uses: actions/download-artifact@v4
               with:
@@ -606,15 +633,18 @@ jobs:
               ## [ ] - TOTAL_COUNT is likely the way to o here, since it's branch specific
               ## [ ] - modify the app label if not a release on main to visually identify that it uses a different version 
               # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
+            
 
+                
+            
             - name: Build and Publish APK
-              run: >-
+              run: >- # powershell
                 dotnet publish
                 -f net10.0-android
                 -c Release
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
-            # -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
+                -p:ApplicationVersion=${{ env.TARGET_COUNT }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
 
             - name: List build output
               run: ls -R ./**/*-Signed.apk
@@ -638,13 +668,13 @@ jobs:
             #   shell: bash
 
             - name: 'package release'
-              run: |
+              run: | # powershell
                 gh release list
                 echo "\n\n"
                 
                 echo "\nTarget: $GITHUB_SHA"
                 echo "\nTitle $APP_VERSION"
-                echo "\nVersion Code for Branch: $TOTAL_COUNT"
+                echo "\nVersion Code for Branch: $TARGET_COUNT"
                 
                 # Check if release already exists
                 if gh release view "$APP_VERSION" >/dev/null 2>&1; then
@@ -673,7 +703,9 @@ jobs:
 
                 fi #end of check if release already exists
                 
-                echo '\n\n'
+                # TODO: Add a check here to see if on main/master. If not, then append $SAFE_BRANCH but maybe concat'd. If filename is too long, then substitute an area with sha1 or something, figure it out.
+                echo "\n\n"
+                echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
                 gh release upload "$APP_VERSION" \
                   "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
               env:
