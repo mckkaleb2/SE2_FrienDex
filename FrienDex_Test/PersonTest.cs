@@ -234,7 +234,6 @@ namespace FrienDex_Test
             var exception = Assert.Throws<ArgumentOutOfRangeException>(() => resultList[testPerson1.Id]);
         }
 
-        // THis is a test comment.
         [Fact]
         public async Task TestUpdatePersonSuccess()
         {
