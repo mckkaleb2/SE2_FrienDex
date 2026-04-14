@@ -28,6 +28,42 @@ namespace FrienDex_Test
         }
 
 
+        // CREATE TESTS
+        /// <summary>
+        /// Tests the CreatePersonAsync operation.
+        /// Creates a new Person object, calls the CreatePerson operation,
+        /// tests if the object was created.
+        /// Should result in all test conditions being true.
+        /// </summary>
+        [Fact]
+        public async Task TestCreatePersonSuccess()
+        {
+            // ARRANGE
+            PersonRepo personRepo = new PersonRepo(_db, _logger);
+
+            // Creates a Person object for the test
+            Person testPerson = new Person
+            {
+                FirstName = "Rival",
+                LastName = "Blue",
+                IsFavorite = false
+            };
+
+            // ACT
+            // Calls the CreatePerson operation
+            await personRepo.CreateAsync(testPerson);
+
+            // Reads the database for the created Person object to see if it was successfully created
+            Person? result = await personRepo.ReadAsync(testPerson.Id);
+
+            // ASSERT
+            Assert.NotNull(result);
+            Assert.Equal("Rival", result.FirstName);
+            Assert.Equal("Blue", result.LastName);
+            Assert.False(result.IsFavorite);
+        }
+
+
         // READ TESTS
         /// <summary>
         /// Tests the ReadPersonAsync operation. 
@@ -59,7 +95,7 @@ namespace FrienDex_Test
             Assert.NotNull(result);
             Assert.Equal("Ash", result.FirstName);
             Assert.Equal("Ketcham", result.LastName);
-            Assert.Equal(true, result.IsFavorite);
+            Assert.True(result.IsFavorite);
         }
 
         /// <summary>
@@ -115,5 +151,89 @@ namespace FrienDex_Test
             // ASSERT
             Assert.Null(result);
         }
+
+        // READ ALL TESTS
+
+        /// <summary>
+        /// Tests the ReadAllAsync operation.
+        /// Creates a few Person objects, adds them to the database, 
+        /// then attempts to ReadAll.
+        /// </summary>
+        [Fact]
+        public async Task TestReadAllSuccess()
+        {
+            // ARRANGE
+            PersonRepo personRepo = new PersonRepo(_db, _logger);
+
+            Person testPerson1 = new Person
+            {
+                FirstName = "Trainer",
+                LastName = "Leaf",
+                IsFavorite = true
+            };
+
+            Person testPerson2 = new Person
+            {
+                FirstName = "Trainer",
+                LastName = "Yellow"
+            };
+
+            Person testPerson3 = new Person
+            {
+                FirstName = "Trainer",
+                LastName = "Green",
+                IsFavorite = false
+            };
+
+            await _db.People.AddAsync(testPerson1);
+            await _db.People.AddAsync(testPerson2);
+            await _db.People.AddAsync(testPerson3);
+            await _db.SaveChangesAsync();
+
+            // ACT
+            List<Person> resultList = await personRepo.ReadAllAsync();
+
+            // ASSERT
+            Assert.NotEmpty(resultList);
+            Assert.Equal("Trainer", resultList[(testPerson1.Id - 1)].FirstName);
+            Assert.Equal("Leaf", resultList[(testPerson1.Id - 1)].LastName);
+            Assert.True(resultList[(testPerson1.Id - 1)].IsFavorite);
+            Assert.Equal("Trainer", resultList[(testPerson2.Id - 1)].FirstName);
+            Assert.Equal("Yellow", resultList[(testPerson2.Id - 1)].LastName);
+            Assert.False(resultList[(testPerson2.Id - 1)].IsFavorite);
+            Assert.Equal("Trainer", resultList[(testPerson3.Id - 1)].FirstName);
+            Assert.Equal("Green", resultList[(testPerson3.Id - 1)].LastName);
+            Assert.False(resultList[(testPerson3.Id - 1)].IsFavorite);
+        }
+
+        /// <summary>
+        /// Tests for a case where the object reference is out of range.
+        /// Should result in an Exception.
+        /// </summary>
+        [Fact]
+        public async Task TestReadAllNotInRangeFailure()
+        {
+            // ARRANGE
+            PersonRepo personRepo = new PersonRepo(_db, _logger);
+
+            Person testPerson1 = new Person
+            {
+                FirstName = "Trainer",
+                LastName = "Leaf",
+                IsFavorite = true
+            };
+
+            await _db.People.AddAsync(testPerson1);
+            await _db.SaveChangesAsync();
+
+            // ACT
+            List<Person> resultList = await personRepo.ReadAllAsync();
+
+            // ASSERT
+            Assert.NotEmpty(resultList);
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => resultList[testPerson1.Id]);
+        }
+
+
     }
 }
