@@ -683,7 +683,7 @@ jobs:
 
                   echo "New release: $APP_VERSION ! Attempting to createa release..."
                   echo "Is this on main or master branch?..."
-                  if ($GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master") {
+                  if ($GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master") 
                     # Write-Host "Running on main or master branch"
                     echo "Creating Release $APP_VERSION..."
                     gh release create "$APP_VERSION" \
@@ -692,7 +692,7 @@ jobs:
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
                       # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
 
-                  } else {
+                  else
                     # Write-Host "Running on other branch"
                     echo "Creating pre-release $APP_VERSION..."
                     gh release create "$APP_VERSION" \
@@ -700,7 +700,7 @@ jobs:
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
-                  }
+                  
                   fi
 
                 fi #end of check if release already exists
