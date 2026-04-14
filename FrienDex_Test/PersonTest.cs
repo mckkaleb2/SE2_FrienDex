@@ -234,6 +234,36 @@ namespace FrienDex_Test
             var exception = Assert.Throws<ArgumentOutOfRangeException>(() => resultList[testPerson1.Id]);
         }
 
+        [Fact]
+        public async Task TestUpdatePersonSuccess()
+        {
+            // ARRANGE
+            PersonRepo personRepo = new PersonRepo(_db, _logger);
 
+            Person testPerson1 = new Person
+            {
+                FirstName = "Professor",
+                LastName = "Oak",
+                IsFavorite = true
+            };
+
+            await _db.People.AddAsync(testPerson1);
+            await _db.SaveChangesAsync();
+
+            Person newPerson = new Person
+            {
+                FirstName = "Professor",
+                LastName = "Elm",
+                IsFavorite = true
+            };
+
+            // ACT
+            await personRepo.UpdateAsync(testPerson1.Id, newPerson);
+
+            // ASSERT
+            Assert.Equal("Professor", testPerson1.FirstName);
+            Assert.Equal("Elm", testPerson1.LastName);
+            Assert.True(testPerson1.IsFavorite);
+        }
     }
 }
