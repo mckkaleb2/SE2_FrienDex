@@ -641,9 +641,33 @@ jobs:
                   echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
                   certutil -decode friendex.keystore.b64 friendex.keystore
 
+
+            - name: Check if Workflow was triggered manually
+              if: github.event_name == 'workflow_dispatch'
+              shell: bash
+              run: |
+                echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+
+            - name: Check if Workflow was triggered non-manually
+              if: github.event_name != 'workflow_dispatch'
+              shell: bash
+              run: |
+                echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
+                
+
             - name: Set Version Variables
               shell: bash
               run: | 
+
+                echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
+                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
+                  echo "Detected a Manual Dispatch for an existing Release $APP_VERSION !! "
+                  echo "Modifying Release Name...."
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_rumber }}"
+                  # echo ""
+                  #else
+                fi
+
                 echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
                 echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
                 if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
