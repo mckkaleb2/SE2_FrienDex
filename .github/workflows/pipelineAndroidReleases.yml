@@ -13,19 +13,20 @@ on:
           - '**'  # All feature branches
 
     # Allows you to run this workflow manually from the Actions tab
-    # workflow_dispatch:
+    workflow_dispatch:
 
 # Make sure the GITHUB_TOKEN has permission to upload to our releases
 permissions:
   contents: write
 
 env:
-    APP_NAME: com.companyname.friendex
-    RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
-    PROJECT_PATH: FrienDex/FrienDex.csproj
-    APP_SUFFIX: -Signed
-    APP_EXTENSION: .apk
-    APP_TITLE: FrienDex
+  #APP_ID: app.friendex.android
+  APP_NAME: app.friendex.android
+  RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
+  PROJECT_PATH: FrienDex/FrienDex.csproj
+  APP_SUFFIX: -Signed
+  APP_EXTENSION: .apk
+  APP_TITLE: FrienDex
 
 jobs:
     #region Versioning
@@ -635,6 +636,11 @@ jobs:
             - name: Install MAUI workload
               run: dotnet workload install maui
 
+            - name: Decode Keystore
+              run: |
+                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
+                  certutil -decode friendex.keystore.b64 friendex.keystore
+
             - name: Set Version Variables
               shell: bash
               run: | 
@@ -669,13 +675,28 @@ jobs:
                 -f net10.0-android
                 -c Release
                 -p:AndroidPackageFormat=apk
+                -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
                 -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
+                -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
+                -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+                -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+                -p:AndroidSigningStore=friendex.keystore
             
             - name: List build output
               run: ls -R ./**/*-Signed.apk
-
+            
+            # # Copy all .aab and .apk files to an 'output' folder 
+            # # to avoid nested paths in the final artifact
+            # - name: Copy .aab and .apk to output
+            #   run: |        
+            #     $destination = "$(pwd)\output"
+            #     mkdir $destination
+            #     $files = Get-ChildItem -Recurse -Include *.aab,*.apk
+            #     foreach ($file in $files) {
+            #       Copy-Item $file.FullName -Destination $destination -Force
+            #     }
 
             # - name: 'package release'
             #   run: |
@@ -713,7 +734,7 @@ jobs:
                   echo "Release $APP_VERSION already exists, uploading artifact..."
                 else
 
-                  echo "New release: $APP_VERSION ! Attempting to createa release..."
+                  echo "New release: $APP_VERSION ! Attempting to create a release..."
                   echo "Is this on main or master branch?..."
                   if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
                     # Write-Host "Running on main or master branch"
