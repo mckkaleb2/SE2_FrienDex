@@ -623,10 +623,10 @@ jobs:
             - name: Run a one-line script to check version
               run: echo "App Version - ${{ env.APP_VERSION }}"
 
-            - name: Setup .NET
+            - name: Setup .NET from global.json
               uses: actions/setup-dotnet@v5
               with:
-                dotnet-version: '10.0.x'
+                global-json-file: global.json
 
             - name: Check Current .NET SDK for runner
               run: dotnet --info
