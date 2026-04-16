@@ -692,6 +692,10 @@ jobs:
 
             - name: Restore NuGet packages
               run: dotnet restore "$env:PROJECT_PATH"
+
+            - name: Configure Java heap for Android tooling
+              shell: bash
+              run: echo "JAVA_TOOL_OPTIONS=-Xmx4g" >> "$GITHUB_ENV"
             
             - name: Build and Publish APK
               run: >- # powershell
