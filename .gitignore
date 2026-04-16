@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# -----------------------------------
+#   FRIENDEX CONFIGURATION
+# -----------------------------------
+
+# Keystores
+*.keystore
+*.keystore.base64.txt
