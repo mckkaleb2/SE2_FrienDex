@@ -538,13 +538,6 @@ jobs:
     #endregion check-code
 
 
-    #region check-code
-    # JOB to check the version code based on the output from count-branch-release
-    ## - AppVersionCode must be an int remaining under 10000
-    ## - if the TOTAL_COUNT is >=5000 , create a warning or github issue
-    ## - if the TOTAL_COUNT+1 is >=99,999 , throw an error
-    # TODO: implement check-code job into pipeline
-    #endregion check-code
 
     #region Build-Android
     # JOB to build and package an APK and publish to Releases
