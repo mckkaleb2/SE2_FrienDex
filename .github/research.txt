@@ -1,0 +1,8 @@
+https://github.com/marketplace/actions/github-action-release-apk
+
+https://www.geeksforgeeks.org/android/automated-release-for-android-using-github-actions/
+
+
+
+# on setting up windows packages for releases:
+https://learn.microsoft.com/en-us/dotnet/maui/windows/setup?view=net-maui-9.0

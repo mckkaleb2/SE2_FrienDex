@@ -76,9 +76,11 @@ namespace FrienDex.Services
         /// otherwise, null.</returns>
         public async Task<Room?> ReadAsync(int id)
         {
-            var room = await _db.Rooms.FindAsync(id);
-            return room;
+            return await _db.Rooms
+                .Include(r => r.People)
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
+
         /// <summary>
         /// Updates the details of an existing room identified by its unique identifier.
         /// </summary>

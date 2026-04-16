@@ -143,7 +143,9 @@ namespace FrienDex.Services
                 var existingPerson = await _db.People.FindAsync(id);
                 if (existingPerson != null)
                 {
+                    // Change this to alter each parameter aside from Id.
                     _db.Entry(existingPerson).CurrentValues.SetValues(person);
+                    //_db.Entry(existingPerson).FirstName.SetValue(person.FirstName);
                     await _db.SaveChangesAsync();
                 }
             }
