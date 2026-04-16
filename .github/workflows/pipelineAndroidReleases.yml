@@ -135,12 +135,14 @@ jobs:
         # ── 2. Compute the version string ──────────────────────────────────────
         - name: Compute version
           id: version
-          run: |
+          run: | #powershell
             set -euo pipefail
 
             BRANCH="${GITHUB_REF_NAME}"
             SHA="${GITHUB_SHA}"
             SHORT_SHA="${SHA:0:7}"
+
+            echo "branch: $BRANCH"
 
             # ── Find the latest minor tag (format: X.Y) ───────────────────────
             # Tags are expected to follow semver major.minor (e.g. 1.3, 2.0)
@@ -157,7 +159,7 @@ jobs:
             else
               MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
               MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
-            fi
+            fi # end check for existing minor tag
             
             echo "major version: $MAJOR"
             echo "minor version: $MINOR"
@@ -190,6 +192,14 @@ jobs:
             #
             BUMP="minor"  # default for all merged PRs on master
 
+            # Feature branch: sanitise the branch name (replace / and spaces)
+            SAFE_BRANCH=$(echo "$BRANCH" \
+              | tr '/' '-' \
+              | tr ' ' '-' \
+              | sed 's/[^a-zA-Z0-9._-]/-/g' \
+              | sed 's/--*/-/g' \
+              | sed 's/^-//;s/-$//')
+
             # ── Build the version string depending on branch ───────────────────
             if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
               # Collect all commit messages since the last tag
@@ -197,7 +207,7 @@ jobs:
                 COMMIT_MSGS=$(git log "$LATEST_MINOR_TAG"..HEAD --format="%s%n%b" 2>/dev/null || true)
               else
                 COMMIT_MSGS=$(git log --format="%s%n%b" 2>/dev/null || true)
-              fi
+              fi # end check parse
 
               # Check for breaking change markers (major bump)
               if echo "$COMMIT_MSGS" | grep -qE '^BREAKING CHANGE:|^.+!(\(.+\))?!?:'; then
@@ -205,9 +215,10 @@ jobs:
               # Check for "!" suffix on any type — e.g. feat!:, fix!:, chore!:
               elif echo "$COMMIT_MSGS" | grep -qE '^\w+(\(.+\))?!:'; then
                 BUMP="major"
-              fi
+              fi # end any major versioning flags?
 
               echo "BUMP type determined: ${BUMP}"
+
 
               # ── Apply the bump ─────────────────────────────────────────────
               if [[ "$BUMP" == "major" ]]; then
@@ -221,18 +232,11 @@ jobs:
               VERSION="${NEW_MAJOR}.${NEW_MINOR}"
               IS_RELEASE=true
 
-            else
-              # Feature branch: sanitise the branch name (replace / and spaces)
-              SAFE_BRANCH=$(echo "$BRANCH" \
-                | tr '/' '-' \
-                | tr ' ' '-' \
-                | sed 's/[^a-zA-Z0-9._-]/-/g' \
-                | sed 's/--*/-/g' \
-                | sed 's/^-//;s/-$//')
+            else # if this is not master or main, do this instead
 
               VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
               IS_RELEASE=false
-            fi
+            fi # end of check to see if this is running on master or main
 
             # ----------- export Bash Env Variables to GitHub Output variables ----
             echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
