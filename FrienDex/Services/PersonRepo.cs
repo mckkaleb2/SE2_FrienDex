@@ -135,23 +135,6 @@ namespace FrienDex.Services
         }
 
 
-        //public Task<Person?> ReadAsync(int id)
-        //{
-        //    var person = _db.People.FirstOrDefault(p => p.Id == id);
-        //    if (person == null)
-        //    {
-        //        return Task.FromResult<Person?>(null);
-        //    }
-        //    else
-        //    {
-        //        return Task.FromResult<Person?>(person);
-        //    }
-        //}
-
-        //public async Task<Person?> ReadAsync(int id)
-        //{
-        //    return await _db.People.FirstOrDefaultAsync(p => p.Id == id);
-        //}
         public async Task UpdateAsync(int id, Person person)
         {
             await _dbLock.WaitAsync();
@@ -160,7 +143,9 @@ namespace FrienDex.Services
                 var existingPerson = await _db.People.FindAsync(id);
                 if (existingPerson != null)
                 {
+                    // Change this to alter each parameter aside from Id.
                     _db.Entry(existingPerson).CurrentValues.SetValues(person);
+                    //_db.Entry(existingPerson).FirstName.SetValue(person.FirstName);
                     await _db.SaveChangesAsync();
                 }
             }

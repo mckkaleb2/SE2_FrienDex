@@ -523,7 +523,180 @@ jobs:
     #endregion count-releases
 
 
+        outputs:
+          release_count:    ${{ steps.count.outputs.release_count }}
+          prerelease_count: ${{ steps.count.outputs.prerelease_count }}
+          total_count:      ${{ steps.count.outputs.total_count }}
 
+        steps:
+          - name: Count releases and pre-releases for this branch
+            id: count
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              BRANCH_NAME:  ${{ github.ref_name }}
+            run: |
+              set -euo pipefail
+
+              OWNER="${GITHUB_REPOSITORY_OWNER}"
+              REPO="${GITHUB_REPOSITORY#*/}"
+              BRANCH="${BRANCH_NAME}"
+
+              echo "Counting releases for branch: ${BRANCH}"
+              echo "Repository: ${OWNER}/${REPO}"
+
+              # ── Paginate through all releases via the GitHub REST API ─────────
+              # The search pattern matches the prefix written into every release
+              # body by the versioning job:
+              #   "Branch: <name> | Commit: <sha>"
+              # We use jq to filter client-side rather than relying on GitHub's
+              # search index, which can lag behind freshly created releases.
+
+
+              RELEASE_COUNT=0
+              PRERELEASE_COUNT=0
+              PAGE=1
+              PER_PAGE=100
+              PAGE_TOTAL=0
+
+              while true; do
+                # Fetch the raw array for this page — no --jq here so we can
+                # both filter AND count the page length in one shot below.
+                RESPONSE=$(gh api \
+                  --method GET \
+                  "repos/${OWNER}/${REPO}/releases" \
+                  --field per_page="${PER_PAGE}" \
+                  --field page="${PAGE}")
+
+                # Break when the page is an empty array
+                PAGE_TOTAL=$(echo "$RESPONSE" | jq 'length')
+                if (( PAGE_TOTAL == 0 )); then
+                  break
+                fi
+
+                # ── Fix: coerce null body to "" before calling test() ─────
+                # Releases created without notes have body: null, which causes
+                # jq's test() to throw "null cannot be matched". The // ""
+                # operator substitutes an empty string for any null value,
+                # making the regex match safely return false instead of erroring.
+                MATCHED_RELEASES=$(echo "$RESPONSE" | \
+                  jq -r --arg branch "$BRANCH" \
+                  '.[] | select((.body // "") | test("^Branch: " + $branch + " \\|")) |
+                  if .prerelease then "prerelease" else "release" end')
+
+                PAGE_RELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^release$" || true)
+                PAGE_PRERELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^prerelease$" || true)
+
+                RELEASE_COUNT=$(( RELEASE_COUNT + PAGE_RELEASES ))
+                PRERELEASE_COUNT=$(( PRERELEASE_COUNT + PAGE_PRERELEASES ))
+
+                # If fewer results than requested, we've hit the last page
+                if (( PAGE_TOTAL < PER_PAGE )); then
+                  break
+                fi
+
+                PAGE=$(( PAGE + 1 ))
+              done
+
+              TOTAL_COUNT=$(( RELEASE_COUNT + PRERELEASE_COUNT ))
+              ALL_COUNT=$(( PAGE_TOTAL ))
+              TARGET_COUNT=$(( TOTAL_COUNT + 1 ))
+
+
+              echo "──────────────────────────────────────────"
+              echo "  Branch         : ${BRANCH}"
+              echo "  Releases       : ${RELEASE_COUNT}"
+              echo "  Pre-releases   : ${PRERELEASE_COUNT}"
+              echo "  Total          : ${TOTAL_COUNT}"
+              echo "  Target         : ${TARGET_COUNT}"
+              echo "  All            : ${ALL_COUNT}"
+              echo "──────────────────────────────────────────"
+
+              echo "release_count=${RELEASE_COUNT}"       >> "$GITHUB_OUTPUT"
+              echo "prerelease_count=${PRERELEASE_COUNT}" >> "$GITHUB_OUTPUT"
+              echo "total_count=${TOTAL_COUNT}"           >> "$GITHUB_OUTPUT"
+              echo "target_count=${TARGET_COUNT}"         >> "$GITHUB_OUTPUT"
+              echo "all_count=${ALL_COUNT}"           >> "$GITHUB_OUTPUT"
+
+              echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
+              echo "RELEASE_COUNT=${RELEASE_COUNT}"       >> "$GITHUB_ENV"
+              echo "PRERELEASE_COUNT=${PRERELEASE_COUNT}" >> "$GITHUB_ENV"
+              echo "TARGET_COUNT=${TARGET_COUNT}"           >> "$GITHUB_ENV"
+              echo "TOTAL_COUNT=${TOTAL_COUNT}"           >> "$GITHUB_ENV"
+              echo "ALL_COUNT=${ALL_COUNT}"           >> "$GITHUB_ENV"
+
+          - name: Write job summary
+            run: |
+              echo "## 📦 Release History: \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+              echo ""                                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Type | Count |"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Releases     | \`${RELEASE_COUNT}\`     |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| Pre-releases | \`${PRERELEASE_COUNT}\`  |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| All Releases | \`${ALL_COUNT}\`         |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| **Total**    | \`${TOTAL_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| **TARGET**   | \`${TARGET_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              
+          # ── Write the version to a file (consumable by your build tooling) ──
+          - name: Write RELEASE_COUNT file
+            run: echo "$RELEASE_COUNT" > RELEASE_COUNT
+          
+          - name: Upload RELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: release-count-file
+              path: RELEASE_COUNT
+
+          - name: Write PRERELEASE_COUNT file
+            run: echo "$PRERELEASE_COUNT" > PRERELEASE_COUNT
+
+          - name: Upload PRERELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: prerelease-count-file
+              path: PRERELEASE_COUNT
+
+          - name: Write TOTAL_COUNT file
+            run: echo "$TOTAL_COUNT" > TOTAL_COUNT
+
+          - name: Upload TOTAL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: total-count-file
+              path: TOTAL_COUNT
+
+          - name: Write TARGET_COUNT file
+            run: echo "$TARGET_COUNT" > TARGET_COUNT
+
+          - name: Upload TARGET_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: target-count-file
+              path: TARGET_COUNT
+
+          - name: Write ALL_COUNT file
+            run: echo "$ALL_COUNT" > ALL_COUNT
+
+          - name: Upload ALL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: all-count-file
+              path: ALL_COUNT
+    #endregion count-releases
+
+
+
+
+
+    #region check-code
+    # JOB to check the version code based on the output from count-branch-release
+    ## - AppVersionCode must be an int remaining under 10000
+    ## - if the TOTAL_COUNT is >=5000 , create a warning or github issue
+    ## - if the TOTAL_COUNT+1 is >=99,999 , throw an error
+    # TODO: implement check-code job into pipeline
+    #endregion check-code
 
 
     #region check-code
