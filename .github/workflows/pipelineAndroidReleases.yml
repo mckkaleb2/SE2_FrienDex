@@ -122,7 +122,8 @@ jobs:
 
       permissions:
         contents: write  # Needed to push tags
-
+      needs: changes
+      if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
       steps:
         # ── 1. Checkout with full history so git rev-list works correctly ──────
         - name: Checkout repository
@@ -160,6 +161,7 @@ jobs:
             
             echo "major version: $MAJOR"
             echo "minor version: $MINOR"
+            echo "latest minor tag: $LATEST_MINOR_TAG"
 
             # ── Count commits since the latest minor tag ───────────────────────
             # Uses the ancestry-path to count only commits reachable from HEAD
@@ -172,12 +174,53 @@ jobs:
               COMMITS_SINCE=$(git rev-list HEAD --count)
             fi
 
+            # ── Determine bump type from Conventional Commits (master only) ───
+            #
+            # MAJOR bump triggers (breaking changes):
+            #   - Any commit with a footer containing "BREAKING CHANGE:"
+            #   - Any commit type with a "!" suffix  e.g. feat!: ..., fix!: ...
+            #
+            # MINOR bump triggers (new functionality, non-breaking):
+            #   - feat: ...
+            #
+            # Everything else (fix, chore, docs, refactor, test, ci, style, perf)
+            # is still a minor bump under this versioning scheme, because every
+            # merged PR is already defined as a minor release in the schema.
+            # Promote them to major only when an explicit breaking marker is used.
+            #
+            BUMP="minor"  # default for all merged PRs on master
+
             # ── Build the version string depending on branch ───────────────────
             if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
-              # master: every merged PR bumps the minor version
-              NEW_MINOR=$(( MINOR + 1 ))
-              VERSION="${MAJOR}.${NEW_MINOR}"
+              # Collect all commit messages since the last tag
+              if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
+                COMMIT_MSGS=$(git log "$LATEST_TAG"..HEAD --format="%s%n%b" 2>/dev/null || true)
+              else
+                COMMIT_MSGS=$(git log --format="%s%n%b" 2>/dev/null || true)
+              fi
+
+              # Check for breaking change markers (major bump)
+              if echo "$COMMIT_MSGS" | grep -qE '^BREAKING CHANGE:|^.+!(\(.+\))?!?:'; then
+                BUMP="major"
+              # Check for "!" suffix on any type — e.g. feat!:, fix!:, chore!:
+              elif echo "$COMMIT_MSGS" | grep -qE '^\w+(\(.+\))?!:'; then
+                BUMP="major"
+              fi
+
+              echo "BUMP type determined: ${BUMP}"
+
+              # ── Apply the bump ─────────────────────────────────────────────
+              if [[ "$BUMP" == "major" ]]; then
+                NEW_MAJOR=$(( MAJOR + 1 ))
+                NEW_MINOR=0
+              else
+                NEW_MAJOR=$MAJOR
+                NEW_MINOR=$(( MINOR + 1 ))
+              fi
+
+              VERSION="${NEW_MAJOR}.${NEW_MINOR}"
               IS_RELEASE=true
+
             else
               # Feature branch: sanitise the branch name (replace / and spaces)
               SAFE_BRANCH=$(echo "$BRANCH" \
@@ -195,17 +238,25 @@ jobs:
             echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
             echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
             echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
+            echo "BUMP=${BUMP}"                         >> "$GITHUB_ENV"
+            echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
+            echo "SAFE_BRANCH=${SAFE_BRANCH}"                     >> "$GITHUB_ENV"
             
             echo "MAJOR=${MAJOR}"         >> "$GITHUB_ENV"
             echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
 
-            echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
-            echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
+            echo "version=${VERSION}"         >> "$GITHUB_OUTPUT"
+            echo "is_release=${IS_RELEASE}"   >> "$GITHUB_OUTPUT"
+            echo "bump=${BUMP}"               >> "$GITHUB_OUTPUT"
+            echo "branch=${BRANCH}"           >> "$GITHUB_OUTPUT"
+            echo "safe_branch=${SAFE_BRANCH}"           >> "$GITHUB_OUTPUT"
 
             echo "──────────────────────────────────────────"
             echo "  Branch         : ${BRANCH}"
+            echo "  SafeBranch     : ${SAFE_BRANCH}"
             echo "  Base tag       : ${LATEST_MINOR_TAG}"
             echo "  Commits since  : ${COMMITS_SINCE}"
+            echo "  Bump type      : ${BUMP}"
             echo "  Computed ver   : ${VERSION}"
             echo "  Is release     : ${IS_RELEASE}"
             echo "  Major ver      : ${MAJOR}"
@@ -215,20 +266,38 @@ jobs:
         - name: Write VERSION file
           run: echo "$VERSION" > VERSION
         
-        - name: Write MAJOR file
-          run: echo "$MAJOR" > MAJOR
-        
         - name: Upload VERSION artifact
           uses: actions/upload-artifact@v4
           with:
             name: version-file
             path: VERSION
 
+        - name: Write MAJOR file
+          run: echo "$MAJOR" > MAJOR
+        
         - name: Upload MAJOR artifact
           uses: actions/upload-artifact@v4
           with:
             name: major-file
             path: MAJOR
+            
+        - name: Write BRANCH file
+          run: echo "$BRANCH" > BRANCH
+        
+        - name: Upload BRANCH artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: branch-file
+            path: BRANCH
+
+        - name: Write SAFE_BRANCH file
+          run: echo "$SAFE_BRANCH" > SAFE_BRANCH
+        
+        - name: Upload SAFE_BRANCH artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: safe-branch-file
+            path: SAFE_BRANCH
 
         # ── 4. Tag the commit on master only ──────────────────────────────────
         - name: Create and push git tag (master only)
@@ -258,6 +327,7 @@ jobs:
             body: |
               ## Release ${{ env.VERSION }}
 
+              **Bump type:** `${{ env.BUMP }}`
               **Previous base version:** `${{ env.LATEST_MINOR_TAG }}`
               **Commit:** `${{ github.sha }}`
               **Triggered by:** ${{ github.actor }}
@@ -273,11 +343,10 @@ jobs:
             echo "|-------|-------|"              >> "$GITHUB_STEP_SUMMARY"
             echo "| Branch | \`${GITHUB_REF_NAME}\` |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Bump type | \`${BUMP}\` |"          >> "$GITHUB_STEP_SUMMARY"
             echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
             echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
     #endregion Versioning
-
-
 
 
     #region count-releases
