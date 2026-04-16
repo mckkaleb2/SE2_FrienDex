@@ -29,6 +29,90 @@ env:
   APP_TITLE: FrienDex
 
 jobs:
+
+    #region Change-Filter
+    # JOB to run change detection
+    changes:
+      runs-on: windows-latest
+      # Required permissions
+      permissions:
+        pull-requests: read
+      # Set job outputs to values from filter step
+      outputs:
+        gitfiles: ${{ steps.filter.outputs.gitfiles }}
+        projectfiles: ${{ steps.filter.outputs.projectfiles }}
+        docs: ${{ steps.filter.outputs.docs }}
+      steps:
+        # For pull requests it's not necessary to checkout the code
+        - uses: actions/checkout@v6
+        - uses: dorny/paths-filter@v4
+          id: filter
+          with:
+            filters: |
+              gitfiles: &gitfiles
+                - '!.github/**'
+                - '!.github/workflows/**'
+                - '.gitignore'
+              projectfiles:
+                - FrienDex/**
+                - 'FrienDex.slnx'
+              docs: &docs
+                - '.docs/**'
+                - docs/**
+                - '**/*.md'
+              buildfiles:
+                - '!*docs'
+                - '!*gitfiles'
+
+    # JOB to build and test gitfiles
+    # gitFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.gitfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'gitfiles changed'
+    #       run: |
+    #         echo 'gitfiles have changed'
+
+    # JOB to build and test projectfiles
+    # projectFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.projectfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'projectfiles changed'
+    #       run: |
+    #         echo 'projectfiles have changed'
+
+    # JOB to build and test files that should trigger a build
+    # multiDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'projectfiles or gitfiles changed'
+    #       run: |
+    #         echo 'projectfiles or gitfiles have changed'
+
+    # JOB to build and test gitfiles
+    # docFilesDetection:
+    #   needs: changes
+    #   if: ${{ needs.changes.outputs.docs == 'true' }}
+    #   runs-on: windows-latest
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: 'docfiles changed'
+    #       run: |
+    #         echo 'docfiles have changed'
+    #endregion Change-Filter
+
+
+
+
+
     #region Versioning
     #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
     # DISCLAIMER: Job created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
@@ -38,7 +122,8 @@ jobs:
 
       permissions:
         contents: write  # Needed to push tags
-
+      needs: changes
+      if: ${{ needs.changes.outputs.buildfiles == 'true' }}
       steps:
         # ── 1. Checkout with full history so git rev-list works correctly ──────
         - name: Checkout repository
@@ -268,7 +353,7 @@ jobs:
         name: Count Releases for Branch
         runs-on: ubuntu-latest
         # Run after versioning so any new release is already created before we count
-        needs: version
+        needs: [version, changes]
         if: ${{ always() }}
 
         permissions:
@@ -438,79 +523,6 @@ jobs:
     #endregion count-releases
 
 
-    #region Change-Filter
-    # JOB to run change detection
-    changes:
-      runs-on: windows-latest
-      # Required permissions
-      permissions:
-        pull-requests: read
-      # Set job outputs to values from filter step
-      outputs:
-        gitfiles: ${{ steps.filter.outputs.gitfiles }}
-        projectfiles: ${{ steps.filter.outputs.projectfiles }}
-        docs: ${{ steps.filter.outputs.docs }}
-      steps:
-        # For pull requests it's not necessary to checkout the code
-        - uses: actions/checkout@v6
-        - uses: dorny/paths-filter@v4
-          id: filter
-          with:
-            filters: |
-              gitfiles:
-                - '.github/workflows/**'
-                - '.gitignore'
-              projectfiles:
-                - 'FrienDex/**'
-                - 'FrienDex.slnx'
-              docs:
-                - '.docs/**'
-                - 'docs/**'
-
-    # JOB to build and test gitfiles
-    # gitFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.gitfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'gitfiles changed'
-    #       run: |
-    #         echo 'gitfiles have changed'
-
-    # JOB to build and test projectfiles
-    # projectFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.projectfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'projectfiles changed'
-    #       run: |
-    #         echo 'projectfiles have changed'
-
-    # JOB to build and test files that should trigger a build
-    # multiDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'projectfiles or gitfiles changed'
-    #       run: |
-    #         echo 'projectfiles or gitfiles have changed'
-
-    # JOB to build and test gitfiles
-    # docFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.docs == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'docfiles changed'
-    #       run: |
-    #         echo 'docfiles have changed'
-    #endregion Change-Filter
 
 
 
@@ -528,7 +540,8 @@ jobs:
         # needs: changes
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         # Declare dependency on the versioning job so its artifact is available
-        needs: [version, count-branch-releases]
+        needs: [version, count-branch-releases, changes]
+        if: ${{ needs.changes.outputs.buildfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
