@@ -64,52 +64,41 @@ jobs:
                 - '!*docs'
                 - '!*gitfiles'
 
-    # JOB to build and test gitfiles
-    # gitFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.gitfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'gitfiles changed'
-    #       run: |
-    #         echo 'gitfiles have changed'
-
-    # JOB to build and test projectfiles
-    # projectFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.projectfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'projectfiles changed'
-    #       run: |
-    #         echo 'projectfiles have changed'
-
-    # JOB to build and test files that should trigger a build
-    # multiDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'projectfiles or gitfiles changed'
-    #       run: |
-    #         echo 'projectfiles or gitfiles have changed'
-
-    # JOB to build and test gitfiles
-    # docFilesDetection:
-    #   needs: changes
-    #   if: ${{ needs.changes.outputs.docs == 'true' }}
-    #   runs-on: windows-latest
-    #   steps:
-    #     - uses: actions/checkout@v6
-    #     - name: 'docfiles changed'
-    #       run: |
-    #         echo 'docfiles have changed'
     #endregion Change-Filter
+    
+    #region Filter_Outputs
+    # JOB to build and test gitfiles
+    FilesDetection:
+      needs: changes
+      # if: ${{ needs.changes.outputs.docs == 'true' }}
+      env:
+        gitfiles:       ${{ needs.changes.outputs.gitfiles }}
+        projectfiles:   ${{ needs.changes.outputs.projectfiles }}
+        docs:           ${{ needs.changes.outputs.docs }}
+        buildfiles:     ${{ needs.changes.outputs.buildfiles }}
 
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: 'docfiles changed'
+          run: |
+            echo 'docfiles have changed'
+        
+        - name: Write job summary
+          run: |
+            echo "## 💡 Files Changed: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+            echo ""                                        >> "$GITHUB_STEP_SUMMARY"
+            echo "| Type | Result |"                        >> "$GITHUB_STEP_SUMMARY"
+            echo "|------|--------|"                        >> "$GITHUB_STEP_SUMMARY"
+            echo "| gitfiles      | \`${gitfiles}\`      |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| projectfiles  | \`${projectfiles}\`  |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| docs          | \`${docs}\`          |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| buildfiles    | \`${buildfiles}\`    |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|------|--------|"                        >> "$GITHUB_STEP_SUMMARY"
+            echo "| **ANY CHANGE**    | \`${gitfiles || projectfiles || docs || buildfiles}\`       |" >> "$GITHUB_STEP_SUMMARY"
 
+    #endregion Filter_Outputs
+        
 
 
 
