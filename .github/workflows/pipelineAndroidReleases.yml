@@ -123,7 +123,7 @@ jobs:
       permissions:
         contents: write  # Needed to push tags
       needs: changes
-      if: ${{ needs.changes.outputs.buildfiles == 'true' }}
+      if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
       steps:
         # ── 1. Checkout with full history so git rev-list works correctly ──────
         - name: Checkout repository
@@ -135,7 +135,7 @@ jobs:
         # ── 2. Compute the version string ──────────────────────────────────────
         - name: Compute version
           id: version
-          run: | # bash
+          run: |
             set -euo pipefail
 
             BRANCH="${GITHUB_REF_NAME}"
@@ -161,6 +161,7 @@ jobs:
             
             echo "major version: $MAJOR"
             echo "minor version: $MINOR"
+            echo "latest minor tag: $LATEST_MINOR_TAG"
 
             # ── Count commits since the latest minor tag ───────────────────────
             # Uses the ancestry-path to count only commits reachable from HEAD
@@ -548,11 +549,10 @@ jobs:
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         # Declare dependency on the versioning job so its artifact is available
         needs: [version, count-branch-releases, changes]
-        if: ${{ needs.changes.outputs.buildfiles == 'true' }}
+        if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
-
 
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
