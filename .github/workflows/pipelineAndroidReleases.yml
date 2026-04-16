@@ -192,8 +192,8 @@ jobs:
             # ── Build the version string depending on branch ───────────────────
             if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
               # Collect all commit messages since the last tag
-              if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-                COMMIT_MSGS=$(git log "$LATEST_TAG"..HEAD --format="%s%n%b" 2>/dev/null || true)
+              if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
+                COMMIT_MSGS=$(git log "$LATEST_MINOR_TAG"..HEAD --format="%s%n%b" 2>/dev/null || true)
               else
                 COMMIT_MSGS=$(git log --format="%s%n%b" 2>/dev/null || true)
               fi
