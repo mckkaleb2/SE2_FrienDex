@@ -44,6 +44,8 @@ jobs:
         docs: ${{ steps.filter.outputs.docs }}
         buildfiles: ${{ steps.filter.outputs.buildfiles }}
         anyfiles: ${{ steps.filter.outputs.anyfiles }}
+        workflows:      ${{ needs.changes.outputs.workflows  }}
+
       steps:
         # For pull requests it's not necessary to checkout the code
         - uses: actions/checkout@v6
@@ -51,9 +53,11 @@ jobs:
           id: filter
           with:
             filters: |
+              workflows: &workflows
+                - '.github/workflows/**.yml'
               gitfiles: &gitfiles
                 - '!.github/**'
-                - '!.github/workflows/**'
+                - '!*workflows'
                 - '.gitignore'
               projectfiles:
                 - FrienDex/**
@@ -68,6 +72,7 @@ jobs:
               anyfiles:
                 - '**/**'
 
+
     #endregion Change-Filter
     
     #region Filter_Outputs
@@ -81,21 +86,22 @@ jobs:
         docs:           ${{ needs.changes.outputs.docs }}
         buildfiles:     ${{ needs.changes.outputs.buildfiles }}
         anyfiles:       ${{ needs.changes.outputs.anyfiles  }}
+        workflows:      ${{ needs.changes.outputs.workflows  }}
 
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v6
         - name: 'any files changed'
           run: |
-            if [ gitfiles || projectfiles || docs || buildfiles ]; then
-              RESULT=true
+            if [ gitfiles || projectfiles || docs || buildfiles || workflows ]; then
+              echo "RESULT=true"       >> "$GITHUB_ENV"
             else
-              RESULT=false
+              echo "RESULT=false"        >> "$GITHUB_ENV"
             fi
             if [ RESULT || anyfiles ]; then
-              ALLRESULTS=true
+              echo "ALLRESULTS=true"       >> "$GITHUB_ENV"
             else
-              ALLRESULT=false
+              echo "ALLRESULT=false"       >> "$GITHUB_ENV"
             fi
 
 
@@ -109,6 +115,7 @@ jobs:
             echo "| projectfiles  | \`${projectfiles}\`  |" >> "$GITHUB_STEP_SUMMARY"
             echo "| docs          | \`${docs}\`          |" >> "$GITHUB_STEP_SUMMARY"
             echo "| buildfiles    | \`${buildfiles}\`    |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| workflows     | \`${workflows}\`    |" >> "$GITHUB_STEP_SUMMARY"
             echo "|------|--------|"                        >> "$GITHUB_STEP_SUMMARY"
             echo "| **CONDITIONS CHECKED**    | \`${RESULT}\`       |" >> "$GITHUB_STEP_SUMMARY"
             echo "| *ANY CHANGE*              | \`${ALLRESULTS}\`       |" >> "$GITHUB_STEP_SUMMARY"
