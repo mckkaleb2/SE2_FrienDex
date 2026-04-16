@@ -699,9 +699,10 @@ jobs:
                 -f net10.0-android
                 -c Release
                 -p:AndroidPackageFormat=apk
-                -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
+                -p:AndroidKeyStore=true
+                -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
                 -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
                 -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
