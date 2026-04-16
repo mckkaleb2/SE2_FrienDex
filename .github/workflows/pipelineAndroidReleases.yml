@@ -87,8 +87,17 @@ jobs:
         - uses: actions/checkout@v6
         - name: 'any files changed'
           run: |
-            if [ gitfiles || projectfiles || docs || buildfiles ] && RESULT=true
-            if [ RESULT || anyfiles ] && ALLRESULTS=true
+            if [ gitfiles || projectfiles || docs || buildfiles ]; then
+              RESULT=true
+            else
+              RESULT=false
+            fi
+            if [ RESULT || anyfiles ]; then
+              ALLRESULTS=true
+            else
+              ALLRESULT=false
+            fi
+
 
         - name: Write job summary
           run: |
