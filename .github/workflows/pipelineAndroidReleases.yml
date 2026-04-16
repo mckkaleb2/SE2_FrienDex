@@ -13,185 +13,22 @@ on:
           - '**'  # All feature branches
 
     # Allows you to run this workflow manually from the Actions tab
-    # workflow_dispatch:
+    workflow_dispatch:
 
 # Make sure the GITHUB_TOKEN has permission to upload to our releases
 permissions:
   contents: write
 
 env:
-    APP_NAME: com.companyname.friendex
-    RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
-    APP_SUFFIX: -Signed.apk
+  #APP_ID: app.friendex.android
+  APP_NAME: app.friendex.android
+  RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
+  PROJECT_PATH: FrienDex/FrienDex.csproj
+  APP_SUFFIX: -Signed
+  APP_EXTENSION: .apk
+  APP_TITLE: FrienDex
 
 jobs:
-    #region Versioning
-    #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
-    # DISCLAIMER: Job created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
-    version:
-      name: Compute & Apply Version
-      runs-on: ubuntu-latest
-
-      permissions:
-        contents: write  # Needed to push tags
-
-      steps:
-        # ── 1. Checkout with full history so git rev-list works correctly ──────
-        - name: Checkout repository
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0   # Full clone – required for tag/commit counting
-            fetch-tags: true
-
-        # ── 2. Compute the version string ──────────────────────────────────────
-        - name: Compute version
-          id: version
-          run: |
-            set -euo pipefail
-
-            BRANCH="${GITHUB_REF_NAME}"
-            SHA="${GITHUB_SHA}"
-            SHORT_SHA="${SHA:0:7}"
-
-            # ── Find the latest minor tag (format: X.Y) ───────────────────────
-            # Tags are expected to follow semver major.minor (e.g. 1.3, 2.0)
-            LATEST_MINOR_TAG=$(git tag --list '[0-9]*.[0-9]*' \
-              | grep -E '^[0-9]+\.[0-9]+$' \
-              | sort -t. -k1,1n -k2,2n \
-              | tail -1 || true)
-
-            if [[ -z "$LATEST_MINOR_TAG" ]]; then
-              echo "No existing minor tag found. Defaulting to 0.1 base."
-              LATEST_MINOR_TAG="0.1"
-              MAJOR=0
-              MINOR=1
-            else
-              MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
-              MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
-            fi
-            
-            echo "major version: $MAJOR"
-            echo "minor version: $MINOR"
-
-            # ── Count commits since the latest minor tag ───────────────────────
-            # Uses the ancestry-path to count only commits reachable from HEAD
-            # that are NOT reachable from the tag, following the linear path.
-            if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
-              COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
-                --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
-            else
-              # Tag doesn't physically exist yet (first run bootstrap)
-              COMMITS_SINCE=$(git rev-list HEAD --count)
-            fi
-
-            # ── Build the version string depending on branch ───────────────────
-            if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
-              # master: every merged PR bumps the minor version
-              NEW_MINOR=$(( MINOR + 1 ))
-              VERSION="${MAJOR}.${NEW_MINOR}"
-              IS_RELEASE=true
-            else
-              # Feature branch: sanitise the branch name (replace / and spaces)
-              SAFE_BRANCH=$(echo "$BRANCH" \
-                | tr '/' '-' \
-                | tr ' ' '-' \
-                | sed 's/[^a-zA-Z0-9._-]/-/g' \
-                | sed 's/--*/-/g' \
-                | sed 's/^-//;s/-$//')
-
-              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
-              IS_RELEASE=false
-            fi
-
-            # ----------- export Bash Env Variables to GitHub Output variables ----
-            echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
-            echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
-            echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
-            
-            echo "MAJOR=${MAJOR}"         >> "$GITHUB_ENV"
-            echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
-
-            echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
-            echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
-
-            echo "──────────────────────────────────────────"
-            echo "  Branch         : ${BRANCH}"
-            echo "  Base tag       : ${LATEST_MINOR_TAG}"
-            echo "  Commits since  : ${COMMITS_SINCE}"
-            echo "  Computed ver   : ${VERSION}"
-            echo "  Is release     : ${IS_RELEASE}"
-            echo "  Major ver      : ${MAJOR}"
-            echo "──────────────────────────────────────────"
-
-        # ── 3. Write the version to a file (consumable by your build tooling) ──
-        - name: Write VERSION file
-          run: echo "$VERSION" > VERSION
-        
-        - name: Write MAJOR file
-          run: echo "$MAJOR" > MAJOR
-        
-        - name: Upload VERSION artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: version-file
-            path: VERSION
-
-        - name: Upload MAJOR artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: major-file
-            path: MAJOR
-
-        # ── 4. Tag the commit on master only ──────────────────────────────────
-        - name: Create and push git tag (master only)
-          if: env.IS_RELEASE == 'true'
-          env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-
-            # Guard against tagging the same version twice (idempotent)
-            if git rev-parse "$VERSION" >/dev/null 2>&1; then
-              echo "Tag ${VERSION} already exists – skipping."
-            else
-              git tag "$VERSION"
-              git push origin "$VERSION"
-              echo "Pushed tag: ${VERSION}"
-            fi
-
-        # ── 5. Create a GitHub Release on master ──────────────────────────────
-        - name: Create GitHub Release (master only)
-          if: env.IS_RELEASE == 'true'
-          uses: softprops/action-gh-release@v2
-          with:
-            tag_name: ${{ env.VERSION }}
-            name: "Release ${{ env.VERSION }}"
-            body: |
-              ## Release ${{ env.VERSION }}
-
-              **Previous base version:** `${{ env.LATEST_MINOR_TAG }}`
-              **Commit:** `${{ github.sha }}`
-              **Triggered by:** ${{ github.actor }}
-            draft: false
-            prerelease: false
-
-        # ── 6. Summary ────────────────────────────────────────────────────────
-        - name: Write job summary
-          run: |
-            echo "## 🏷️ Version: \`${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
-            echo ""                               >> "$GITHUB_STEP_SUMMARY"
-            echo "| Field | Value |"              >> "$GITHUB_STEP_SUMMARY"
-            echo "|-------|-------|"              >> "$GITHUB_STEP_SUMMARY"
-            echo "| Branch | \`${GITHUB_REF_NAME}\` |" >> "$GITHUB_STEP_SUMMARY"
-            echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
-            echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
-            echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
-    #endregion Versioning
-
-
-
-
 
     #region Change-Filter
     # JOB to run change detection
@@ -212,15 +49,20 @@ jobs:
           id: filter
           with:
             filters: |
-              gitfiles:
-                - '.github/workflows/**'
+              gitfiles: &gitfiles
+                - '!.github/**'
+                - '!.github/workflows/**'
                 - '.gitignore'
               projectfiles:
-                - 'FrienDex/**'
+                - FrienDex/**
                 - 'FrienDex.slnx'
-              docs:
+              docs: &docs
                 - '.docs/**'
-                - 'docs/**'
+                - docs/**
+                - '**/*.md'
+              buildfiles:
+                - '!*docs'
+                - '!*gitfiles'
 
     # JOB to build and test gitfiles
     # gitFilesDetection:
@@ -268,13 +110,445 @@ jobs:
     #endregion Change-Filter
 
 
+
+
+
+    #region Versioning
+    #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
+    # DISCLAIMER: Job created by Claude using the following prompt, followed by the text of the Stack Overflow answer, wrapped in block quotations : """Help me create a GitHub Actions YAML file that handles release versioning using the following schema, which is loosely based off of SemVer principles:"""
+    version:
+      name: Compute & Apply Version
+      runs-on: ubuntu-latest
+
+      permissions:
+        contents: write  # Needed to push tags
+      needs: changes
+      if: ${{ needs.changes.outputs.buildfiles == 'true' }}
+      steps:
+        # ── 1. Checkout with full history so git rev-list works correctly ──────
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0   # Full clone – required for tag/commit counting
+            fetch-tags: true
+
+        # ── 2. Compute the version string ──────────────────────────────────────
+        - name: Compute version
+          id: version
+          run: | # bash
+            set -euo pipefail
+
+            BRANCH="${GITHUB_REF_NAME}"
+            SHA="${GITHUB_SHA}"
+            SHORT_SHA="${SHA:0:7}"
+
+            # ── Find the latest minor tag (format: X.Y) ───────────────────────
+            # Tags are expected to follow semver major.minor (e.g. 1.3, 2.0)
+            LATEST_MINOR_TAG=$(git tag --list '[0-9]*.[0-9]*' \
+              | grep -E '^[0-9]+\.[0-9]+$' \
+              | sort -t. -k1,1n -k2,2n \
+              | tail -1 || true)
+
+            if [[ -z "$LATEST_MINOR_TAG" ]]; then
+              echo "No existing minor tag found. Defaulting to 0.1 base."
+              LATEST_MINOR_TAG="0.1"
+              MAJOR=0
+              MINOR=1
+            else
+              MAJOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f1)
+              MINOR=$(echo "$LATEST_MINOR_TAG" | cut -d. -f2)
+            fi
+            
+            echo "major version: $MAJOR"
+            echo "minor version: $MINOR"
+
+            # ── Count commits since the latest minor tag ───────────────────────
+            # Uses the ancestry-path to count only commits reachable from HEAD
+            # that are NOT reachable from the tag, following the linear path.
+            if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
+              COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
+                --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
+            else
+              # Tag doesn't physically exist yet (first run bootstrap)
+              COMMITS_SINCE=$(git rev-list HEAD --count)
+            fi
+
+            # ── Determine bump type from Conventional Commits (master only) ───
+            #
+            # MAJOR bump triggers (breaking changes):
+            #   - Any commit with a footer containing "BREAKING CHANGE:"
+            #   - Any commit type with a "!" suffix  e.g. feat!: ..., fix!: ...
+            #
+            # MINOR bump triggers (new functionality, non-breaking):
+            #   - feat: ...
+            #
+            # Everything else (fix, chore, docs, refactor, test, ci, style, perf)
+            # is still a minor bump under this versioning scheme, because every
+            # merged PR is already defined as a minor release in the schema.
+            # Promote them to major only when an explicit breaking marker is used.
+            #
+            BUMP="minor"  # default for all merged PRs on master
+
+            # ── Build the version string depending on branch ───────────────────
+            if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
+              # Collect all commit messages since the last tag
+              if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
+                COMMIT_MSGS=$(git log "$LATEST_TAG"..HEAD --format="%s%n%b" 2>/dev/null || true)
+              else
+                COMMIT_MSGS=$(git log --format="%s%n%b" 2>/dev/null || true)
+              fi
+
+              # Check for breaking change markers (major bump)
+              if echo "$COMMIT_MSGS" | grep -qE '^BREAKING CHANGE:|^.+!(\(.+\))?!?:'; then
+                BUMP="major"
+              # Check for "!" suffix on any type — e.g. feat!:, fix!:, chore!:
+              elif echo "$COMMIT_MSGS" | grep -qE '^\w+(\(.+\))?!:'; then
+                BUMP="major"
+              fi
+
+              echo "BUMP type determined: ${BUMP}"
+
+              # ── Apply the bump ─────────────────────────────────────────────
+              if [[ "$BUMP" == "major" ]]; then
+                NEW_MAJOR=$(( MAJOR + 1 ))
+                NEW_MINOR=0
+              else
+                NEW_MAJOR=$MAJOR
+                NEW_MINOR=$(( MINOR + 1 ))
+              fi
+
+              VERSION="${NEW_MAJOR}.${NEW_MINOR}"
+              IS_RELEASE=true
+
+            else
+              # Feature branch: sanitise the branch name (replace / and spaces)
+              SAFE_BRANCH=$(echo "$BRANCH" \
+                | tr '/' '-' \
+                | tr ' ' '-' \
+                | sed 's/[^a-zA-Z0-9._-]/-/g' \
+                | sed 's/--*/-/g' \
+                | sed 's/^-//;s/-$//')
+
+              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
+              IS_RELEASE=false
+            fi
+
+            # ----------- export Bash Env Variables to GitHub Output variables ----
+            echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
+            echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
+            echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
+            echo "BUMP=${BUMP}"                         >> "$GITHUB_ENV"
+            echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
+            echo "SAFE_BRANCH=${SAFE_BRANCH}"                     >> "$GITHUB_ENV"
+            
+            echo "MAJOR=${MAJOR}"         >> "$GITHUB_ENV"
+            echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
+
+            echo "version=${VERSION}"         >> "$GITHUB_OUTPUT"
+            echo "is_release=${IS_RELEASE}"   >> "$GITHUB_OUTPUT"
+            echo "bump=${BUMP}"               >> "$GITHUB_OUTPUT"
+            echo "branch=${BRANCH}"           >> "$GITHUB_OUTPUT"
+            echo "safe_branch=${SAFE_BRANCH}"           >> "$GITHUB_OUTPUT"
+
+            echo "──────────────────────────────────────────"
+            echo "  Branch         : ${BRANCH}"
+            echo "  SafeBranch     : ${SAFE_BRANCH}"
+            echo "  Base tag       : ${LATEST_MINOR_TAG}"
+            echo "  Commits since  : ${COMMITS_SINCE}"
+            echo "  Bump type      : ${BUMP}"
+            echo "  Computed ver   : ${VERSION}"
+            echo "  Is release     : ${IS_RELEASE}"
+            echo "  Major ver      : ${MAJOR}"
+            echo "──────────────────────────────────────────"
+
+        # ── 3. Write the version to a file (consumable by your build tooling) ──
+        - name: Write VERSION file
+          run: echo "$VERSION" > VERSION
+        
+        - name: Upload VERSION artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: version-file
+            path: VERSION
+
+        - name: Write MAJOR file
+          run: echo "$MAJOR" > MAJOR
+        
+        - name: Upload MAJOR artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: major-file
+            path: MAJOR
+            
+        - name: Write BRANCH file
+          run: echo "$BRANCH" > BRANCH
+        
+        - name: Upload BRANCH artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: branch-file
+            path: BRANCH
+
+        - name: Write SAFE_BRANCH file
+          run: echo "$SAFE_BRANCH" > SAFE_BRANCH
+        
+        - name: Upload SAFE_BRANCH artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: safe-branch-file
+            path: SAFE_BRANCH
+
+        # ── 4. Tag the commit on master only ──────────────────────────────────
+        - name: Create and push git tag (master only)
+          if: env.IS_RELEASE == 'true'
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Guard against tagging the same version twice (idempotent)
+            if git rev-parse "$VERSION" >/dev/null 2>&1; then
+              echo "Tag ${VERSION} already exists – skipping."
+            else
+              git tag "$VERSION"
+              git push origin "$VERSION"
+              echo "Pushed tag: ${VERSION}"
+            fi
+
+        # ── 5. Create a GitHub Release on master ──────────────────────────────
+        - name: Create GitHub Release (master only)
+          if: env.IS_RELEASE == 'true'
+          uses: softprops/action-gh-release@v2
+          with:
+            tag_name: ${{ env.VERSION }}
+            name: "Release ${{ env.VERSION }}"
+            body: |
+              ## Release ${{ env.VERSION }}
+
+              **Bump type:** `${{ env.BUMP }}`
+              **Previous base version:** `${{ env.LATEST_MINOR_TAG }}`
+              **Commit:** `${{ github.sha }}`
+              **Triggered by:** ${{ github.actor }}
+            draft: false
+            prerelease: false
+
+        # ── 6. Summary ────────────────────────────────────────────────────────
+        - name: Write job summary
+          run: |
+            echo "## 🏷️ Version: \`${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo ""                               >> "$GITHUB_STEP_SUMMARY"
+            echo "| Field | Value |"              >> "$GITHUB_STEP_SUMMARY"
+            echo "|-------|-------|"              >> "$GITHUB_STEP_SUMMARY"
+            echo "| Branch | \`${GITHUB_REF_NAME}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Base tag | \`${LATEST_MINOR_TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Bump type | \`${BUMP}\` |"          >> "$GITHUB_STEP_SUMMARY"
+            echo "| Is release | \`${IS_RELEASE}\` |"  >> "$GITHUB_STEP_SUMMARY"
+            echo "| SHA | \`${GITHUB_SHA:0:7}\` |"     >> "$GITHUB_STEP_SUMMARY"
+    #endregion Versioning
+
+
+    #region count-releases
+    count-branch-releases:
+        name: Count Releases for Branch
+        runs-on: ubuntu-latest
+        # Run after versioning so any new release is already created before we count
+        needs: [version, changes]
+        if: ${{ always() }}
+
+        permissions:
+          contents: read
+
+        outputs:
+          release_count:    ${{ steps.count.outputs.release_count }}
+          prerelease_count: ${{ steps.count.outputs.prerelease_count }}
+          total_count:      ${{ steps.count.outputs.total_count }}
+
+        steps:
+          - name: Count releases and pre-releases for this branch
+            id: count
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              BRANCH_NAME:  ${{ github.ref_name }}
+            run: |
+              set -euo pipefail
+
+              OWNER="${GITHUB_REPOSITORY_OWNER}"
+              REPO="${GITHUB_REPOSITORY#*/}"
+              BRANCH="${BRANCH_NAME}"
+
+              echo "Counting releases for branch: ${BRANCH}"
+              echo "Repository: ${OWNER}/${REPO}"
+
+              # ── Paginate through all releases via the GitHub REST API ─────────
+              # The search pattern matches the prefix written into every release
+              # body by the versioning job:
+              #   "Branch: <name> | Commit: <sha>"
+              # We use jq to filter client-side rather than relying on GitHub's
+              # search index, which can lag behind freshly created releases.
+
+
+              RELEASE_COUNT=0
+              PRERELEASE_COUNT=0
+              PAGE=1
+              PER_PAGE=100
+              PAGE_TOTAL=0
+
+              while true; do
+                # Fetch the raw array for this page — no --jq here so we can
+                # both filter AND count the page length in one shot below.
+                RESPONSE=$(gh api \
+                  --method GET \
+                  "repos/${OWNER}/${REPO}/releases" \
+                  --field per_page="${PER_PAGE}" \
+                  --field page="${PAGE}")
+
+                # Break when the page is an empty array
+                PAGE_TOTAL=$(echo "$RESPONSE" | jq 'length')
+                if (( PAGE_TOTAL == 0 )); then
+                  break
+                fi
+
+                # ── Fix: coerce null body to "" before calling test() ─────
+                # Releases created without notes have body: null, which causes
+                # jq's test() to throw "null cannot be matched". The // ""
+                # operator substitutes an empty string for any null value,
+                # making the regex match safely return false instead of erroring.
+                MATCHED_RELEASES=$(echo "$RESPONSE" | \
+                  jq -r --arg branch "$BRANCH" \
+                  '.[] | select((.body // "") | test("^Branch: " + $branch + " \\|")) |
+                  if .prerelease then "prerelease" else "release" end')
+
+                PAGE_RELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^release$" || true)
+                PAGE_PRERELEASES=$(echo "$MATCHED_RELEASES" \
+                  | grep -c "^prerelease$" || true)
+
+                RELEASE_COUNT=$(( RELEASE_COUNT + PAGE_RELEASES ))
+                PRERELEASE_COUNT=$(( PRERELEASE_COUNT + PAGE_PRERELEASES ))
+
+                # If fewer results than requested, we've hit the last page
+                if (( PAGE_TOTAL < PER_PAGE )); then
+                  break
+                fi
+
+                PAGE=$(( PAGE + 1 ))
+              done
+
+              TOTAL_COUNT=$(( RELEASE_COUNT + PRERELEASE_COUNT ))
+              ALL_COUNT=$(( PAGE_TOTAL ))
+              TARGET_COUNT=$(( TOTAL_COUNT + 1 ))
+
+
+              echo "──────────────────────────────────────────"
+              echo "  Branch         : ${BRANCH}"
+              echo "  Releases       : ${RELEASE_COUNT}"
+              echo "  Pre-releases   : ${PRERELEASE_COUNT}"
+              echo "  Total          : ${TOTAL_COUNT}"
+              echo "  Target         : ${TARGET_COUNT}"
+              echo "  All            : ${ALL_COUNT}"
+              echo "──────────────────────────────────────────"
+
+              echo "release_count=${RELEASE_COUNT}"       >> "$GITHUB_OUTPUT"
+              echo "prerelease_count=${PRERELEASE_COUNT}" >> "$GITHUB_OUTPUT"
+              echo "total_count=${TOTAL_COUNT}"           >> "$GITHUB_OUTPUT"
+              echo "target_count=${TARGET_COUNT}"         >> "$GITHUB_OUTPUT"
+              echo "all_count=${ALL_COUNT}"           >> "$GITHUB_OUTPUT"
+
+              echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
+              echo "RELEASE_COUNT=${RELEASE_COUNT}"       >> "$GITHUB_ENV"
+              echo "PRERELEASE_COUNT=${PRERELEASE_COUNT}" >> "$GITHUB_ENV"
+              echo "TARGET_COUNT=${TARGET_COUNT}"           >> "$GITHUB_ENV"
+              echo "TOTAL_COUNT=${TOTAL_COUNT}"           >> "$GITHUB_ENV"
+              echo "ALL_COUNT=${ALL_COUNT}"           >> "$GITHUB_ENV"
+
+          - name: Write job summary
+            run: |
+              echo "## 📦 Release History: \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+              echo ""                                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Type | Count |"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| Releases     | \`${RELEASE_COUNT}\`     |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| Pre-releases | \`${PRERELEASE_COUNT}\`  |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| All Releases | \`${ALL_COUNT}\`         |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| **Total**    | \`${TOTAL_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+              echo "| **TARGET**   | \`${TARGET_COUNT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+              
+          # ── Write the version to a file (consumable by your build tooling) ──
+          - name: Write RELEASE_COUNT file
+            run: echo "$RELEASE_COUNT" > RELEASE_COUNT
+          
+          - name: Upload RELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: release-count-file
+              path: RELEASE_COUNT
+
+          - name: Write PRERELEASE_COUNT file
+            run: echo "$PRERELEASE_COUNT" > PRERELEASE_COUNT
+
+          - name: Upload PRERELEASE_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: prerelease-count-file
+              path: PRERELEASE_COUNT
+
+          - name: Write TOTAL_COUNT file
+            run: echo "$TOTAL_COUNT" > TOTAL_COUNT
+
+          - name: Upload TOTAL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: total-count-file
+              path: TOTAL_COUNT
+
+          - name: Write TARGET_COUNT file
+            run: echo "$TARGET_COUNT" > TARGET_COUNT
+
+          - name: Upload TARGET_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: target-count-file
+              path: TARGET_COUNT
+
+          - name: Write ALL_COUNT file
+            run: echo "$ALL_COUNT" > ALL_COUNT
+
+          - name: Upload ALL_COUNT artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: all-count-file
+              path: ALL_COUNT
+    #endregion count-releases
+
+
+
+    #region check-code
+    # JOB to check the version code based on the output from count-branch-release
+    ## - AppVersionCode must be an int remaining under 10000
+    ## - if the TOTAL_COUNT is >=5000 , create a warning or github issue
+    ## - if the TOTAL_COUNT+1 is >=99,999 , throw an error
+    # TODO: implement check-code job into pipeline
+    #endregion check-code
+
+
+    #region check-code
+    # JOB to check the version code based on the output from count-branch-release
+    ## - AppVersionCode must be an int remaining under 10000
+    ## - if the TOTAL_COUNT is >=5000 , create a warning or github issue
+    ## - if the TOTAL_COUNT+1 is >=99,999 , throw an error
+    # TODO: implement check-code job into pipeline
+    #endregion check-code
+
     #region Build-Android
     # JOB to build and package an APK and publish to Releases
     build-android:
         # needs: changes
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         # Declare dependency on the versioning job so its artifact is available
-        needs: version
+        needs: [version, count-branch-releases, changes]
+        if: ${{ needs.changes.outputs.buildfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
@@ -300,31 +574,178 @@ jobs:
               shell: bash
               run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
 
+            - name: Download BRANCH artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: branch-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads BRANCH file to ./artifacts/BRANCH
+              
+            - name: Read branch into env
+              shell: bash
+              run: echo "BRANCH=$(cat ./artifacts/BRANCH)" >> "$GITHUB_ENV"
+            
+            - name: Download SAFE_BRANCH artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: safe-branch-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads SAFE_BRANCH file to ./artifacts/SAFE_BRANCH
+              
+            - name: Read safe_branch into env
+              shell: bash
+              run: echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)" >> "$GITHUB_ENV"
+            
+            - name: Download RELEASE_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: release-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads RELEASE_COUNT file to ./artifacts/RELEASE_COUNT
+            - name: Read release-count into env
+              shell: bash
+              run: echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download PRERELEASE_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: prerelease-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads PRERELEASE_COUNT file to ./artifacts/PRERELEASE_COUNT
+            - name: Read prerelease-count into env
+              shell: bash
+              run: echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download TOTAL_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: total-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads TOTAL_COUNT file to ./artifacts/TOTAL_COUNT
+            - name: Read total-count into env
+              shell: bash
+              run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download TARGET_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: target-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads TARGET_COUNT file to ./artifacts/TARGET_COUNT
+            - name: Read target-count into env
+              shell: bash
+              run: echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)" >> "$GITHUB_ENV"
+            
+            - name: Download ALL_COUNT artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: all-count-file   # Must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads ALL_COUNT file to ./artifacts/ALL_COUNT
+            - name: Read all-count into env
+              shell: bash
+              run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
+
             - name: Run a one-line script to check major
               run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
             - name: Run a one-line script to check version
               run: echo "App Version - ${{ env.APP_VERSION }}"
 
-            - name: Setup .NET
+            - name: Setup .NET from global.json
               uses: actions/setup-dotnet@v5
               with:
-                dotnet-version: '10.0.x'
+                global-json-file: global.json
+
+            - name: Check Current .NET SDK for runner
+              run: dotnet --info
+
 
             - name: Install MAUI workload
               run: dotnet workload install maui
 
+            - name: Decode Keystore
+              run: |
+                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
+                  certutil -decode friendex.keystore.b64 friendex.keystore
+
+
+            - name: Check if Workflow was triggered manually
+              if: github.event_name == 'workflow_dispatch'
+              shell: bash
+              run: |
+                echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+
+            - name: Check if Workflow was triggered non-manually
+              if: github.event_name != 'workflow_dispatch'
+              shell: bash
+              run: |
+                echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
+                
+
+            - name: Set Version Variables
+              shell: bash
+              run: | 
+
+                echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
+                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
+                  echo "Detected a Manual Dispatch for an existing Release $APP_VERSION !! "
+                  echo "Modifying Release Name...."
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_rumber }}"
+                  # echo ""
+                  #else
+                fi
+
+                echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
+                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"           >> "$GITHUB_ENV"
+                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                  else
+                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"        >> "$GITHUB_ENV"
+                  echo "TEMP_B=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"              >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"       >> "$GITHUB_ENV"
+                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"                              >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
+                fi
+              # shell: bash
+              
+              # TODO!!: modify the .csproj based on the version codes from earlier
+              ## [ ] - TOTAL_COUNT is likely the way to o here, since it's branch specific
+              ## [ ] - modify the app label if not a release on main to visually identify that it uses a different version 
+              # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
+            
+
+            - name: Restore NuGet packages
+              run: dotnet restore "$env:PROJECT_PATH"
+
+            - name: Configure Java heap for Android tooling
+              shell: bash
+              run: echo "JAVA_TOOL_OPTIONS=-Xmx4g" >> "$GITHUB_ENV"
+            
             - name: Build and Publish APK
-              run: >-
+              run: >- # powershell
                 dotnet publish
                 -f net10.0-android
                 -c Release
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
-            # -p:ApplicationVersion=${{ env.APP_VERSION_MAJOR }} # commented out due to causing an issue with Application VersionCode within the AndroidManifest.xml during builds
-
+                -p:ApplicationVersion=${{ env.TARGET_COUNT }}
+                -p:ApplicationId="${{ env.APP_NAME }}"
+                -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
+                -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
+                -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+                -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+                -p:AndroidSigningStore=friendex.keystore
+                #-p:AndroidKeyStore=true
+            
             - name: List build output
               run: ls -R ./**/*-Signed.apk
-
+            
+            # # Copy all .aab and .apk files to an 'output' folder 
+            # # to avoid nested paths in the final artifact
+            # - name: Copy .aab and .apk to output
+            #   run: |        
+            #     $destination = "$(pwd)\output"
+            #     mkdir $destination
+            #     $files = Get-ChildItem -Recurse -Include *.aab,*.apk
+            #     foreach ($file in $files) {
+            #       Copy-Item $file.FullName -Destination $destination -Force
+            #     }
 
             # - name: 'package release'
             #   run: |
@@ -343,33 +764,72 @@ jobs:
             #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             #   shell: bash
 
-            - name: 'package release'
+            - name: Rename file using PowerShell
+              shell: pwsh
               run: |
-                gh release list
-                echo '\n\n'
-                
-                echo '\nTarget: $GITHUB_SHA'
-                echo '\nTitle $APP_VERSION'
+                Rename-Item -Path "$env:PUB_PATH_OUT" -NewName "$env:FILE_OUT"
 
+            - name: 'package release'
+              run: | # powershell
+                gh release list
+                echo "\n\n"
+                
+                echo "\nTarget: $GITHUB_SHA"
+                echo "\nTitle $APP_VERSION"
+                echo "\nVersion Code for Branch: $TARGET_COUNT"
+                
                 # Check if release already exists
                 if gh release view "$APP_VERSION" >/dev/null 2>&1; then
                   echo "Release $APP_VERSION already exists, uploading artifact..."
                 else
-                  echo "Creating pre-release $APP_VERSION..."
-                  gh release create "$APP_VERSION" \
-                    --prerelease \
-                    --target "$GITHUB_SHA" \
-                    --title "Release $APP_VERSION" \
-                    --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
-                fi
+
+                  echo "New release: $APP_VERSION ! Attempting to create a release..."
+                  echo "Is this on main or master branch?..."
+                  if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
+                    # Write-Host "Running on main or master branch"
+                    echo "Creating Release $APP_VERSION..."
+                    gh release create "$APP_VERSION" \
+                      --target "$GITHUB_SHA" \
+                      --title "Release $APP_VERSION" \
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
+
+                  else
+                    # Write-Host "Running on other branch"
+                    echo "Creating pre-release $APP_VERSION..."
+                    gh release create "$APP_VERSION" \
+                      --prerelease \
+                      --target "$GITHUB_SHA" \
+                      --title "Release $APP_VERSION" \
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                  
+                  fi
+
+                fi #end of check if release already exists
                 
-                echo '\n\n'
-                gh release upload "$APP_VERSION" \
-                  "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+                # TODO: Add a check here to see if on main/master. If not, then append $SAFE_BRANCH but maybe concat'd. If filename is too long, then substitute an area with sha1 or something, figure it out.
+                
+                #if
+                echo "\n\n"
+                # if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
+
+                  # echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+                  gh release upload "$APP_VERSION" \
+                    "${{ env.FILE_PATH_OUT }}"
+                # else
+                    # echo "RELEASE_NAME="
+                    # gh release upload "$APP_VERSION" \
+                      # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
+                # fi
+                #fi
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
-            
+
+            # - name: C
+            #   shell: bash
+            #   run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
+
     #endregion Build-Android
 
     # #region Build-Windows

@@ -5,99 +5,111 @@
              x:Class="FrienDex.Views.ViewPersonPage"
              Title="ViewPerson"
              Padding="0">
-    
+
     <Grid RowDefinitions="*,Auto" ColumnDefinitions="*">
-        
-        <!-- Main Scrollable Content -->
+
         <ScrollView Grid.Row="0" Padding="20,20,20,20">
             <VerticalStackLayout Spacing="20">
-                
-                <!-- Name Header -->
-                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Label 
-                        x:Name="NameLabel"
-                        FontSize="32"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-                
-                <!-- IsFavorite Indicator -->
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                    <Label 
-                        x:Name="FavoriteIndicator"
-                        FontSize="20" />
-                    <Label 
-                        x:Name="FavoriteLabel"
-                        FontSize="14"
-                        VerticalOptions="Center" />
-                </HorizontalStackLayout>
-                
-                <!-- Rooms Pills -->
-                <VerticalStackLayout Spacing="8">
-                    <Label 
-                        Text="Rooms"
-                        FontSize="16"
-                        FontAttributes="Bold" />
-                    <FlexLayout 
-                        x:Name="RoomsPillContainer"
-                        Wrap="Wrap"
-                        JustifyContent="Start"
-                        AlignItems="Center"
-                        Margin="0,-4,0,-4" />
-                </VerticalStackLayout>
-                
-                <!-- Divider -->
-                <BoxView 
-                    Color="#E0E0E0"
-                    HeightRequest="1"
-                    Margin="0,10,0,10" />
-                
-                <!-- DexEntry Section -->
-                <VerticalStackLayout Spacing="8">
-                    <Label 
-                        Text="Blocks"
-                        FontSize="16"
-                        FontAttributes="Bold" />
 
-                    <VerticalStackLayout
-                        x:Name="BlocksContainer"
-                        Spacing="12"
-                        Margin="0,0,0,20" />
+                <!-- View mode -->
+                <VerticalStackLayout x:Name="DisplaySection" Spacing="8" HorizontalOptions="Center">
+                    <Label x:Name="NameLabel"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" />
+
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <Label x:Name="FavoriteIndicator"
+                               FontSize="20" />
+                        <Label x:Name="FavoriteLabel"
+                               FontSize="14"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Edit mode -->
+                <VerticalStackLayout x:Name="EditSection" Spacing="12" IsVisible="False">
+                    <Label Text="First Name" FontAttributes="Bold" />
+                    <Entry x:Name="FirstNameEntry" Placeholder="First Name" />
+
+                    <Label Text="Last Name" FontAttributes="Bold" />
+                    <Entry x:Name="LastNameEntry" Placeholder="Last Name" />
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Favorite" VerticalOptions="Center" />
+                        <CheckBox x:Name="FavoriteCheckBox" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Rooms -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Rooms"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    <FlexLayout x:Name="RoomsPillContainer"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                AlignItems="Center"
+                                Margin="0,-4,0,-4" />
+                </VerticalStackLayout>
+
+                <BoxView Color="#E0E0E0"
+                         HeightRequest="1"
+                         Margin="0,10,0,10" />
+
+                <!-- Blocks -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Blocks"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    <VerticalStackLayout x:Name="BlocksContainer"
+                                         Spacing="12"
+                                         Margin="0,0,0,20" />
                 </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>
-        
-        <!-- Buttons Container -->
-        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10" Padding="20" HorizontalOptions="EndAndExpand">
-            
-            <!-- Add Block FAB (Hidden by default) -->
-            <Button 
-                x:Name="AddBlockButton"
-                Text="➕ Add Block"
-                Clicked="OnAddBlockClicked"
-                CornerRadius="25"
-                Padding="20,10"
-                BackgroundColor="#007AFF"
-                TextColor="White"
-                FontAttributes="Bold"
-                FontSize="16"
-                IsVisible="False" />
-            
-            <!-- Edit FAB -->
-            <Button 
-                Text="✏️ Edit"
-                Clicked="OnEditClicked"
-                CornerRadius="25"
-                Padding="20,10"
-                BackgroundColor="#FF6B6B"
-                TextColor="White"
-                FontAttributes="Bold"
-                FontSize="16" />
+
+        <!-- Bottom buttons -->
+        <StackLayout Grid.Row="1"
+                     Orientation="Horizontal"
+                     Spacing="10"
+                     Padding="20"
+                     HorizontalOptions="EndAndExpand">
+
+            <Button x:Name="DeleteButton"
+                    Text="🗑 Delete"
+                    Clicked="OnDeleteClicked"
+                    CornerRadius="25"
+                    Padding="20,10"
+                    BackgroundColor="#D9534F"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="16" />
+
+            <Button x:Name="AddBlockButton"
+                    Text="➕ Add Block"
+                    Clicked="OnAddBlockClicked"
+                    CornerRadius="25"
+                    Padding="20,10"
+                    BackgroundColor="#007AFF"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    IsVisible="False" />
+
+            <Button x:Name="EditButton"
+                    Text="✏️ Edit"
+                    Clicked="OnEditClicked"
+                    CornerRadius="25"
+                    Padding="20,10"
+                    BackgroundColor="#FF6B6B"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="16" />
         </StackLayout>
-        
+
     </Grid>
-    
 </ContentPage>

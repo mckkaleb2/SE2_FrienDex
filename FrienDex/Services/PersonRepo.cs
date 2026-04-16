@@ -135,31 +135,72 @@ namespace FrienDex.Services
         }
 
 
-        public async Task UpdateAsync(int id, Person person)
+       public async Task UpdateAsync(int id, Person person)
+{
+    await _dbLock.WaitAsync();
+    try
+    {
+        var existingPerson = await _db.People
+            .Include(p => p.DexEntry)
+            .ThenInclude(d => d.Blocks)
+            .Include(p => p.Rooms)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (existingPerson == null)
+            return;
+
+        // Only update the person's own fields
+        existingPerson.FirstName = person.FirstName;
+        existingPerson.LastName = person.LastName;
+        existingPerson.IsFavorite = person.IsFavorite;
+
+        await _db.SaveChangesAsync();
+    }
+    finally
+    {
+        _dbLock.Release();
+    }
+}
+
+public async Task DeleteAsync(int id)
+{
+    await _dbLock.WaitAsync();
+    try
+    {
+        var existingPerson = await _db.People
+            .Include(p => p.DexEntry)
+            .ThenInclude(d => d.Blocks)
+            .Include(p => p.Rooms)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (existingPerson == null)
+            return;
+
+        // Remove blocks first if they exist
+        if (existingPerson.DexEntry?.Blocks != null && existingPerson.DexEntry.Blocks.Count > 0)
         {
-            await _dbLock.WaitAsync();
-            try
-            {
-                var existingPerson = await _db.People.FindAsync(id);
-                if (existingPerson != null)
-                {
-                    // Change this to alter each parameter aside from Id.
-                    //_db.Entry(existingPerson).CurrentValues.SetValues(person);
-                    existingPerson.FirstName = person.FirstName;
-                    existingPerson.LastName = person.LastName;
-                    existingPerson.IsFavorite = person.IsFavorite;
-                    await _db.SaveChangesAsync();
-                }
-            }
-            finally
-            {
-                _dbLock.Release();
-            }
+            _db.Blocks.RemoveRange(existingPerson.DexEntry.Blocks);
         }
 
-        public Task DeleteAsync(int id)
+        // Remove dex entry if it exists
+        if (existingPerson.DexEntry != null)
         {
-            throw new NotImplementedException();
+            _db.Entries.Remove(existingPerson.DexEntry);
         }
+
+        // Clear room links
+        if (existingPerson.Rooms != null && existingPerson.Rooms.Count > 0)
+        {
+            existingPerson.Rooms.Clear();
+        }
+
+        _db.People.Remove(existingPerson);
+        await _db.SaveChangesAsync();
+    }
+    finally
+    {
+        _dbLock.Release();
+    }
+}
     }
 }
