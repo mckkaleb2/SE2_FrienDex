@@ -358,7 +358,7 @@ jobs:
         name: Count Releases for Branch
         runs-on: ubuntu-latest
         # Run after versioning so any new release is already created before we count
-        needs: [version, changes]
+        needs: [version]
         if: ${{ always() }}
 
         permissions:
