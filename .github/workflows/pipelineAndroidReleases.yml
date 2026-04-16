@@ -44,7 +44,7 @@ jobs:
         docs: ${{ steps.filter.outputs.docs }}
         buildfiles: ${{ steps.filter.outputs.buildfiles }}
         anyfiles: ${{ steps.filter.outputs.anyfiles }}
-        workflows:      ${{ needs.changes.outputs.workflows  }}
+        workflows: ${{ needs.changes.outputs.workflows }}
 
       steps:
         # For pull requests it's not necessary to checkout the code
@@ -93,12 +93,12 @@ jobs:
         - uses: actions/checkout@v6
         - name: 'any files changed'
           run: |
-            if [ gitfiles || projectfiles || docs || buildfiles || workflows ]; then
+            if [ gitfiles ] || [ projectfiles ] || [ docs ] || [ buildfiles ] || [ workflows ]; then
               echo "RESULT=true"       >> "$GITHUB_ENV"
             else
               echo "RESULT=false"        >> "$GITHUB_ENV"
             fi
-            if [ RESULT || anyfiles ]; then
+            if [ RESULT ] || [ anyfiles ]; then
               echo "ALLRESULTS=true"       >> "$GITHUB_ENV"
             else
               echo "ALLRESULT=false"       >> "$GITHUB_ENV"
