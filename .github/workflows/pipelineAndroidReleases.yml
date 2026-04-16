@@ -101,7 +101,6 @@ jobs:
 
         - name: Write job summary
           run: |
-            ${gitfiles || projectfiles || docs || buildfiles}
             echo "## 💡 Files Changed: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
             echo ""                                        >> "$GITHUB_STEP_SUMMARY"
             echo "| Type | Result |"                        >> "$GITHUB_STEP_SUMMARY"
