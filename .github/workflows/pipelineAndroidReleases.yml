@@ -701,13 +701,13 @@ jobs:
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }}
-                -p:AndroidKeyStore=true
                 -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
                 -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
                 -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
                 -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
                 -p:AndroidSigningStore=friendex.keystore
+                #-p:AndroidKeyStore=true
             
             - name: List build output
               run: ls -R ./**/*-Signed.apk
