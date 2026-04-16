@@ -122,8 +122,8 @@ jobs:
 
       permissions:
         contents: write  # Needed to push tags
-      needs: changes
-      if: ${{ needs.changes.outputs.buildfiles == 'true' }}
+      #needs: changes
+      #if: ${{ needs.changes.outputs.buildfiles == 'true' }}
       steps:
         # ── 1. Checkout with full history so git rev-list works correctly ──────
         - name: Checkout repository
@@ -548,11 +548,10 @@ jobs:
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         # Declare dependency on the versioning job so its artifact is available
         needs: [version, count-branch-releases, changes]
-        if: ${{ needs.changes.outputs.buildfiles == 'true' }}
+        if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
-
 
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
