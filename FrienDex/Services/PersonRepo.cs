@@ -144,8 +144,10 @@ namespace FrienDex.Services
                 if (existingPerson != null)
                 {
                     // Change this to alter each parameter aside from Id.
-                    _db.Entry(existingPerson).CurrentValues.SetValues(person);
-                    //_db.Entry(existingPerson).FirstName.SetValue(person.FirstName);
+                    //_db.Entry(existingPerson).CurrentValues.SetValues(person);
+                    existingPerson.FirstName = person.FirstName;
+                    existingPerson.LastName = person.LastName;
+                    existingPerson.IsFavorite = person.IsFavorite;
                     await _db.SaveChangesAsync();
                 }
             }
