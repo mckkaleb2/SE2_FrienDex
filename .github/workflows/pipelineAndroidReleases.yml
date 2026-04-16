@@ -209,6 +209,15 @@ jobs:
 
               echo "BUMP type determined: ${BUMP}"
 
+              # Feature branch: sanitise the branch name (replace / and spaces)
+              SAFE_BRANCH=$(echo "$BRANCH" \
+                | tr '/' '-' \
+                | tr ' ' '-' \
+                | sed 's/[^a-zA-Z0-9._-]/-/g' \
+                | sed 's/--*/-/g' \
+                | sed 's/^-//;s/-$//')
+
+
               # ── Apply the bump ─────────────────────────────────────────────
               if [[ "$BUMP" == "major" ]]; then
                 NEW_MAJOR=$(( MAJOR + 1 ))
@@ -222,13 +231,6 @@ jobs:
               IS_RELEASE=true
 
             else
-              # Feature branch: sanitise the branch name (replace / and spaces)
-              SAFE_BRANCH=$(echo "$BRANCH" \
-                | tr '/' '-' \
-                | tr ' ' '-' \
-                | sed 's/[^a-zA-Z0-9._-]/-/g' \
-                | sed 's/--*/-/g' \
-                | sed 's/^-//;s/-$//')
 
               VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
               IS_RELEASE=false
