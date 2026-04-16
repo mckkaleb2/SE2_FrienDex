@@ -234,7 +234,11 @@ namespace FrienDex_Test
             var exception = Assert.Throws<ArgumentOutOfRangeException>(() => resultList[testPerson1.Id]);
         }
 
-        // THis is a test comment.
+        /// <summary>
+        /// Tests the UpdateAsync for the Person object.
+        /// Creates a new Person object, calls the UpdateAsync method with new Person data, 
+        /// then reads the Person object to check if the changes were made.
+        /// </summary>
         [Fact]
         public async Task TestUpdatePersonSuccess()
         {
@@ -266,5 +270,7 @@ namespace FrienDex_Test
             Assert.Equal("Elm", testPerson1.LastName);
             Assert.True(testPerson1.IsFavorite);
         }
+
+
     }
 }

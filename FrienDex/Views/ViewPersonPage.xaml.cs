@@ -9,21 +9,24 @@ namespace FrienDex.Views;
 public partial class ViewPersonPage : ContentPage
 {
     public int PersonId { get; set; }
+
     private readonly IPersonRepo _personRepo;
     private readonly IBlockRepo _blockRepo;
+
     private Person? _person;
     private bool _isEditMode = false;
-    
+
     public ViewPersonPage(IPersonRepo personRepo, IBlockRepo blockRepo)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _personRepo = personRepo;
         _blockRepo = blockRepo;
-	}
+    }
 
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
+
         if (PersonId != 0)
         {
             _ = LoadPersonDetails();
@@ -60,6 +63,10 @@ public partial class ViewPersonPage : ContentPage
             FavoriteLabel.Text = "";
         }
 
+        FirstNameEntry.Text = _person.FirstName;
+        LastNameEntry.Text = _person.LastName;
+        FavoriteCheckBox.IsChecked = _person.IsFavorite;
+
         RoomsPillContainer.Children.Clear();
         if (_person.Rooms != null && _person.Rooms.Count > 0)
         {
@@ -81,6 +88,7 @@ public partial class ViewPersonPage : ContentPage
                         HorizontalOptions = LayoutOptions.Center
                     }
                 };
+
                 RoomsPillContainer.Children.Add(pill);
             }
         }
@@ -94,23 +102,16 @@ public partial class ViewPersonPage : ContentPage
             });
         }
 
-        // Render blocks dynamically
         BlocksContainer.Children.Clear();
         if (_person.DexEntry != null && _person.DexEntry.Blocks != null && _person.DexEntry.Blocks.Count > 0)
         {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"✅ Blocks loaded: {_person.DexEntry.Blocks.Count} blocks found");
-#endif
-            
             foreach (var block in _person.DexEntry.Blocks)
             {
                 var blockView = CreateBlockView(block);
                 if (blockView != null)
                 {
-                    // Add spacing between blocks instead of border wrapping
                     if (_isEditMode)
                     {
-                        // Add tap gesture for edit mode
                         var tapGesture = new TapGestureRecognizer();
                         tapGesture.Tapped += (s, e) => OnBlockTapped(block);
                         blockView.GestureRecognizers.Add(tapGesture);
@@ -122,9 +123,6 @@ public partial class ViewPersonPage : ContentPage
         }
         else
         {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"⚠️ No blocks found for this person");
-#endif
             BlocksContainer.Children.Add(new Label
             {
                 Text = "No blocks yet",
@@ -151,68 +149,61 @@ public partial class ViewPersonPage : ContentPage
 
     private View CreateTextBlockView(TextBlock block)
     {
-        var textBlockView = new TextBlockView
+        return new TextBlockView
         {
             Text = block.Content
         };
-        return textBlockView;
     }
 
     private View CreateImageBlockView(ImageBlock block)
     {
-        var imageBlockView = new ImageBlockView
+        return new ImageBlockView
         {
             ImageUrl = block.ImageUrl
         };
-        return imageBlockView;
     }
 
     private View CreateDateBlockView(DatePickerBlock block)
     {
-        var dateBlockView = new DatePickerBlockView
+        return new DatePickerBlockView
         {
             DateTitle = block.DateTitle,
             DateDescription = block.DateDescription,
             SelectedDate = block.SelectedDate
         };
-        return dateBlockView;
     }
 
     private View CreateEventBlockView(EventBlock block)
     {
-        var eventBlockView = new EventBlockView
+        return new EventBlockView
         {
             EventName = block.EventName,
             EventDate = block.EventDate,
             EventComments = block.EventComments
         };
-        return eventBlockView;
     }
 
     private View CreateRelationshipBlockView(RelationshipBlock block)
     {
-        var relationshipBlockView = new RelationshipBlockView
+        return new RelationshipBlockView
         {
             RelationshipName = block.RelationshipName,
             RelationshipDescription = block.RelationshipDescription,
             RelatedPerson = block.RelatedPerson
         };
-        return relationshipBlockView;
     }
 
     private View CreateContactBlockView(ContactBlock block)
     {
-        var contactBlockView = new ContactBlockView
+        return new ContactBlockView
         {
             ContactType = block.ContactType,
             ContactValue = block.ContactValue
         };
-        return contactBlockView;
     }
 
     private void OnBlockTapped(Block block)
     {
-        // Handle block edit - navigate to edit page
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             await Shell.Current.GoToAsync($"editblock?BlockId={block.Id}&PersonId={PersonId}");
@@ -227,52 +218,67 @@ public partial class ViewPersonPage : ContentPage
 
     private async void OnEditClicked(object sender, EventArgs e)
     {
+        if (_person == null) return;
+
         _isEditMode = !_isEditMode;
 
         if (_isEditMode)
         {
-            // Switch to edit mode
-            var editButton = (Button)sender;
-            editButton.Text = "✨ Done";
-            editButton.BackgroundColor = Color.FromArgb("#34C759");
+            DisplaySection.IsVisible = false;
+            EditSection.IsVisible = true;
 
-            // Show add block button if it exists in XAML
-            if (AddBlockButton != null)
-            {
-                AddBlockButton.IsVisible = true;
-            }
+            EditButton.Text = "💾 Save";
+            EditButton.BackgroundColor = Color.FromArgb("#34C759");
+
+            AddBlockButton.IsVisible = true;
         }
         else
         {
-            // Exit edit mode
-            var editButton = (Button)sender;
-            editButton.Text = "✏️ Edit";
-            editButton.BackgroundColor = Color.FromArgb("#FF6B6B");
+            _person.FirstName = FirstNameEntry.Text?.Trim();
+            _person.LastName = LastNameEntry.Text?.Trim();
+            _person.IsFavorite = FavoriteCheckBox.IsChecked;
 
-            // Hide add block button
-            if (AddBlockButton != null)
-            {
-                AddBlockButton.IsVisible = false;
-            }
+            await _personRepo.UpdateAsync(PersonId, _person);
 
-            // Refresh UI to save changes
-            if (_person != null)
-            {
-                await _personRepo.UpdateAsync(PersonId, _person);
-                PopulateUI();
-            }
+            DisplaySection.IsVisible = true;
+            EditSection.IsVisible = false;
+
+            EditButton.Text = "✏️ Edit";
+            EditButton.BackgroundColor = Color.FromArgb("#FF6B6B");
+
+            AddBlockButton.IsVisible = false;
+
+            await LoadPersonDetails();
         }
+    }
+
+    private async void OnDeleteClicked(object sender, EventArgs e)
+    {
+        if (_person == null) return;
+
+        bool confirm = await DisplayAlert(
+            "Delete Person",
+            $"Are you sure you want to delete {_person.FullName}?",
+            "Yes",
+            "No");
+
+        if (!confirm) return;
+
+        await _personRepo.DeleteAsync(PersonId);
+
+        await Shell.Current.DisplayAlert("Deleted", "Person was deleted successfully.", "OK");
+        await Shell.Current.GoToAsync("..");
     }
 
     private async void OnAddBlockClicked(object sender, EventArgs e)
     {
         if (PersonId == 0) return;
+
         string result = "new";
 
         if (string.IsNullOrEmpty(result) || result == "Cancel")
             return;
 
-        // Navigate to AddBlockPage with selected block type
         await Shell.Current.GoToAsync($"addblock?PersonId={PersonId}&BlockType={result}");
     }
 }
