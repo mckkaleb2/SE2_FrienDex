@@ -42,6 +42,8 @@ jobs:
         gitfiles: ${{ steps.filter.outputs.gitfiles }}
         projectfiles: ${{ steps.filter.outputs.projectfiles }}
         docs: ${{ steps.filter.outputs.docs }}
+        buildfiles: ${{ steps.filter.outputs.buildfiles }}
+        anyfiles: ${{ steps.filter.outputs.anyfiles }}
       steps:
         # For pull requests it's not necessary to checkout the code
         - uses: actions/checkout@v6
@@ -63,6 +65,8 @@ jobs:
               buildfiles:
                 - '!*docs'
                 - '!*gitfiles'
+              anyfiles:
+                - '**/**'
 
     #endregion Change-Filter
     
@@ -76,16 +80,19 @@ jobs:
         projectfiles:   ${{ needs.changes.outputs.projectfiles }}
         docs:           ${{ needs.changes.outputs.docs }}
         buildfiles:     ${{ needs.changes.outputs.buildfiles }}
+        anyfiles:       ${{ needs.changes.outputs.anyfiles  }}
 
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v6
-        - name: 'docfiles changed'
+        - name: 'any files changed'
           run: |
-            echo 'docfiles have changed'
-        
+            if [ gitfiles || projectfiles || docs || buildfiles ] && RESULT=true
+            if [ RESULT || anyfiles ] && ALLRESULTS=true
+
         - name: Write job summary
           run: |
+            ${gitfiles || projectfiles || docs || buildfiles}
             echo "## 💡 Files Changed: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
             echo ""                                        >> "$GITHUB_STEP_SUMMARY"
             echo "| Type | Result |"                        >> "$GITHUB_STEP_SUMMARY"
@@ -95,7 +102,8 @@ jobs:
             echo "| docs          | \`${docs}\`          |" >> "$GITHUB_STEP_SUMMARY"
             echo "| buildfiles    | \`${buildfiles}\`    |" >> "$GITHUB_STEP_SUMMARY"
             echo "|------|--------|"                        >> "$GITHUB_STEP_SUMMARY"
-            echo "| **ANY CHANGE**    | \`${gitfiles || projectfiles || docs || buildfiles}\`       |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| **CONDITIONS CHECKED**    | \`${RESULT}\`       |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| *ANY CHANGE*              | \`${ALLRESULTS}\`       |" >> "$GITHUB_STEP_SUMMARY"
 
     #endregion Filter_Outputs
         
