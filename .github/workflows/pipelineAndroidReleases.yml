@@ -44,7 +44,7 @@ jobs:
         docs: ${{ steps.filter.outputs.docs }}
         buildfiles: ${{ steps.filter.outputs.buildfiles }}
         anyfiles: ${{ steps.filter.outputs.anyfiles }}
-        workflows: ${{ needs.changes.outputs.workflows }}
+        workflows: ${{ steps.filter.outputs.workflows }}
 
       steps:
         # For pull requests it's not necessary to checkout the code
