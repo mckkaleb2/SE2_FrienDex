@@ -101,7 +101,7 @@ jobs:
             if [ RESULT ] || [ anyfiles ]; then
               echo "ALLRESULTS=true"       >> "$GITHUB_ENV"
             else
-              echo "ALLRESULT=false"       >> "$GITHUB_ENV"
+              echo "ALLRESULTS=false"       >> "$GITHUB_ENV"
             fi
 
 
