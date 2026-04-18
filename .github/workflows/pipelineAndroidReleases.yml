@@ -724,6 +724,12 @@ jobs:
             - name: Restore NuGet packages
               run: dotnet restore "$env:PROJECT_PATH"
 
+            - name: Setup Java
+              uses: actions/setup-java@4
+              with:
+                distribution: 'microsoft'
+                java-version: '17'
+
             - name: Configure Java heap for Android tooling
               shell: bash
               run: echo "JAVA_TOOL_OPTIONS=-Xmx6g" >> "$GITHUB_ENV"
