@@ -726,8 +726,6 @@ jobs:
               shell: bash
               run: echo "JAVA_TOOL_OPTIONS=-Xmx6g" >> "$GITHUB_ENV"
             
-            
-            
             - name: Build and Publish APK
               run: >- # powershell
                 dotnet publish
