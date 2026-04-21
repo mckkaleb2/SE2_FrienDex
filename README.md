@@ -11,26 +11,24 @@ TABLE OF CONTENTS:
 	- Dex CRUD Features
 	- Room CRUD Features
 
-
 INSTALLATION STEPS
+	
 	1. Allow application installs from 3rd party sources
 		1.1. Navigate to SETTINGS
 		1.2. Navigate to SECURITY AND PRIVACY
 		1.3. Allow for installations from unknown apps or sources
-
-  	GITHUB APP BASED INSTALL:
-  	2a. Navigate to GitHub App and Select the Se2_Friendex Repo
-  	3a. Select Releases
-  	4a. Click most recent release and scroll to Assets
-  	5a. Download asset and open file once installed
-  	6a. Select install from the popup menu and wait for the installation to finish
-  	7a. Open the application, it's ready for use!
+		
+	GITHUB APP BASED INSTALL:
+	  	2a. Navigate to GitHub App and Select the Se2_Friendex Repo
+	  	3a. Select Releases
+	  	4a. Click most recent release and scroll to Assets
+	  	5a. Download asset and open file once installed
 
   	DESKTOP BASED INSTALL:  
-  	2b. Navigate to https://github.com/mckkaleb2/SE2_FrienDex using a desktop or laptop computer
-  	3b. Select Latest Release from menu on right of screen
-  	4b. Select and download the master.apk file
-  	5b. Connect Android device to the computer and move master.apk file to the downloads file of the phone and open the file on the phone
+	  	2b. Navigate to https://github.com/mckkaleb2/SE2_FrienDex using a desktop or laptop computer
+	  	3b. Select Latest Release from menu on right of screen
+	  	4b. Select and download the master.apk file
+	  	5b. Connect Android device to the computer and move master.apk file to the downloads file of the phone and open the file on the phone
 
 	6. Select install from the popup menu and wait for the installation to finish
 	7. Open the application, it's ready for use!
