@@ -685,6 +685,7 @@ jobs:
             - name: Check if Workflow was triggered manually or non-manually
               shell: bash
               run: |
+                echo ${{  github.event_name }}
                 if [ ${{ github.event_name }} -eq "workflow_dispatch" ]; then
                   echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
                 else
@@ -731,7 +732,7 @@ jobs:
               run: dotnet restore "$env:PROJECT_PATH"
 
             - name: Setup Java
-              uses: actions/setup-java@v4
+              uses: actions/setup-java@v5
               with:
                 distribution: 'microsoft'
                 java-version: '17'
