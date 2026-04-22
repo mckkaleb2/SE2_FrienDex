@@ -563,6 +563,17 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Check if Workflow was triggered manually or non-manually
+              shell: bash
+              run: |
+                echo ${{  github.event_name }}
+                if [ ${{ github.event_name }} -eq "workflow_dispatch" ]; then
+                  echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+                else
+                  echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
+                fi
+
+
             #region ..BA-GetArtifacts
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
@@ -682,15 +693,6 @@ jobs:
             #   run: |
             #     echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
 
-            - name: Check if Workflow was triggered manually or non-manually
-              shell: bash
-              run: |
-                echo ${{  github.event_name }}
-                if [ ${{ github.event_name }} -eq "workflow_dispatch" ]; then
-                  echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
-                else
-                  echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
-                fi
 
             - name: Set Version Variables
               shell: bash
