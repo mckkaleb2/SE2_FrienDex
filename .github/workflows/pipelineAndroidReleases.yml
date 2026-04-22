@@ -570,6 +570,13 @@ jobs:
                   echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
                 fi
 
+                if [ ${{ github.event_name }} -eq "pull_request" ]; then
+                  echo "PULL_TRIGGER=0"        >> "$GITHUB_ENV"
+                else
+                  echo "PULL_TRIGGER=1"        >> "$GITHUB_ENV"
+                fi
+
+
 
             #region ..BA-GetArtifacts
             - name: Download VERSION artifact
@@ -696,8 +703,8 @@ jobs:
               run: | 
 
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
-                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
-                  echo "Detected a Manual Dispatch for an existing Release $APP_VERSION !! "
+                if [[ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]||[${{ env.PULL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION"]]; then
+                  echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} or Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
                   echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}"
                   # echo ""
