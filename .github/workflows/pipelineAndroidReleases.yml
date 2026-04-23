@@ -566,11 +566,11 @@ jobs:
                 echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
                 echo "PULL_TRIGGER=1"        >> "$GITHUB_ENV"
                 echo ${{  github.event_name }}
-                if [ "${{ github.event_name }}" -eq "workflow_dispatch" ]; then
+                if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
                   echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
                 fi
 
-                if [ "${{ github.event_name }}" -eq "pull_request" ]; then
+                if [ "${{ github.event_name }}" == "pull_request" ]; then
                   echo "PULL_TRIGGER=0"        >> "$GITHUB_ENV"
                 fi
 
