@@ -121,9 +121,6 @@ jobs:
             echo "| *ANY CHANGE*              | \`${ALLRESULTS}\`       |" >> "$GITHUB_STEP_SUMMARY"
 
     #endregion Filter_Outputs
-        
-
-
 
     #region Versioning
     #JOB to handle modified SemVer Versioning schema according to a [Stack Overflow Answer](https://stackoverflow.com/a/39267953).
@@ -563,6 +560,23 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Check if Workflow was triggered manually or non-manually
+              shell: bash
+              run: |
+                echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
+                echo "PULL_TRIGGER=1"        >> "$GITHUB_ENV"
+                echo ${{  github.event_name }}
+                if [ ${{ github.event_name }} -eq "workflow_dispatch" ]; then
+                  echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+                fi
+
+                if [ ${{ github.event_name }} -eq "pull_request" ]; then
+                  echo "PULL_TRIGGER=0"        >> "$GITHUB_ENV"
+                fi
+
+
+
+            #region ..BA-GetArtifacts
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
               with:
@@ -653,6 +667,8 @@ jobs:
             - name: Run a one-line script to check version
               run: echo "App Version - ${{ env.APP_VERSION }}"
 
+            #endregion ..BA-GetArtifacts
+
             - name: Setup .NET from global.json
               uses: actions/setup-dotnet@v5
               with:
@@ -670,41 +686,38 @@ jobs:
                   echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
                   certutil -decode friendex.keystore.b64 friendex.keystore
 
+            - name: List decoded keystore location
+              run: ls -R ./**/*.keystore
 
-            - name: Check if Workflow was triggered manually
-              if: github.event_name == 'workflow_dispatch'
-              shell: bash
-              run: |
-                echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+            # - name: Check if Workflow was triggered manually
+            #   if: github.event_name == 'workflow_dispatch'
+            #   shell: bash
+            #   run: |
+            #     echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
 
-            - name: Check if Workflow was triggered non-manually
-              if: github.event_name != 'workflow_dispatch'
-              shell: bash
-              run: |
-                echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
-                
 
             - name: Set Version Variables
               shell: bash
               run: | 
 
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
-                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
-                  echo "Detected a Manual Dispatch for an existing Release $APP_VERSION !! "
+                if (([ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ] || [ ${{ env.PULL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" ])); then
+                  echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} or Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
-                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_rumber }}"
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}"
                   # echo ""
                   #else
                 fi
 
-                echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                 >> "$GITHUB_ENV"
                 echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
                 if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
-                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"           >> "$GITHUB_ENV"
-                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                            >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                       >> "$GITHUB_ENV"
+                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                    >> "$GITHUB_ENV"
                   echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
-                  else
+                
+                else
                   echo "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"        >> "$GITHUB_ENV"
                   echo "TEMP_B=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"              >> "$GITHUB_ENV"
                   echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"       >> "$GITHUB_ENV"
@@ -719,12 +732,18 @@ jobs:
               # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
             
 
-            - name: Restore NuGet packages
+            - name: Restore NuGet packages (dependencies)
               run: dotnet restore "$env:PROJECT_PATH"
+
+            - name: Setup Java
+              uses: actions/setup-java@v5
+              with:
+                distribution: 'microsoft'
+                java-version: '17'
 
             - name: Configure Java heap for Android tooling
               shell: bash
-              run: echo "JAVA_TOOL_OPTIONS=-Xmx4g" >> "$GITHUB_ENV"
+              run: echo "JAVA_TOOL_OPTIONS=-Xmx6g" >> "$GITHUB_ENV"
             
             - name: Build and Publish APK
               run: >- # powershell
@@ -778,6 +797,7 @@ jobs:
               run: |
                 Rename-Item -Path "$env:PUB_PATH_OUT" -NewName "$env:FILE_OUT"
 
+            #region ..BA-PackageRelease
             - name: 'package release'
               run: | # powershell
                 gh release list
@@ -834,12 +854,14 @@ jobs:
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
-
+            #endregion ..BA-PackageRelease
             # - name: C
             #   shell: bash
             #   run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
 
+            #MARK: -----end BA----------
     #endregion Build-Android
+
 
     # #region Build-Windows
     # # JOB to build and package an APK and publish to Releases
