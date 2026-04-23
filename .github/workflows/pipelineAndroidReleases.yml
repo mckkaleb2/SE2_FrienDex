@@ -282,7 +282,7 @@ jobs:
         - name: Upload VERSION artifact
           uses: actions/upload-artifact@v4
           with:
-            name: version-file
+            name: buildinfo-version-file
             path: VERSION
 
         - name: Write MAJOR file
@@ -291,7 +291,7 @@ jobs:
         - name: Upload MAJOR artifact
           uses: actions/upload-artifact@v4
           with:
-            name: major-file
+            name: buildinfo-major-file
             path: MAJOR
             
         - name: Write BRANCH file
@@ -300,7 +300,7 @@ jobs:
         - name: Upload BRANCH artifact
           uses: actions/upload-artifact@v4
           with:
-            name: branch-file
+            name: buildinfo-branch-file
             path: BRANCH
 
         - name: Write SAFE_BRANCH file
@@ -309,7 +309,7 @@ jobs:
         - name: Upload SAFE_BRANCH artifact
           uses: actions/upload-artifact@v4
           with:
-            name: safe-branch-file
+            name: buildinfo-safe-branch-file
             path: SAFE_BRANCH
 
         # ── 4. Tag the commit on master only ──────────────────────────────────
@@ -496,7 +496,7 @@ jobs:
           - name: Upload RELEASE_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: release-count-file
+              name: buildinfo-release-count-file
               path: RELEASE_COUNT
 
           - name: Write PRERELEASE_COUNT file
@@ -505,7 +505,7 @@ jobs:
           - name: Upload PRERELEASE_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: prerelease-count-file
+              name: buildinfo-prerelease-count-file
               path: PRERELEASE_COUNT
 
           - name: Write TOTAL_COUNT file
@@ -514,7 +514,7 @@ jobs:
           - name: Upload TOTAL_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: total-count-file
+              name: buildinfo-total-count-file
               path: TOTAL_COUNT
 
           - name: Write TARGET_COUNT file
@@ -523,7 +523,7 @@ jobs:
           - name: Upload TARGET_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: target-count-file
+              name: buildinfo-target-count-file
               path: TARGET_COUNT
 
           - name: Write ALL_COUNT file
@@ -532,7 +532,7 @@ jobs:
           - name: Upload ALL_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: all-count-file
+              name: buildinfo-all-count-file
               path: ALL_COUNT
     #endregion count-releases
 
@@ -576,139 +576,60 @@ jobs:
 
 
 
-            #region ..BA-GetArtifacts
-            - name: Download VERSION artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: version-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
-              
-            - name: Read version into env
-              shell: bash
-              run: echo "APP_VERSION=$(cat ./artifacts/VERSION)" >> "$GITHUB_ENV"
-            
-            - name: Download MAJOR artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: major-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
-              
-            - name: Read major into env
-              shell: bash
-              run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
+            #region ..BA-Get-Artifacts
 
-            - name: Download BRANCH artifact
-              uses: actions/download-artifact@v4
+            - name: Download All Artifacts by pattern
+              uses: actions/download-artifact@v8
               with:
-                name: branch-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads BRANCH file to ./artifacts/BRANCH
-              
-            - name: Read branch into env
+                pattern: buildinfo-*-file   # Using a glob pattern, must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads artifact files to ./artifacts/VERSION
+                merge-multiple: true  # Ensures that all artifacts are downloaded to the same specified path
+
+            - name: Confirm Artifact Directory
+              run: ls -R ./artifacts
+
+            - name: Read Artifacts into env variables
               shell: bash
-              run: echo "BRANCH=$(cat ./artifacts/BRANCH)" >> "$GITHUB_ENV"
-            
-            - name: Download SAFE_BRANCH artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: safe-branch-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads SAFE_BRANCH file to ./artifacts/SAFE_BRANCH
-              
-            - name: Read safe_branch into env
-              shell: bash
-              run: echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)" >> "$GITHUB_ENV"
-            
-            - name: Download RELEASE_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: release-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads RELEASE_COUNT file to ./artifacts/RELEASE_COUNT
-            - name: Read release-count into env
-              shell: bash
-              run: echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download PRERELEASE_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: prerelease-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads PRERELEASE_COUNT file to ./artifacts/PRERELEASE_COUNT
-            - name: Read prerelease-count into env
-              shell: bash
-              run: echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download TOTAL_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: total-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads TOTAL_COUNT file to ./artifacts/TOTAL_COUNT
-            - name: Read total-count into env
-              shell: bash
-              run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download TARGET_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: target-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads TARGET_COUNT file to ./artifacts/TARGET_COUNT
-            - name: Read target-count into env
-              shell: bash
-              run: echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download ALL_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: all-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads ALL_COUNT file to ./artifacts/ALL_COUNT
-            - name: Read all-count into env
-              shell: bash
-              run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
+              run: |
+                echo "APP_VERSION=$(cat ./artifacts/VERSION)"               >> "$GITHUB_ENV"
+                echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)"           >> "$GITHUB_ENV"
+                echo "BRANCH=$(cat ./artifacts/BRANCH)"                     >> "$GITHUB_ENV"
+                echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)"           >> "$GITHUB_ENV"
+                echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)"       >> "$GITHUB_ENV"
+                echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
+                echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)"           >> "$GITHUB_ENV"
+                echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)"         >> "$GITHUB_ENV"
+                echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)"               >> "$GITHUB_ENV"
 
             - name: Run a one-line script to check major
               run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
             - name: Run a one-line script to check version
               run: echo "App Version - ${{ env.APP_VERSION }}"
 
-            #endregion ..BA-GetArtifacts
+            #endregion ..BA-Get-Artifacts
 
-            - name: Setup .NET from global.json
-              uses: actions/setup-dotnet@v5
-              with:
-                global-json-file: global.json
-
-            - name: Check Current .NET SDK for runner
-              run: dotnet --info
-
-
-            - name: Install MAUI workload
-              run: dotnet workload install maui
-
-            - name: Decode Keystore
-              run: |
-                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
-                  certutil -decode friendex.keystore.b64 friendex.keystore
-
-            - name: List decoded keystore location
-              run: ls -R ./**/*.keystore
-
-            # - name: Check if Workflow was triggered manually
-            #   if: github.event_name == 'workflow_dispatch'
-            #   shell: bash
-            #   run: |
-            #     echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
-
-
-            - name: Set Version Variables
+            #region ..BA-Set-Variables
+            - name: Set APP_VERSION based on Event Type
               shell: bash
-              run: | 
-
+              run: |
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
-                if (([ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ] || [ ${{ env.PULL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" ])); then
-                  echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} or Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
+                echo "PULL_TRIGGER - ${{ env.PULL_TRIGGER }}"
+                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
+                  echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} for an existing Release $APP_VERSION !! "
+                  echo "Modifying Release Name...."
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}"
+
+                elif [ ${{ env.PULL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" ]; then
+                  echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
                   echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}"
                   # echo ""
                   #else
                 fi
 
+            - name: Set Version Variables
+              shell: bash
+              run: | 
                 echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                 >> "$GITHUB_ENV"
                 echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
                 if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
@@ -725,12 +646,36 @@ jobs:
                   echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
                 fi
               # shell: bash
-              
+
+            #endregion ..BA-Set-Variables
+
+            #region ..BA-Config-Env
+            - name: Setup .NET from global.json
+              uses: actions/setup-dotnet@v5
+              with:
+                global-json-file: global.json
+
+            - name: Check Current .NET SDK for runner
+              run: dotnet --info
+
+            - name: Install MAUI workload
+              run: dotnet workload install maui
+
+            - name: Decode Keystore
+              run: |
+                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
+                  certutil -decode friendex.keystore.b64 friendex.keystore
+
+            - name: List decoded keystore location
+              run: ls -R ./**/*.keystore
+
+
+
               # TODO!!: modify the .csproj based on the version codes from earlier
               ## [ ] - TOTAL_COUNT is likely the way to o here, since it's branch specific
               ## [ ] - modify the app label if not a release on main to visually identify that it uses a different version 
               # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
-            
+
 
             - name: Restore NuGet packages (dependencies)
               run: dotnet restore "$env:PROJECT_PATH"
@@ -744,7 +689,9 @@ jobs:
             - name: Configure Java heap for Android tooling
               shell: bash
               run: echo "JAVA_TOOL_OPTIONS=-Xmx6g" >> "$GITHUB_ENV"
-            
+            #endregion ..BA-Config-Env
+
+            #region ..BA-Build-Package
             - name: Build and Publish APK
               run: >- # powershell
                 dotnet publish
@@ -796,6 +743,7 @@ jobs:
               shell: pwsh
               run: |
                 Rename-Item -Path "$env:PUB_PATH_OUT" -NewName "$env:FILE_OUT"
+            #endregion ..BA-Build-Package
 
             #region ..BA-PackageRelease
             - name: 'package release'
@@ -817,20 +765,24 @@ jobs:
                   if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
                     # Write-Host "Running on main or master branch"
                     echo "Creating Release $APP_VERSION..."
+                    echo "## 📎 Link to Release: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+                    echo ""                                                             >> "$GITHUB_STEP_SUMMARY"
                     gh release create "$APP_VERSION" \
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
-                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"          >> "$GITHUB_STEP_SUMMARY"
                       # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
 
                   else
                     # Write-Host "Running on other branch"
                     echo "Creating pre-release $APP_VERSION..."
+                    echo "## 📎 Link to pre-release: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+                    echo ""                                                                 >> "$GITHUB_STEP_SUMMARY"
                     gh release create "$APP_VERSION" \
                       --prerelease \
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
-                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
                   
                   fi
 
@@ -844,7 +796,7 @@ jobs:
 
                   # echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
                   gh release upload "$APP_VERSION" \
-                    "${{ env.FILE_PATH_OUT }}"
+                    "${{ env.FILE_PATH_OUT }}" # should we use --clobber instead?
                 # else
                     # echo "RELEASE_NAME="
                     # gh release upload "$APP_VERSION" \
@@ -878,7 +830,7 @@ jobs:
     #         - name: Download VERSION artifact
     #           uses: actions/download-artifact@v4
     #           with:
-    #             name: version-file   # Must match the upload-artifact name in the versioning job
+    #             name: buildinfo-version-file   # Must match the upload-artifact name in the versioning job
     #             path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
               
     #         - name: Read version into env
@@ -888,7 +840,7 @@ jobs:
     #         - name: Download MAJOR artifact
     #           uses: actions/download-artifact@v4
     #           with:
-    #             name: major-file   # Must match the upload-artifact name in the versioning job
+    #             name: buildinfo-major-file   # Must match the upload-artifact name in the versioning job
     #             path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
               
     #         - name: Read major into env
