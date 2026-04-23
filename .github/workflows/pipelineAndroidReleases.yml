@@ -576,7 +576,7 @@ jobs:
 
 
 
-            #region ..BA-GetArtifacts
+            #region ..BA-Get-Artifacts
             - name: Download VERSION artifact
               uses: actions/download-artifact@v4
               with:
@@ -667,39 +667,12 @@ jobs:
             - name: Run a one-line script to check version
               run: echo "App Version - ${{ env.APP_VERSION }}"
 
-            #endregion ..BA-GetArtifacts
+            #endregion ..BA-Get-Artifacts
 
-            - name: Setup .NET from global.json
-              uses: actions/setup-dotnet@v5
-              with:
-                global-json-file: global.json
-
-            - name: Check Current .NET SDK for runner
-              run: dotnet --info
-
-
-            - name: Install MAUI workload
-              run: dotnet workload install maui
-
-            - name: Decode Keystore
-              run: |
-                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
-                  certutil -decode friendex.keystore.b64 friendex.keystore
-
-            - name: List decoded keystore location
-              run: ls -R ./**/*.keystore
-
-            # - name: Check if Workflow was triggered manually
-            #   if: github.event_name == 'workflow_dispatch'
-            #   shell: bash
-            #   run: |
-            #     echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
-
-
-            - name: Set Version Variables
+            #region ..BA-Set-Variables
+            - name: Set APP_VERSION based on Event Type
               shell: bash
-              run: | 
-
+              run: |
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
                 echo "PULL_TRIGGER - ${{ env.PULL_TRIGGER }}"
                 if [ ${{ env.MANUAL_TRIGGER }} -eq 0 && gh release view "$APP_VERSION" >/dev/null 2>&1 ]; then
@@ -715,6 +688,9 @@ jobs:
                   #else
                 fi
 
+            - name: Set Version Variables
+              shell: bash
+              run: | 
                 echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                 >> "$GITHUB_ENV"
                 echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
                 if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
@@ -731,12 +707,36 @@ jobs:
                   echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
                 fi
               # shell: bash
-              
+
+            #endregion ..BA-Set-Variables
+
+            #region ..BA-Config-Env
+            - name: Setup .NET from global.json
+              uses: actions/setup-dotnet@v5
+              with:
+                global-json-file: global.json
+
+            - name: Check Current .NET SDK for runner
+              run: dotnet --info
+
+            - name: Install MAUI workload
+              run: dotnet workload install maui
+
+            - name: Decode Keystore
+              run: |
+                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
+                  certutil -decode friendex.keystore.b64 friendex.keystore
+
+            - name: List decoded keystore location
+              run: ls -R ./**/*.keystore
+
+
+
               # TODO!!: modify the .csproj based on the version codes from earlier
               ## [ ] - TOTAL_COUNT is likely the way to o here, since it's branch specific
               ## [ ] - modify the app label if not a release on main to visually identify that it uses a different version 
               # - ApplicationVersion & versinCode is required to be an integer on Android and less than 10000 on iOS. This value must be incremented for each Google Play or App Store / Testflight submission
-            
+
 
             - name: Restore NuGet packages (dependencies)
               run: dotnet restore "$env:PROJECT_PATH"
@@ -750,7 +750,9 @@ jobs:
             - name: Configure Java heap for Android tooling
               shell: bash
               run: echo "JAVA_TOOL_OPTIONS=-Xmx6g" >> "$GITHUB_ENV"
-            
+            #endregion ..BA-Config-Env
+
+            #region ..BA-Build-Package
             - name: Build and Publish APK
               run: >- # powershell
                 dotnet publish
@@ -802,6 +804,7 @@ jobs:
               shell: pwsh
               run: |
                 Rename-Item -Path "$env:PUB_PATH_OUT" -NewName "$env:FILE_OUT"
+            #endregion ..BA-Build-Package
 
             #region ..BA-PackageRelease
             - name: 'package release'
@@ -823,20 +826,24 @@ jobs:
                   if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
                     # Write-Host "Running on main or master branch"
                     echo "Creating Release $APP_VERSION..."
+                    echo "## 📎 Link to Release: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+                    echo ""                                                             >> "$GITHUB_STEP_SUMMARY"
                     gh release create "$APP_VERSION" \
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
-                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"          >> "$GITHUB_STEP_SUMMARY"
                       # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
 
                   else
                     # Write-Host "Running on other branch"
                     echo "Creating pre-release $APP_VERSION..."
+                    echo "## 📎 Link to pre-release: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
+                    echo ""                                                                 >> "$GITHUB_STEP_SUMMARY"
                     gh release create "$APP_VERSION" \
                       --prerelease \
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
-                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"
+                      --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
                   
                   fi
 
@@ -850,7 +857,7 @@ jobs:
 
                   # echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
                   gh release upload "$APP_VERSION" \
-                    "${{ env.FILE_PATH_OUT }}"
+                    "${{ env.FILE_PATH_OUT }}" # should we use --clobber instead?
                 # else
                     # echo "RELEASE_NAME="
                     # gh release upload "$APP_VERSION" \
