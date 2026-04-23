@@ -616,7 +616,7 @@ jobs:
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
                 echo "PULL_TRIGGER - ${{ env.PULL_TRIGGER }}"
                 echo "Does matching branch exist?"
-                if [[ gh release view "${{ env.APP_VERSION }}" ]] ; then
+                if [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                   echo "-- yes"
                 else
                   echo "-- No, or the check didn't work"
