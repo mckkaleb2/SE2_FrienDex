@@ -564,15 +564,16 @@ jobs:
             - name: Check if Workflow was triggered manually or non-manually
               shell: bash
               run: |
-                echo "MANUAL_TRIGGER=1"        >> "$GITHUB_ENV"
-                echo "PULL_TRIGGER=1"        >> "$GITHUB_ENV"
+                echo "MANUAL_TRIGGER=1"           >> "$GITHUB_ENV"
+                echo "PULL_TRIGGER=1"             >> "$GITHUB_ENV"
+                echo "CLOBBER_DUPE_FLAG=1"        >> "$GITHUB_ENV"
                 echo ${{  github.event_name }}
                 if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-                  echo "MANUAL_TRIGGER=0"        >> "$GITHUB_ENV"
+                  echo "MANUAL_TRIGGER=0"         >> "$GITHUB_ENV"
                 fi
 
                 if [ "${{ github.event_name }}" == "pull_request" ]; then
-                  echo "PULL_TRIGGER=0"        >> "$GITHUB_ENV"
+                  echo "PULL_TRIGGER=0"           >> "$GITHUB_ENV"
                 fi
 
 
@@ -618,6 +619,7 @@ jobs:
               run: |
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
                 echo "PULL_TRIGGER - ${{ env.PULL_TRIGGER }}"
+                echo "CLOBBER_DUPE_FLAG - ${{ env.CLOBBER_DUPE_FLAG }}"
                 echo "Does matching branch exist?"
                 if [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                   echo "-- yes"
@@ -628,9 +630,19 @@ jobs:
                 echo; echo "Checking if there is a matching release, only if manually triggered, elif pull triggered...."
                 if [ ${{ env.MANUAL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                   echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} for an existing Release $APP_VERSION !! "
-                  echo "Modifying Release Name...."
-                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
-                
+                  echo "--Checking if this is on Prod..."
+                  if [ $GITHUB_REF_NAME == "main" ] || [ $GITHUB_REF_NAME == "master" ]; then 
+                    echo "-- -- It is! PREPARING TO CLOBBER THE DUPLICATE!!"
+                    echo "-- -- Release Name will not be modified!!"
+                    echo "CLOBBER_DUPE_FLAG= 0"                               >> "$GITHUB_ENV"
+                    echo "-- -- NOTE: To prevent deletion of the asset, cancel workflow before the Package-Release step!!"; echo
+                  else
+                    echo "-- -- It is not... Continuing"
+                    echo "--Modifying Release Name...."
+                    echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                  fi
+
+
                 elif [ ${{ env.PULL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                   echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
@@ -810,15 +822,29 @@ jobs:
                 echo "Attempting to upload file..."
                 # if [ $GITHUB_REF_NAME == "main" or $GITHUB_REF_NAME == "master" ]; then 
 
-                  # echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+                echo "--Uploading release from:"
+                echo "      ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
+
+                if [[ $GITHUB_REF_NAME == "main" ]] || [[ $GITHUB_REF_NAME == "master" ]]; then 
+                  if [ $CLOBBER_DUPE_FLAG -eq 0 ]; then
+                    echo "-- CLOBBER_DUPE_FLAG HAS BEEN RAISED!! IT'S CLOBBERING TIME!!!"
+                    echo "-- (pre-existing assets in this release will be deleted before uploading this asset)"
+                    echo "-- Uploading Asset to Main Release..."
+                    gh release upload "$APP_VERSION" \
+                      "${{ env.FILE_PATH_OUT }}" --clobber
+                  else
+                    echo "-- CLOBBER_DUPE_FLAG is down... Clobbering will wait for another day..."
+                    echo "-- Uploading Asset to Main Release..."
+                    gh release upload "$APP_VERSION" \
+                      "${{ env.FILE_PATH_OUT }}"
+                  fi
+                else
+                  echo "-- Uploading Asset to Non-Main Release..."
                   gh release upload "$APP_VERSION" \
-                    "${{ env.FILE_PATH_OUT }}" # should we use --clobber instead?
-                # else
-                    # echo "RELEASE_NAME="
-                    # gh release upload "$APP_VERSION" \
-                      # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
-                # fi
-                #fi
+                    "${{ env.FILE_PATH_OUT }}"
+                  # gh release upload "$APP_VERSION" \
+                    # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
+                fi
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
