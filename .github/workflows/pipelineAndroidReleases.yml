@@ -30,6 +30,15 @@ env:
 
 jobs:
 
+  flow-check:
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - run: echo $( gh workflow ls )
+
     #region Change-Filter
     # JOB to run change detection
     changes:
