@@ -37,7 +37,8 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
-      - run: echo $( gh workflow ls )
+      - name: grab workflows using GitHub CLI
+        run: echo $( gh workflow ls )
 
     #region Change-Filter
     # JOB to run change detection
