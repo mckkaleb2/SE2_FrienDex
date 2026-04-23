@@ -611,6 +611,9 @@ jobs:
 
             #region ..BA-Set-Variables
             - name: Set APP_VERSION based on Event Type
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               shell: bash
               run: |
                 echo "MANUAL_TRIGGER - ${{ env.MANUAL_TRIGGER }}"
