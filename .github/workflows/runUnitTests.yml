@@ -31,11 +31,14 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6
+        
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      # - name: Install MAUI workload
-      #   run: dotnet workload install maui
+      - name: Install MAUI workload
+        run: dotnet workload install maui
 
       - name: Restore dependencies
         run: dotnet restore "$env:PROJECT_PATH"
@@ -44,7 +47,7 @@ jobs:
         run: dotnet build "$env:PROJECT_PATH" --configuration Release --no-restore # Have this checked.
 
       - name: Run unit tests with report 
-        run: dotnet test "env:TEST_PATH" --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+        run: dotnet test "$env:TEST_PATH" --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
 
       # # This part is optional
       # - name: Upload test results
