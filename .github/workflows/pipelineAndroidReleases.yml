@@ -632,7 +632,7 @@ jobs:
               run: | 
                 echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                 >> "$GITHUB_ENV"
                 echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
-                if [ $GITHUB_REF_NAME -eq "main" || $GITHUB_REF_NAME -eq "master" ]; then 
+                if [ $GITHUB_REF_NAME == "main" || $GITHUB_REF_NAME == "master" ]; then 
                   echo "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                            >> "$GITHUB_ENV"
                   echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                       >> "$GITHUB_ENV"
                   echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                    >> "$GITHUB_ENV"
@@ -762,7 +762,7 @@ jobs:
 
                   echo "New release: $APP_VERSION ! Attempting to create a release..."
                   echo "Is this on main or master branch?..."
-                  if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
+                  if [ $GITHUB_REF_NAME == "main" or $GITHUB_REF_NAME == "master" ]; then 
                     # Write-Host "Running on main or master branch"
                     echo "Creating Release $APP_VERSION..."
                     echo "## 📎 Link to Release: \`${GITHUB_SHA:0:7}\` - \`${BRANCH}\`"  >> "$GITHUB_STEP_SUMMARY"
@@ -792,7 +792,7 @@ jobs:
                 
                 #if
                 echo "\n\n"
-                # if [ $GITHUB_REF_NAME -eq "main" or $GITHUB_REF_NAME -eq "master" ]; then 
+                # if [ $GITHUB_REF_NAME == "main" or $GITHUB_REF_NAME == "master" ]; then 
 
                   # echo "Uploading release from:\n\t${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
                   gh release upload "$APP_VERSION" \
