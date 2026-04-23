@@ -282,7 +282,7 @@ jobs:
         - name: Upload VERSION artifact
           uses: actions/upload-artifact@v4
           with:
-            name: version-file
+            name: buildinfo-version-file
             path: VERSION
 
         - name: Write MAJOR file
@@ -291,7 +291,7 @@ jobs:
         - name: Upload MAJOR artifact
           uses: actions/upload-artifact@v4
           with:
-            name: major-file
+            name: buildinfo-major-file
             path: MAJOR
             
         - name: Write BRANCH file
@@ -300,7 +300,7 @@ jobs:
         - name: Upload BRANCH artifact
           uses: actions/upload-artifact@v4
           with:
-            name: branch-file
+            name: buildinfo-branch-file
             path: BRANCH
 
         - name: Write SAFE_BRANCH file
@@ -309,7 +309,7 @@ jobs:
         - name: Upload SAFE_BRANCH artifact
           uses: actions/upload-artifact@v4
           with:
-            name: safe-branch-file
+            name: buildinfo-safe-branch-file
             path: SAFE_BRANCH
 
         # ── 4. Tag the commit on master only ──────────────────────────────────
@@ -496,7 +496,7 @@ jobs:
           - name: Upload RELEASE_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: release-count-file
+              name: buildinfo-release-count-file
               path: RELEASE_COUNT
 
           - name: Write PRERELEASE_COUNT file
@@ -505,7 +505,7 @@ jobs:
           - name: Upload PRERELEASE_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: prerelease-count-file
+              name: buildinfo-prerelease-count-file
               path: PRERELEASE_COUNT
 
           - name: Write TOTAL_COUNT file
@@ -514,7 +514,7 @@ jobs:
           - name: Upload TOTAL_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: total-count-file
+              name: buildinfo-total-count-file
               path: TOTAL_COUNT
 
           - name: Write TARGET_COUNT file
@@ -523,7 +523,7 @@ jobs:
           - name: Upload TARGET_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: target-count-file
+              name: buildinfo-target-count-file
               path: TARGET_COUNT
 
           - name: Write ALL_COUNT file
@@ -532,7 +532,7 @@ jobs:
           - name: Upload ALL_COUNT artifact
             uses: actions/upload-artifact@v4
             with:
-              name: all-count-file
+              name: buildinfo-all-count-file
               path: ALL_COUNT
     #endregion count-releases
 
@@ -577,90 +577,29 @@ jobs:
 
 
             #region ..BA-Get-Artifacts
-            - name: Download VERSION artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: version-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
-              
-            - name: Read version into env
-              shell: bash
-              run: echo "APP_VERSION=$(cat ./artifacts/VERSION)" >> "$GITHUB_ENV"
-            
-            - name: Download MAJOR artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: major-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
-              
-            - name: Read major into env
-              shell: bash
-              run: echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)" >> "$GITHUB_ENV"
 
-            - name: Download BRANCH artifact
-              uses: actions/download-artifact@v4
+            - name: Download All Artifacts by pattern
+              uses: actions/download-artifact@v8
               with:
-                name: branch-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads BRANCH file to ./artifacts/BRANCH
-              
-            - name: Read branch into env
+                pattern: buildinfo-*-file   # Using a glob pattern, must match the upload-artifact name in the versioning job
+                path: ./artifacts    # Downloads artifact files to ./artifacts/VERSION
+                merge-multiple: true  # Ensures that all artifacts are downloaded to the same specified path
+
+            - name: Confirm Artifact Directory
+              run: ls -R ./artifacts
+
+            - name: Read Artifacts into env variables
               shell: bash
-              run: echo "BRANCH=$(cat ./artifacts/BRANCH)" >> "$GITHUB_ENV"
-            
-            - name: Download SAFE_BRANCH artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: safe-branch-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads SAFE_BRANCH file to ./artifacts/SAFE_BRANCH
-              
-            - name: Read safe_branch into env
-              shell: bash
-              run: echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)" >> "$GITHUB_ENV"
-            
-            - name: Download RELEASE_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: release-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads RELEASE_COUNT file to ./artifacts/RELEASE_COUNT
-            - name: Read release-count into env
-              shell: bash
-              run: echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download PRERELEASE_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: prerelease-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads PRERELEASE_COUNT file to ./artifacts/PRERELEASE_COUNT
-            - name: Read prerelease-count into env
-              shell: bash
-              run: echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download TOTAL_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: total-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads TOTAL_COUNT file to ./artifacts/TOTAL_COUNT
-            - name: Read total-count into env
-              shell: bash
-              run: echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download TARGET_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: target-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads TARGET_COUNT file to ./artifacts/TARGET_COUNT
-            - name: Read target-count into env
-              shell: bash
-              run: echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)" >> "$GITHUB_ENV"
-            
-            - name: Download ALL_COUNT artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: all-count-file   # Must match the upload-artifact name in the versioning job
-                path: ./artifacts    # Downloads ALL_COUNT file to ./artifacts/ALL_COUNT
-            - name: Read all-count into env
-              shell: bash
-              run: echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)" >> "$GITHUB_ENV"
+              run: |
+                echo "APP_VERSION=$(cat ./artifacts/VERSION)"               >> "$GITHUB_ENV"
+                echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)"           >> "$GITHUB_ENV"
+                echo "BRANCH=$(cat ./artifacts/BRANCH)"                     >> "$GITHUB_ENV"
+                echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)"           >> "$GITHUB_ENV"
+                echo "RELEASE_COUNT=$(cat ./artifacts/RELEASE_COUNT)"       >> "$GITHUB_ENV"
+                echo "PRERELEASE_COUNT=$(cat ./artifacts/PRERELEASE_COUNT)" >> "$GITHUB_ENV"
+                echo "TOTAL_COUNT=$(cat ./artifacts/TOTAL_COUNT)"           >> "$GITHUB_ENV"
+                echo "TARGET_COUNT=$(cat ./artifacts/TARGET_COUNT)"         >> "$GITHUB_ENV"
+                echo "ALL_COUNT=$(cat ./artifacts/ALL_COUNT)"               >> "$GITHUB_ENV"
 
             - name: Run a one-line script to check major
               run: echo "Major Version - ${{ env.APP_VERSION_MAJOR }}"
@@ -891,7 +830,7 @@ jobs:
     #         - name: Download VERSION artifact
     #           uses: actions/download-artifact@v4
     #           with:
-    #             name: version-file   # Must match the upload-artifact name in the versioning job
+    #             name: buildinfo-version-file   # Must match the upload-artifact name in the versioning job
     #             path: ./artifacts    # Downloads VERSION file to ./artifacts/VERSION
               
     #         - name: Read version into env
@@ -901,7 +840,7 @@ jobs:
     #         - name: Download MAJOR artifact
     #           uses: actions/download-artifact@v4
     #           with:
-    #             name: major-file   # Must match the upload-artifact name in the versioning job
+    #             name: buildinfo-major-file   # Must match the upload-artifact name in the versioning job
     #             path: ./artifacts    # Downloads MAJOR file to ./artifacts/MAJOR
               
     #         - name: Read major into env
