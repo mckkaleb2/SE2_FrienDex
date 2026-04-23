@@ -1,0 +1,57 @@
+name: Unit Test
+
+on:
+  push:
+    branches:
+      - master
+      - '**' # All feature branches
+
+  pull_request:
+    branches:
+      - master 
+      - '**'
+
+  # Allows you to run the workflow manually from the Actions tab in GitHub
+  workflow_dispatch:
+
+env:
+  #APP_ID: app.friendex.android
+  APP_NAME: app.friendex.android
+  RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
+  PROJECT_PATH: FrienDex/FrienDex.csproj
+  TEST_PATH: FrienDex_Test/FrienDex_Test.csproj
+  APP_SUFFIX: -Signed
+  APP_EXTENSION: .apk
+  APP_TITLE: FrienDex
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore dependencies
+        run: dotnet restore "$env:PROJECT_PATH"
+
+      - name: Build the solution
+        run: dotnet build "$env:PROJECT_PATH" -f net10.0 --configuration Release --no-restore # Have this checked.
+
+      - name: Run unit tests with report 
+        run: dotnet test "$env:TEST_PATH" -f net10.0 --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+
+      # # This part is optional
+      # - name: Upload test results
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: TestResults
+      #     path: ./src/Test/TestResults/TestResults.trx
