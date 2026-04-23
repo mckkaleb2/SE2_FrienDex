@@ -626,12 +626,12 @@ jobs:
                 fi
 
 
-                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 ] && [[ gh release view "${{ env.APP_VERSION }}" ]] ; then
+                if [ ${{ env.MANUAL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                 echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} for an existing Release $APP_VERSION !! "
                 echo "Modifying Release Name...."
                 echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}" >> "$GITHUB_ENV"
                 
-                elif [ ${{ env.PULL_TRIGGER }} -eq 0 ] && [[ gh release view "${{ env.APP_VERSION }}" ]] ; then
+                elif [ ${{ env.PULL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
                 echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                 echo "Modifying Release Name...."
                 echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run-attempt }}" >> "$GITHUB_ENV"
