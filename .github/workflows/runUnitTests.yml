@@ -19,7 +19,7 @@ env:
   APP_NAME: app.friendex.android
   RELEASE_PATH: FrienDex/bin/Release/net10.0-android/
   PROJECT_PATH: FrienDex/FrienDex.csproj
-  TEST_PATH: FrienDex/FrienDex_Test.csproj
+  TEST_PATH: FrienDex_Test/FrienDex_Test.csproj
   APP_SUFFIX: -Signed
   APP_EXTENSION: .apk
   APP_TITLE: FrienDex
