@@ -624,38 +624,39 @@ jobs:
                 else
                   echo "-- No, or the check didn't work"
                 fi
-                echo
-                echo "Checking if there is a matching release, only if manually triggered, elif pull triggered...."
+                
+                echo; echo "Checking if there is a matching release, only if manually triggered, elif pull triggered...."
                 if [ ${{ env.MANUAL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
-                echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} for an existing Release $APP_VERSION !! "
-                echo "Modifying Release Name...."
-                echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                  echo "Detected a Manual Dispatch ${{ env.MANUAL_TRIGGER }} for an existing Release $APP_VERSION !! "
+                  echo "Modifying Release Name...."
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
                 
                 elif [ ${{ env.PULL_TRIGGER }} -eq 0 ] && [[ $( gh release view "${{ env.APP_VERSION }}" ) ]] ; then
-                echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
-                echo "Modifying Release Name...."
-                echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
-                # echo ""
-                #else
+                  echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
+                  echo "Modifying Release Name...."
+                  echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                else
+                  echo "-- This wasn't a manual or PR triggered run, and/or an existing release was not found!"
+                
                 fi
                 
             - name: Set Version Variables
               shell: bash
               run: | 
-                echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                 >> "$GITHUB_ENV"
-                echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
+                echo "PUB_FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                            >> "$GITHUB_ENV"
+                echo "PUB_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"     >> "$GITHUB_ENV"
+
                 if [ $GITHUB_REF_NAME == "main" ] || [[ $GITHUB_REF_NAME == "master" ]] ; then 
-                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                            >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                       >> "$GITHUB_ENV"
-                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                                    >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"        >> "$GITHUB_ENV"
-                
+                  echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                     >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                 >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                         >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
+
                 else
-                  echo "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"        >> "$GITHUB_ENV"
-                  echo "TEMP_B=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"              >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"       >> "$GITHUB_ENV"
-                  echo "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"                              >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
+                  echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"                                                                    >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"                                                >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"                        >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}" >> "$GITHUB_ENV"
                 fi
               # shell: bash
 
