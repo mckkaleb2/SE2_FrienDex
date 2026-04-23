@@ -35,13 +35,13 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore $env:PROJECT_PATH
+        run: dotnet restore "$env:PROJECT_PATH"
 
       - name: Build the solution
-        run: dotnet build $env:PROJECT_PATH --configuration Release --no-restore # Have this checked.
+        run: dotnet build "$env:PROJECT_PATH" --configuration Release --no-restore # Have this checked.
 
       - name: Run unit tests with report 
-        run: dotnet test env:TEST_PATH --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+        run: dotnet test "env:TEST_PATH" --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
 
       # # This part is optional
       # - name: Upload test results
