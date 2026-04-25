@@ -1,8 +1,8 @@
 # TODO: Finish adapting bug report
 name: Bug Report
 description: Report a bug in FriendDex
-type: 'bug'
-# labels: "bug :beetle:"
+# type: 'bug'
+labels: "bug :beetle:"
 body:
 - type: checkboxes
   attributes:
