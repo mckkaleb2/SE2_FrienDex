@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FrienDex.Services
 {
-    class RoomRepo : IRoomRepo
+    public class RoomRepo : IRoomRepo
     {
         private readonly DexContext _db;
 

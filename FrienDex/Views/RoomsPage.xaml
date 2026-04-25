@@ -7,16 +7,19 @@
 
     <Grid RowDefinitions="*,Auto" Padding="16">
 
-        <!-- Rooms List -->
         <CollectionView
             ItemsSource="{Binding Rooms}"
-            SelectionMode="Single"
-            SelectionChangedCommand="{Binding RoomSelectedCommand}"
-            SelectionChangedCommandParameter="{Binding SelectedItem, Source={RelativeSource Self}}">
+            SelectionMode="None">
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid Padding="12" RowDefinitions="Auto,Auto">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, BindingContext.RoomSelectedCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+
                         <Label 
                             Text="{Binding Name}" 
                             FontSize="18" 
@@ -33,7 +36,6 @@
 
         </CollectionView>
 
-        <!-- Add Room Button -->
         <Button
             Grid.Row="1"
             Text="Add Room"

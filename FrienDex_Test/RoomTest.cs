@@ -13,7 +13,6 @@ namespace FrienDex_Test
     public class RoomTest
     {
         private readonly DexContext _db;
-        private readonly ILogger<Room> _logger;
 
         public RoomTest()
         {
@@ -23,17 +22,38 @@ namespace FrienDex_Test
                 .Options;
 
             _db = new DexContext(options);
-
-            // Setup logger (no-op logger)
-            _logger = NullLogger<Room>.Instance;
         }
 
         // CREATE TEST
+        [Fact]
+        public async Task TestCreateRoomSuccess()
+        {
+            // ARRANGE
+            RoomRepo roomRepo = new RoomRepo(_db);
 
+            // Creates a Person object for the test
+            Room testRoom = new Room
+            {
+                Name = "Pewter City Gym",
+                Description = "The home of Pewter City's gym leader: Brock"
+            };
+
+            // ACT
+            // Calls the CreatePerson operation
+            await roomRepo.CreateAsync(testRoom);
+
+            // Reads the database for the created Person object to see if it was successfully created
+            Room? result = await roomRepo.ReadAsync(testRoom.Id);
+
+            // ASSERT
+            Assert.NotNull(result);
+            Assert.Equal("Pewter City Gym", result.Name);
+            Assert.Equal("The home of Pewter City's gym leader: Brock", result.Description);
+        }
 
         // READ TEST
 
-        
+
         // READ ALL TEST
 
 
