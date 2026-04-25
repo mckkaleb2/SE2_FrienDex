@@ -5,7 +5,7 @@
 # the repo. Unless a later match takes precedence,
 # @global-owner1 and @global-owner2 will be requested for
 # review when someone opens a pull request.
-*       @QuinnDaniels @mckkaleb @mckkaleb2 @Robidas02 @I-Eanes @ERHABORE1
+*       @QuinnDaniels @mckkaleb2 @Robidas02 @I-Eanes @ERHABORE1 @mckkaleb
 
 # Order is important; the last matching pattern takes the most
 # precedence. When someone opens a pull request that only
