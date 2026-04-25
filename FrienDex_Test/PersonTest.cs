@@ -271,6 +271,31 @@ namespace FrienDex_Test
             Assert.True(testPerson1.IsFavorite);
         }
 
+        [Fact]
+        public async Task TestDeletePersonSuccess()
+        {
+            // ARRANGE
+            PersonRepo personRepo = new PersonRepo(_db, _logger);
+
+            Person testPerson1 = new Person
+            {
+                FirstName = "Professor",
+                LastName = "Sada",
+                IsFavorite = false
+            };
+
+            await _db.People.AddAsync(testPerson1);
+            await _db.SaveChangesAsync();
+
+            // ACT
+            await personRepo.DeleteAsync(testPerson1.Id);
+
+            Person? result = await personRepo.ReadAsync(testPerson1.Id);
+
+            // ASSERT
+            Assert.Null(result);
+        }
+
 
     }
 }
