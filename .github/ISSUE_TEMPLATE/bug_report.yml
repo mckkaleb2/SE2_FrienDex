@@ -1,0 +1,95 @@
+# TODO: Finish adapting bug report
+name: Bug Report
+description: Report a bug in FriendDex
+type: 'bug'
+labels: "bug :beetle:"
+body:
+- type: checkboxes
+  attributes:
+    label: Preflight Checklist
+    description: Please ensure you've completed all of the following.
+    options:
+      - label: I have read the [Contributing Guidelines](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/CONTRIBUTING.md) for this project.
+        required: true
+      - label: I agree to follow the [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/CODE_OF_CONDUCT.md) that this project adheres to.
+        required: true
+      - label: I have searched the [issue tracker](https://www.github.com/mckkaleb2/SE2_FrienDex/issues) for a bug report that matches the one I want to file, without success.
+        required: true
+- type: input
+  attributes:
+    label: FriendDex Version
+    description: |
+      What version of FriendDex are you using?
+
+      Note: Please only report issues for [currently supported versions of FriendDex](#).
+      <!-- Note: Please only report issues for [currently supported versions of FriendDex](https://www.electronjs.org/docs/latest/tutorial/electron-timelines#timeline). -->
+    placeholder: 32.0[.0-branch-sha1]
+  validations:
+    required: true
+- type: dropdown
+  attributes:
+    label: What operating system(s) are you using?
+    multiple: true
+    options:
+      - Android
+      - Windows
+      - macOS
+      - iOS
+      - Ubuntu
+      - Other Linux
+      - Other (specify below)
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Operating System Version
+    description: What operating system version are you using? On Android, open the Settings App > About phone > Software Information > Android version. On Windows, click Start button > Settings > System > About. On macOS, click the Apple Menu > About This Mac. On Linux, use lsb_release or uname -a.
+    placeholder: "e.g. Android version 13 Build Number TP1A.220624.014.N981U1UESEHYH2, Windows 10 version 1909, macOS Catalina 10.15.7, or Ubuntu 20.04"
+  validations:
+    required: true
+- type: dropdown
+  attributes:
+    label: What arch are you using?
+    options:
+      - x64
+      - ia32
+      - arm64 (including Apple Silicon)
+      - Other (specify below)
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Last Known Working FriendDex version
+    description: What is the last version of FriendDex this worked in, if applicable?
+    placeholder: 1.6.0
+#- type: dropdown
+#  attributes:
+#    label: Does the issue also appear in Chromium / Google Chrome?
+#    description: If it does, please report the issue in the [Chromium issue tracker](https://issues.chromium.org/issues), not against FriendDex. FriendDex will inherit the fix once Chromium resolves the issue.
+#    options:
+#      - I don't know how to test
+#      - "Yes"
+#      - "No"
+#  validations:
+#    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: A clear and concise description of what you expected to happen.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Actual Behavior
+    description: A clear description of what actually happens.
+  validations:
+    required: true
+#- type: input
+#  attributes:
+#    label: Testcase Gist URL
+#    description: FriendDex maintainers need a standalone test case to reproduce and fix your issue. Please use [FriendDex Fiddle](https://github.com/electron/fiddle) to create one and to publish it as a [GitHub gist](https://gist.github.com). Then put the gist URL here. Issues without testcase gists receive less attention and might be closed without a maintainer taking a closer look. To maximize how much attention your issue receives, please include a testcase gist right from the start.
+#    placeholder: https://gist.github.com/...
+- type: textarea
+  attributes:
+    label: Additional Information
+    description: If your problem needs further explanation, or if the issue you're seeing cannot be reproduced in a gist, please add more information here.
