@@ -6,3 +6,57 @@ https://www.geeksforgeeks.org/android/automated-release-for-android-using-github
 
 # on setting up windows packages for releases:
 https://learn.microsoft.com/en-us/dotnet/maui/windows/setup?view=net-maui-9.0
+
+
+
+
+# for the README:
+
+
+This project adheres to the Contributor Covenant
+[code of conduct](https://github.com/mckkaleb2/SE2_FrienDex/tree/main/CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code. Please report unacceptable
+behavior to ~~[coc@electronjs.org](mailto:coc@electronjs.org)~~ a [Code Owner](../../.github/CODEOWNERS).
+Once an email address is established for the project, this section will be updated.
+
+## Installation
+
+To install prebuilt FrienDex binaries, 
+<!--
+use [`npm`](https://docs.npmjs.com/).
+The preferred method is to install Electron as a development dependency in your
+app:
+
+```sh
+npm install electron --save-dev
+```
+
+For more installation options and troubleshooting tips, see
+[installation](docs/tutorial/installation.md). For info on how to manage Electron versions in your apps, see
+[Electron versioning](docs/tutorial/electron-versioning.md).
+-->
+
+## Platform support
+
+<!-- Each Electron release provides binaries for macOS, Windows, and Linux. -->
+Each FrienDex release provides APK packages for Android OS.
+
+<!-- TODO: research supported platforms of Android that .NET Maui builds for
+* macOS (Monterey and up): Electron provides 64-bit Intel and Apple Silicon / ARM binaries for macOS.
+* Windows (Windows 10 and up): Electron provides `ia32` (`x86`), `x64` (`amd64`), and `arm64` binaries for Windows. Windows on ARM support was added in Electron 5.0.8. Support for Windows 7, 8 and 8.1 was [removed in Electron 23, in line with Chromium's Windows deprecation policy](https://www.electronjs.org/blog/windows-7-to-8-1-deprecation-notice).
+* Linux: The prebuilt binaries of Electron are built on Ubuntu 22.04. They have also been verified to work on:
+  * Ubuntu 18.04 and newer
+  * Fedora 32 and newer
+  * Debian 10 and newer
+-->
+
+## Contributing
+
+If you are interested in reporting/fixing issues and contributing directly to the code base, please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information on what we're looking for and how to get started.
+
+<!--
+## Community
+
+Info on reporting bugs, getting help, finding third-party tools and sample apps,
+and more can be found on the [Community page](https://www.electronjs.org/community).
+-->
