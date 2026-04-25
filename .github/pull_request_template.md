@@ -13,7 +13,16 @@
 
 
 ## Checklist before requesting a review
+<!-- Remove items that do not apply. For completed items, change [ ] to [x]. -->
 - [ ] I have performed a self-review of my code
+- [ ] I have filled out the PR description
 - [ ] If it is a core feature, I have added thorough tests.
 - [ ] Do we need to implement analytics?
 - [ ] Will this be part of a product update? If yes, please write one phrase about this update.
+
+
+
+#### Release Notes
+
+Notes: <!-- Please add a one-line description for app developers to read in the release notes, or 'none' if no notes relevant to app developers.-->
+
