@@ -129,8 +129,8 @@ and more can be found on the [Community page](https://www.electronjs.org/communi
 
 Created by:
 [Quinn Daniels](https://github.com/QuinnDaniels),
-[Ronan Eanes](https://github.com/ERHABORE1),
-[Dominic Eloghosa](https://github.com/I-Eanes),
+[Ronan Eanes](https://github.com/I-Eanes),
+[Dominic Eloghosa](https://github.com/ERHABORE1),
 [Kaleb](https://github.com/mckkaleb) [McKinney](https://github.com/mckkaleb2),
 [Jacob Robidas](https://github.com/Robidas02)
 
