@@ -66,6 +66,10 @@ jobs:
                 - '.docs/**'
                 - docs/**
                 - '**/*.md'
+                - '**/*.xslx'
+                - '**/*.docx'
+                - '**/*.dotx'
+                - '**/*.pdf'
               buildfiles:
                 - '!*docs'
                 - '!*gitfiles'
