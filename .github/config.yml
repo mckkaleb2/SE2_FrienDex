@@ -5,7 +5,7 @@ newPRWelcomeComment: |
 
   ### Semantic PR titles
 
-  We use [semantic commit messages](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/docs/development/pull-requests.md#commit-message-guidelines) to streamline the release process. Before your pull request can be merged, you should **update your pull request title** to start with a semantic prefix.
+  We use [semantic commit messages](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/docs/development/pull-requests.md#commit-message-guidelines) to streamline the release process. Before your pull request can be merged, you should **update your pull request title** to start with a semantic prefix.
 
   Examples of commit messages with semantic prefixes:
 
