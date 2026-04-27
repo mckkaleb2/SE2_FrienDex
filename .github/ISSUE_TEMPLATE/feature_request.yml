@@ -11,7 +11,7 @@ body:
     options:
       - label: I have read the [Contributing Guidelines](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/CONTRIBUTING.md) for this project.
         required: true
-      # Code of Conduct needs some works
+      # Code of Conduct needs some work
       - label: I agree to follow the [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
         required: true
       - label: I have searched the [issue tracker](https://www.github.com/mckkaleb2/SE2_FrienDex/issues) for a feature request that matches the one I want to file, without success.
