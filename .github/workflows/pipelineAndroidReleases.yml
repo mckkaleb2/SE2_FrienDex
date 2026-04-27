@@ -723,6 +723,7 @@ jobs:
 
             #region ..BA-Build-Package
             - name: Build and Publish APK
+              id: buildAPK
               run: >- # powershell
                 dotnet publish
                 -f net10.0-android
@@ -777,7 +778,11 @@ jobs:
             #endregion ..BA-Build-Package
 
             #region ..BA-PackageRelease
-            - name: 'package release'
+            - name: 'Create release'
+              id: createRelease
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
               run: | # powershell
                 gh release list
                 echo
@@ -804,7 +809,6 @@ jobs:
                       --title "Release $APP_VERSION" \
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"          >> "$GITHUB_STEP_SUMMARY"
                       # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
-
                   else
                     # Write-Host "Running on other branch"
                     echo "-- Creating pre-release $APP_VERSION..."
@@ -815,18 +819,21 @@ jobs:
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-                  
                   fi
 
                 fi #end of check if release already exists
                 
                 # TODO: Add a check here to see if on main/master. If not, then append $SAFE_BRANCH but maybe concat'd. If filename is too long, then substitute an area with sha1 or something, figure it out.
-                
-                #if
+            - name: 'upload package to release'
+              id: uploadRelease
+              if: steps.createRelease.outcome == 'success'
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
+              run: | # powershell
                 echo ""
                 echo ""
                 echo "Attempting to upload file..."
-                # if [ $GITHUB_REF_NAME == "main" or $GITHUB_REF_NAME == "master" ]; then 
 
                 echo "--Uploading release from:"
                 echo "      ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
@@ -851,9 +858,31 @@ jobs:
                   # gh release upload "$APP_VERSION" \
                     # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
                 fi
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              shell: bash
+            - name: Debug step outcomes
+              id: debugSteps
+              if: always()
+              run: |
+                echo "buildAPK      | ${{ steps.buildAPK.outcome }}"
+                echo "createRelease | ${{ steps.createRelease.outcome }}"
+                echo "uploadRelease | ${{ steps.uploadRelease.outcome }}"
+
+                echo "## 🚥 Build Steps Outcomes (debugging):"  >> "$GITHUB_STEP_SUMMARY"
+                echo ""                                         >> "$GITHUB_STEP_SUMMARY"
+                echo "| step | outcome |"                        >> "$GITHUB_STEP_SUMMARY"
+                echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+                echo "| buildAPK      | \`${steps.buildAPK.outcome}\`     |" >> "$GITHUB_STEP_SUMMARY"
+                echo "| createRelease | \`${steps.createRelease.outcome}\`  |" >> "$GITHUB_STEP_SUMMARY"
+                echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
+                echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+
+
+            - name: Upload package as artifact if release fails
+              if: failure() && steps.buildAPK.outcome == 'success' && steps.createRelease.outcome == 'failure' || steps.uploadRelease.outcome == 'failure' || steps.uploadRelease.outcome == 'skipped'
+              uses: actions/upload-artifact@v4
+              with:
+                name: package-artifact
+                path:  ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
+
             #endregion ..BA-PackageRelease
             # - name: C
             #   shell: bash
