@@ -178,6 +178,7 @@ jobs:
             # ── Count commits since the latest minor tag ───────────────────────
             # Uses the ancestry-path to count only commits reachable from HEAD
             # that are NOT reachable from the tag, following the linear path.
+            #TODO: Check this block in particular to ensure that it's working properly
             if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
               COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
                 --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
@@ -881,7 +882,7 @@ jobs:
             - name: Debug step outcomes
               id: debugSteps
               if: always()
-              run: |
+              run: | #powershell
                 echo "buildAPK      | ${{ steps.buildAPK.outcome }}"
                 echo "createRelease | ${{ steps.createRelease.outcome }}"
                 echo "uploadRelease | ${{ steps.uploadRelease.outcome }}"
@@ -895,9 +896,9 @@ jobs:
                 echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
                 echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
 
-                if ( '${{ steps.buildAPK.outcome }}' == 'success' ); then
+                if ( '${{ steps.buildAPK.outcome }}' == 'success' ) {
                   echo "buildcomplete" >> $GITHUB_OUTPUT
-                fi
+                }
 
             - name: Upload package as artifact if release fails
               if: failure() && steps.debugSteps.output == 'buildcomplete' && steps.uploadRelease.outcome != 'success'
