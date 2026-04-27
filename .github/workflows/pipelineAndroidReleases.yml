@@ -896,7 +896,7 @@ jobs:
                 echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
                 echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
 
-                if ( '${{ steps.buildAPK.outcome }}' == 'success' ) {
+                if ( $steps.buildAPK.outcome == 'success' ) {
                   echo "buildcomplete" >> $GITHUB_OUTPUT
                 }
 
