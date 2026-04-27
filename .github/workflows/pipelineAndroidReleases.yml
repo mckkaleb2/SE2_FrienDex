@@ -246,8 +246,8 @@ jobs:
 
             else # if this is not master or main, do this instead
 
-              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
-              SHORT_VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}"
+              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}.${{ github.run_number }}-${SAFE_BRANCH}-${SHORT_SHA}"
+              SHORT_VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}.${{ github.run_number }}-${SAFE_BRANCH}"
               IS_RELEASE=false
             fi # end of check to see if this is running on master or main
 
