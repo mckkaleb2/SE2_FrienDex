@@ -782,7 +782,6 @@ jobs:
                 gh release list
                 echo
                 echo
-                echo
                 
                 echo "Target: $GITHUB_SHA"
                 echo "- Title $APP_VERSION"
