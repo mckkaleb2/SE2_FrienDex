@@ -56,7 +56,7 @@ jobs:
               workflows: &workflows
                 - '.github/workflows/**.yml'
               gitfiles: &gitfiles
-                - '!.github/**'
+                - '.github/**'
                 - '!*workflows'
                 - '.gitignore'
               projectfiles:
