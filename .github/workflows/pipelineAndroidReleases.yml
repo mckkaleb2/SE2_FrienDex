@@ -52,11 +52,12 @@ jobs:
         - uses: dorny/paths-filter@v4
           id: filter
           with:
+            predicate-quantifier: 'every'
             filters: |
               workflows: &workflows
                 - '.github/workflows/**.yml'
               gitfiles: &gitfiles
-                - '!.github/**'
+                - '.github/**'
                 - '!*workflows'
                 - '.gitignore'
               projectfiles:
