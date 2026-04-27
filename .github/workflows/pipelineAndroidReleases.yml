@@ -692,7 +692,9 @@ jobs:
               shell: pwsh
               run: |
                   $bytes = [Convert]::FromBase64String("${{ secrets.ANDROID_KEYSTORE }}")
-                  [IO.File]::WriteAllBytes("friendex.keystore", $bytes)
+                  $path = Join-Path $env:GITHUB_WORKSPACE "friendex.keystore"
+                  [IO.File]::WriteAllBytes($path, $bytes)
+                  echo "KEYSTORE_PATH=$path" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
 
             - name: List decoded keystore location
               run: ls -R ./**/*.keystore
@@ -730,11 +732,12 @@ jobs:
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }}
                 -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
+                -p:AndroidKeyStore=true
                 -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
                 -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
                 -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
-                -p:AndroidSigningStore=friendex.keystore
-                # -p:AndroidKeyStore=true
+                -p:AndroidSigningStore="${{ env.KEYSTORE_PATH }}"
+                #-p:AndroidSigningStore=friendex.keystore
             
             - name: List build output
               run: ls -R ./**/*-Signed.apk
