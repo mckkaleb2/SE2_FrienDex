@@ -65,6 +65,7 @@ jobs:
               docs: &docs
                 - '.docs/**'
                 - docs/**
+                - '**.md'
                 - '**/*.md'
                 - '**/*.xslx'
                 - '**/*.docx'
@@ -182,6 +183,7 @@ jobs:
             # ── Count commits since the latest minor tag ───────────────────────
             # Uses the ancestry-path to count only commits reachable from HEAD
             # that are NOT reachable from the tag, following the linear path.
+            #TODO: Check this block in particular to ensure that it's working properly
             if git rev-parse "$LATEST_MINOR_TAG" >/dev/null 2>&1; then
               COMMITS_SINCE=$(git rev-list HEAD ^"$LATEST_MINOR_TAG" \
                 --ancestry-path "$LATEST_MINOR_TAG" --count 2>/dev/null || echo 0)
@@ -244,17 +246,20 @@ jobs:
               fi
 
               VERSION="${NEW_MAJOR}.${NEW_MINOR}"
+              SHORT_VERSION="${NEW_MAJOR}.${NEW_MINOR}"
               IS_RELEASE=true
 
             else # if this is not master or main, do this instead
 
-              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
+              VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}.${{ github.run_number }}-${SAFE_BRANCH}-${SHORT_SHA}"
+              SHORT_VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}.${{ github.run_number }}-${SAFE_BRANCH}"
               IS_RELEASE=false
             fi # end of check to see if this is running on master or main
 
             # ----------- export Bash Env Variables to GitHub Output variables ----
             echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
             echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
+            echo "SHORT_VERSION=${SHORT_VERSION}"                   >> "$GITHUB_ENV"
             echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
             echo "BUMP=${BUMP}"                         >> "$GITHUB_ENV"
             echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
@@ -264,6 +269,7 @@ jobs:
             echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
 
             echo "version=${VERSION}"         >> "$GITHUB_OUTPUT"
+            echo "short_version=${SHORT_VERSION}"         >> "$GITHUB_OUTPUT"
             echo "is_release=${IS_RELEASE}"   >> "$GITHUB_OUTPUT"
             echo "bump=${BUMP}"               >> "$GITHUB_OUTPUT"
             echo "branch=${BRANCH}"           >> "$GITHUB_OUTPUT"
@@ -276,6 +282,7 @@ jobs:
             echo "  Commits since  : ${COMMITS_SINCE}"
             echo "  Bump type      : ${BUMP}"
             echo "  Computed ver   : ${VERSION}"
+            echo "  FileOut  ver   : ${SHORT_VERSION}"
             echo "  Is release     : ${IS_RELEASE}"
             echo "  Major ver      : ${MAJOR}"
             echo "──────────────────────────────────────────"
@@ -289,6 +296,15 @@ jobs:
           with:
             name: buildinfo-version-file
             path: VERSION
+
+        - name: Write SHORT_VERSION file
+          run: echo "$SHORT_VERSION" > SHORT_VERSION
+        
+        - name: Upload SHORT_VERSION artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: buildinfo-short-version-file
+            path: SHORT_VERSION
 
         - name: Write MAJOR file
           run: echo "$MAJOR" > MAJOR
@@ -598,6 +614,7 @@ jobs:
               shell: bash
               run: |
                 echo "APP_VERSION=$(cat ./artifacts/VERSION)"               >> "$GITHUB_ENV"
+                echo "APP_SHORT_VERSION=$(cat ./artifacts/SHORT_VERSION)"               >> "$GITHUB_ENV"
                 echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)"           >> "$GITHUB_ENV"
                 echo "BRANCH=$(cat ./artifacts/BRANCH)"                     >> "$GITHUB_ENV"
                 echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)"           >> "$GITHUB_ENV"
@@ -644,6 +661,7 @@ jobs:
                     echo "-- -- It is not... Continuing"
                     echo "--Modifying Release Name...."
                     echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                    echo "APP_SHORT_VERSION= ${{ env.APP_SHORT_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
                   fi
 
 
@@ -651,6 +669,7 @@ jobs:
                   echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
                   echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                  echo "APP_SHORT_VERSION= ${{ env.APP_SHORT_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
                 else
                   echo "-- This wasn't a manual or PR triggered run, and/or an existing release was not found!"
                 
@@ -664,15 +683,15 @@ jobs:
 
                 if [ $GITHUB_REF_NAME == "main" ] || [[ $GITHUB_REF_NAME == "master" ]] ; then 
                   echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                     >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                 >> "$GITHUB_ENV"
-                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                         >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}"                                                 >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                         >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
 
                 else
                   echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"                                                                    >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"                                                >> "$GITHUB_ENV"
-                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"                        >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}" >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}"                                                >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                        >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}" >> "$GITHUB_ENV"
                 fi
               # shell: bash
 
@@ -690,10 +709,15 @@ jobs:
             - name: Install MAUI workload
               run: dotnet workload install maui
 
+              # echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
+              # certutil -decode friendex.keystore.b64 friendex.keystore
             - name: Decode Keystore
+              shell: pwsh
               run: |
-                  echo "${{ secrets.ANDROID_KEYSTORE }}" | Out-File -Encoding ascii -FilePath friendex.keystore.b64
-                  certutil -decode friendex.keystore.b64 friendex.keystore
+                  $bytes = [Convert]::FromBase64String("${{ secrets.ANDROID_KEYSTORE }}")
+                  $path = Join-Path $env:GITHUB_WORKSPACE "friendex.keystore"
+                  [IO.File]::WriteAllBytes($path, $bytes)
+                  echo "KEYSTORE_PATH=$path" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
 
             - name: List decoded keystore location
               run: ls -R ./**/*.keystore
@@ -722,6 +746,7 @@ jobs:
 
             #region ..BA-Build-Package
             - name: Build and Publish APK
+              id: buildAPK
               run: >- # powershell
                 dotnet publish
                 -f net10.0-android
@@ -731,11 +756,13 @@ jobs:
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }}
                 -p:ApplicationId="${{ env.APP_NAME }}"
                 -p:ApplicationTitle="${{ env.OUTPUT_TITLE }}"
+                -p:AndroidKeyStore=true
                 -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
                 -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
                 -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
-                -p:AndroidSigningStore=friendex.keystore
-                #-p:AndroidKeyStore=true
+                -p:AndroidSigningKeyStore="${{ env.KEYSTORE_PATH }}"
+                #-p:AndroidSigningStore=friendex.keystore
+                #-v diag # debugger for viewing the keysigner
             
             - name: List build output
               run: ls -R ./**/*-Signed.apk
@@ -775,7 +802,11 @@ jobs:
             #endregion ..BA-Build-Package
 
             #region ..BA-PackageRelease
-            - name: 'package release'
+            - name: 'Create release'
+              id: createRelease
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
               run: | # powershell
                 gh release list
                 echo
@@ -802,7 +833,6 @@ jobs:
                       --title "Release $APP_VERSION" \
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA"          >> "$GITHUB_STEP_SUMMARY"
                       # TODO: Add a changelog document here. Prob accessible by $CHANGELOG_STRING . Just slap it under the above line
-
                   else
                     # Write-Host "Running on other branch"
                     echo "-- Creating pre-release $APP_VERSION..."
@@ -813,18 +843,21 @@ jobs:
                       --target "$GITHUB_SHA" \
                       --title "Release $APP_VERSION" \
                       --notes "Branch: $GITHUB_REF_NAME | Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-                  
                   fi
 
                 fi #end of check if release already exists
                 
                 # TODO: Add a check here to see if on main/master. If not, then append $SAFE_BRANCH but maybe concat'd. If filename is too long, then substitute an area with sha1 or something, figure it out.
-                
-                #if
+            - name: 'upload package to release'
+              id: uploadRelease
+              if: steps.createRelease.outcome == 'success'
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              shell: bash
+              run: | # powershell
                 echo ""
                 echo ""
                 echo "Attempting to upload file..."
-                # if [ $GITHUB_REF_NAME == "main" or $GITHUB_REF_NAME == "master" ]; then 
 
                 echo "--Uploading release from:"
                 echo "      ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"
@@ -849,9 +882,36 @@ jobs:
                   # gh release upload "$APP_VERSION" \
                     # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
                 fi
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              shell: bash
+
+
+            - name: Debug step outcomes
+              id: debugSteps
+              if: always()
+              run: | #powershell
+                echo "buildAPK      | ${{ steps.buildAPK.outcome }}"
+                echo "createRelease | ${{ steps.createRelease.outcome }}"
+                echo "uploadRelease | ${{ steps.uploadRelease.outcome }}"
+
+                echo "## 🚥 Build Steps Outcomes (debugging):"  >> "$GITHUB_STEP_SUMMARY"
+                echo ""                                         >> "$GITHUB_STEP_SUMMARY"
+                echo "| step | outcome |"                        >> "$GITHUB_STEP_SUMMARY"
+                echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+                echo "| buildAPK      | \`${steps.buildAPK.outcome}\`     |" >> "$GITHUB_STEP_SUMMARY"
+                echo "| createRelease | \`${steps.createRelease.outcome}\`  |" >> "$GITHUB_STEP_SUMMARY"
+                echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
+                echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
+
+                if ( $steps.buildAPK.outcome -eq 'success' ) {
+                  echo "buildcomplete" >> $GITHUB_OUTPUT
+                }
+
+            - name: Upload package as artifact if release fails
+              if: failure() && steps.debugSteps.output == 'buildcomplete' && steps.uploadRelease.outcome != 'success'
+              uses: actions/upload-artifact@v4
+              with:
+                name: package-artifact
+                path:  ${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}
+
             #endregion ..BA-PackageRelease
             # - name: C
             #   shell: bash
