@@ -737,7 +737,7 @@ jobs:
                 -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
                 -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
                 -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
-                -p:AndroidSigningStore="${{ env.KEYSTORE_PATH }}"
+                -p:AndroidSigningKeyStore="${{ env.KEYSTORE_PATH }}"
                 #-p:AndroidSigningStore=friendex.keystore
             
             - name: List build output
