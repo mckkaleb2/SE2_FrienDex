@@ -240,17 +240,20 @@ jobs:
               fi
 
               VERSION="${NEW_MAJOR}.${NEW_MINOR}"
+              SHORT_VERSION="${NEW_MAJOR}.${NEW_MINOR}"
               IS_RELEASE=true
 
             else # if this is not master or main, do this instead
 
               VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}-${SHORT_SHA}"
+              SHORT_VERSION="${MAJOR}.${MINOR}.${COMMITS_SINCE}-${SAFE_BRANCH}"
               IS_RELEASE=false
             fi # end of check to see if this is running on master or main
 
             # ----------- export Bash Env Variables to GitHub Output variables ----
             echo "LATEST_MINOR_TAG=${LATEST_MINOR_TAG}" >> "$GITHUB_ENV"
             echo "VERSION=${VERSION}"                   >> "$GITHUB_ENV"
+            echo "SHORT_VERSION=${SHORT_VERSION}"                   >> "$GITHUB_ENV"
             echo "IS_RELEASE=${IS_RELEASE}"             >> "$GITHUB_ENV"
             echo "BUMP=${BUMP}"                         >> "$GITHUB_ENV"
             echo "BRANCH=${BRANCH}"                     >> "$GITHUB_ENV"
@@ -260,6 +263,7 @@ jobs:
             echo "major=${MAJOR}"         >> "$GITHUB_OUTPUT"
 
             echo "version=${VERSION}"         >> "$GITHUB_OUTPUT"
+            echo "short_version=${SHORT_VERSION}"         >> "$GITHUB_OUTPUT"
             echo "is_release=${IS_RELEASE}"   >> "$GITHUB_OUTPUT"
             echo "bump=${BUMP}"               >> "$GITHUB_OUTPUT"
             echo "branch=${BRANCH}"           >> "$GITHUB_OUTPUT"
@@ -272,6 +276,7 @@ jobs:
             echo "  Commits since  : ${COMMITS_SINCE}"
             echo "  Bump type      : ${BUMP}"
             echo "  Computed ver   : ${VERSION}"
+            echo "  FileOut  ver   : ${SHORT_VERSION}"
             echo "  Is release     : ${IS_RELEASE}"
             echo "  Major ver      : ${MAJOR}"
             echo "──────────────────────────────────────────"
@@ -285,6 +290,15 @@ jobs:
           with:
             name: buildinfo-version-file
             path: VERSION
+
+        - name: Write SHORT_VERSION file
+          run: echo "$SHORT_VERSION" > SHORT_VERSION
+        
+        - name: Upload SHORT_VERSION artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: buildinfo-short-version-file
+            path: SHORT_VERSION
 
         - name: Write MAJOR file
           run: echo "$MAJOR" > MAJOR
@@ -594,6 +608,7 @@ jobs:
               shell: bash
               run: |
                 echo "APP_VERSION=$(cat ./artifacts/VERSION)"               >> "$GITHUB_ENV"
+                echo "APP_SHORT_VERSION=$(cat ./artifacts/SHORT_VERSION)"               >> "$GITHUB_ENV"
                 echo "APP_VERSION_MAJOR=$(cat ./artifacts/MAJOR)"           >> "$GITHUB_ENV"
                 echo "BRANCH=$(cat ./artifacts/BRANCH)"                     >> "$GITHUB_ENV"
                 echo "SAFE_BRANCH=$(cat ./artifacts/SAFE_BRANCH)"           >> "$GITHUB_ENV"
@@ -640,6 +655,7 @@ jobs:
                     echo "-- -- It is not... Continuing"
                     echo "--Modifying Release Name...."
                     echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                    echo "APP_SHORT_VERSION= ${{ env.APP_SHORT_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
                   fi
 
 
@@ -647,6 +663,7 @@ jobs:
                   echo "Detected a Pull Request ${{ env.PULL_TRIGGER }} for an existing Release $APP_VERSION !! "
                   echo "Modifying Release Name...."
                   echo "APP_VERSION= ${{ env.APP_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
+                  echo "APP_SHORT_VERSION= ${{ env.APP_SHORT_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_ENV"
                 else
                   echo "-- This wasn't a manual or PR triggered run, and/or an existing release was not found!"
                 
@@ -660,15 +677,15 @@ jobs:
 
                 if [ $GITHUB_REF_NAME == "main" ] || [[ $GITHUB_REF_NAME == "master" ]] ; then 
                   echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}"                                                                     >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}"                                                 >> "$GITHUB_ENV"
-                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                         >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}"                                                 >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                         >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"  >> "$GITHUB_ENV"
 
                 else
                   echo  "OUTPUT_TITLE=${{ env.APP_TITLE }}-${{ env.SAFE_BRANCH }}"                                                                    >> "$GITHUB_ENV"
-                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}"                                                >> "$GITHUB_ENV"
-                  echo      "FILE_OUT=${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}"                        >> "$GITHUB_ENV"
-                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}.${{ env.SAFE_BRANCH }}${{ env.APP_EXTENSION }}" >> "$GITHUB_ENV"
+                  echo "FILE_NAME_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}"                                                >> "$GITHUB_ENV"
+                  echo      "FILE_OUT=${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"                        >> "$GITHUB_ENV"
+                  echo "FILE_PATH_OUT=${{ env.RELEASE_PATH }}${{ env.APP_NAME }}.${{ env.APP_SHORT_VERSION }}.${{ env.APP_SUFFIX }}.${{ env.APP_EXTENSION }}" >> "$GITHUB_ENV"
                 fi
               # shell: bash
 
@@ -728,7 +745,6 @@ jobs:
                 dotnet publish
                 -f net10.0-android
                 -c Release
-                -v diag
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }}
@@ -740,6 +756,7 @@ jobs:
                 -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
                 -p:AndroidSigningKeyStore="${{ env.KEYSTORE_PATH }}"
                 #-p:AndroidSigningStore=friendex.keystore
+                #-v diag # debugger for viewing the keysigner
             
             - name: List build output
               run: ls -R ./**/*-Signed.apk
@@ -878,7 +895,7 @@ jobs:
                 echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
                 echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
 
-                if (( ${{ steps.buildAPK.outcome }} == 'success' )); then
+                if [[ '${{ steps.buildAPK.outcome }}' == 'success' ]]; then
                   echo "buildcomplete" >> $GITHUB_OUTPUT
                 fi
 
