@@ -65,7 +65,7 @@ jobs:
               docs: &docs
                 - '.docs/**'
                 - docs/**
-                - '**/*.md'
+                - '**.md'
               buildfiles:
                 - '!*docs'
                 - '!*gitfiles'
