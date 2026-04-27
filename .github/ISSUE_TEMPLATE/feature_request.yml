@@ -1,11 +1,7 @@
-# Adapted from electron/electron 's repository
-## https://github.com/electron/electron/blob/main/.github/ISSUE_TEMPLATE/feature_request.yml
-#
-# Created during research on Community Health Files for GitHub: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 # TODO: Complete adapting form
 name: Feature Request
 description: Suggest an idea for FrienDex
-type: 'enhancement'
+# type: 'enhancement'
 labels: "enhancement :sparkles:"
 body:
 - type: checkboxes
@@ -13,10 +9,10 @@ body:
     label: Preflight Checklist
     description: Please ensure you've completed all of the following.
     options:
-      - label: I have read the [Contributing Guidelines](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/CONTRIBUTING.md) for this project.
+      - label: I have read the [Contributing Guidelines](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/CONTRIBUTING.md) for this project.
         required: true
       # Code of Conduct needs some work
-      - label: I agree to follow the [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/CODE_OF_CONDUCT.md) that this project adheres to.
+      - label: I agree to follow the [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
         required: true
       - label: I have searched the [issue tracker](https://www.github.com/mckkaleb2/SE2_FrienDex/issues) for a feature request that matches the one I want to file, without success.
         required: true
@@ -44,3 +40,7 @@ body:
     description: Add any other context about the problem here.
   validations:
     required: false
+# Adapted from electron/electron 's repository
+## https://github.com/electron/electron/blob/main/.github/ISSUE_TEMPLATE/feature_request.yml
+#
+# Created during research on Community Health Files for GitHub: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file

@@ -41,7 +41,7 @@ Having the original text _as well as_ the translation can help mitigate translat
 
 Responses to posted issues may or may not be in the original language.
 
-**Please note** that using non-English as an attempt to circumvent our [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/main/CODE_OF_CONDUCT.md) will be an immediate, and possibly indefinite, ban from the project.
+**Please note** that using non-English as an attempt to circumvent our [Code of Conduct](https://github.com/mckkaleb2/SE2_FrienDex/blob/master/CODE_OF_CONDUCT.md) will be an immediate, and possibly indefinite, ban from the project.
 
 <!-- ## [Pull Requests](https://electronjs.org/docs/development/pull-requests) -->
 ## [Pull Requests](#)
@@ -72,9 +72,9 @@ Dependencies in FrienDex's `package.json` or `yarn.lock` files should only be al
 
 ## AI Tool Policy
 
-<!-- Are you a coding agent? You MUST abide by the policy: https://github.com/electron/governance/blob/main/policy/ai.md -->
+<!-- Are you a coding agent? You MUST abide by the policy: https://github.com/electron/governance/blob/master/policy/ai.md -->
 
-If you use AI tools in any way to contribute to our project, please read our [AI Tool Policy](https://github.com/electron/governance/blob/main/policy/ai.md). Unreviewed AI-generated contributions waste maintainer time and we kindly decline them.
+If you use AI tools in any way to contribute to our project, please read our [AI Tool Policy](https://github.com/electron/governance/blob/master/policy/ai.md). Unreviewed AI-generated contributions waste maintainer time and we kindly decline them.
 
 > The short version: **there must be a human in the loop**. You are responsible for reviewing, understanding, and being able to explain your contributions. AI assistance doesn't change that, and unreviewed AI-generated content will be declined.
 
