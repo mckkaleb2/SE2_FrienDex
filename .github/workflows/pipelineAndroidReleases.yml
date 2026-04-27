@@ -52,10 +52,10 @@ jobs:
         - uses: dorny/paths-filter@v4
           id: filter
           with:
-            #predicate-quantifier: 'every'
+            predicate-quantifier: 'every'
             filters: |
               workflows: &workflows
-                - '.github/workflows/**.yml'
+                - '.github/workflows/*.yml'
               gitfiles: &gitfiles
                 - '.github/**'
                 - '!*workflows'
@@ -67,7 +67,7 @@ jobs:
                 - 'FrienDex.slnx'
               docs: &docs
                 - '.docs/**'
-                - docs/**
+                - 'docs/**'
                 - '**.md'
                 - '**/*.md'
                 - '**/*.xslx'
