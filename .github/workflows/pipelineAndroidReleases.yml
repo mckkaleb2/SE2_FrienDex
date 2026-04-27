@@ -728,6 +728,7 @@ jobs:
                 dotnet publish
                 -f net10.0-android
                 -c Release
+                -v diag
                 -p:AndroidPackageFormat=apk
                 -p:ApplicationDisplayVersion=${{ env.APP_VERSION }}
                 -p:ApplicationVersion=${{ env.TARGET_COUNT }}
@@ -858,6 +859,8 @@ jobs:
                   # gh release upload "$APP_VERSION" \
                     # "${{ env.RELEASE_PATH }}${{ env.APP_NAME }}${{ env.APP_SUFFIX }}${{ env.APP_EXTENSION }}"
                 fi
+
+
             - name: Debug step outcomes
               id: debugSteps
               if: always()
@@ -875,9 +878,12 @@ jobs:
                 echo "| uploadRelease | \`${steps.uploadRelease.outcome}\`         |" >> "$GITHUB_STEP_SUMMARY"
                 echo "|------|-------|"                        >> "$GITHUB_STEP_SUMMARY"
 
+                if (( ${{ steps.buildAPK.outcome }} == 'success' )); then
+                  echo "buildcomplete" >> $GITHUB_OUTPUT
+                fi
 
             - name: Upload package as artifact if release fails
-              if: failure() && steps.buildAPK.outcome == 'success' && steps.createRelease.outcome == 'failure' || steps.uploadRelease.outcome == 'failure' || steps.uploadRelease.outcome == 'skipped'
+              if: failure() && steps.debugSteps.output == 'buildcomplete' && steps.uploadRelease.outcome != 'success'
               uses: actions/upload-artifact@v4
               with:
                 name: package-artifact
