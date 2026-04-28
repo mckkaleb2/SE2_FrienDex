@@ -65,6 +65,7 @@ jobs:
               projectfiles:
                 - FrienDex/**
                 - 'FrienDex.slnx'
+                - FrienDex_Test/**
               docs: &docs
                 - '.docs/**'
                 - docs/**
@@ -579,7 +580,7 @@ jobs:
         # if: ${{ needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.gitfiles == 'true' }}
         # Declare dependency on the versioning job so its artifact is available
         needs: [version, count-branch-releases, changes]
-        if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.workflows == 'true' || needs.changes.outputs.projectfiles == 'true' }}
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
