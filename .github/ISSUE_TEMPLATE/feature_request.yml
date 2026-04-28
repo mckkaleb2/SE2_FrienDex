@@ -2,7 +2,7 @@
 name: Feature Request
 description: Suggest an idea for FrienDex
 #type: enhancement
-labels: "enhancement :sparkles:"
+labels: "enhancement"
 title: '[Req]: '
 body:
 - type: checkboxes
