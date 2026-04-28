@@ -22,6 +22,7 @@ Once an email address is established for the project, this section will be updat
 		- [FrienDex Rolodex functions:](#friendex-rolodex-functions)
 		- [FrienDex Room functions:](#friendex-room-functions)
 	- [Contributing](#contributing)
+	- [Discussions](#discussions)
 	- [Original Owners and Creators](#original-owners-and-creators)
 	- [Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)
 <!-- - Room CRUD Features -->
@@ -124,6 +125,10 @@ If you are interested in reporting/fixing issues and contributing directly to th
 Info on reporting bugs, getting help, finding third-party tools and sample apps,
 and more can be found on the [Community page](https://www.electronjs.org/community).
 -->
+
+## Discussions
+
+For questions, getting help, and general discussion, visit our [Discussion Board](https://github.com/mckkaleb2/SE2_FrienDex/discussions). Please ensure that all discussions meet our [code of conduct](https://github.com/mckkaleb2/SE2_FrienDex/tree/main/CODE_OF_CONDUCT.md).
 
 
 ## Original Owners and Creators
