@@ -54,14 +54,12 @@ FrienDeX, FrienDex, and Friendex were named after it's inspiration, the PokeDex.
 1. Allow application installs from 3rd party sources on your Android phone.
 
 <!---->
-1. 1. Navigate to SETTINGS
+1. 1. Navigate to **Settings** > **Security and privacy** > **Install unknown apps**
 <!---->
-1. 2. Navigate to SECURITY AND PRIVACY
-<!---->
-- [About the project](#about-the-project)
-  - [Why is it named like that?](#about-the-name)
-1. 3. Allow for installations from unknown apps or sources
-		
+1. 2. Make sure that the slider for **My Files** is set to **ON**
+
+
+
 ### GITHUB MOBILE APP BASED INSTALL:
 2. a. Navigate to the GitHub App on your Android phone and Select the Se2_FrienDex Repo.
 3. a. Select **Releases**
@@ -70,12 +68,13 @@ FrienDeX, FrienDex, and Friendex were named after it's inspiration, the PokeDex.
 
 ### DESKTOP BASED INSTALL:  
 
-2. b. Navigate to the FrienDex repo, which can be found at <https://github.com/mckkaleb2/SE2_FrienDex>, using a desktop or laptop computer
+2. b. Using a desktop or laptop computer, navigate to the FrienDex repo, which can be found at <https://github.com/mckkaleb2/SE2_FrienDex>, and select Releases from the right side of the screen.
 
-3. b. Select the **Latest Release** from menu on right of screen
+   - You can also view the latest release by clicking this link: [View the latest release](https://github.com/mckkaleb2/SE2_FrienDex/releases/latest)
 
-4. b. Select and download the master.apk file
-5. b. Connect Android device to the computer and move master.apk file to the downloads file of the phone and open the file on the phone
+
+3. b. Select and download the **release.apk** file
+4. b. Connect Android device to the computer and move **release.apk** file to the downloads file of the phone and open the file on the phone
 
 	1. Select install from the popup menu and wait for the installation to finish
 	2. Open the application, it's ready for use!
