@@ -142,7 +142,7 @@ jobs:
       permissions:
         contents: write  # Needed to push tags
       needs: changes
-      if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.buildfiles == 'true' }}
+      if: ${{ github.event_name != 'workflow_dispatch' || needs.changes.outputs.projectfiles == 'true' || needs.changes.outputs.workflows == 'true' }}
       steps:
         # ── 1. Checkout with full history so git rev-list works correctly ──────
         - name: Checkout repository
@@ -339,7 +339,7 @@ jobs:
 
         # ── 4. Tag the commit on master only ──────────────────────────────────
         - name: Create and push git tag (master only)
-          if: env.IS_RELEASE == 'true'
+          if: ${{ env.IS_RELEASE == 'true' && needs.changes.outputs.projectfiles == 'true' }}
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
@@ -357,7 +357,7 @@ jobs:
 
         # ── 5. Create a GitHub Release on master ──────────────────────────────
         - name: Create GitHub Release (master only)
-          if: env.IS_RELEASE == 'true'
+          if: ${{ env.IS_RELEASE == 'true' && needs.changes.outputs.projectfiles == 'true' }}
           uses: softprops/action-gh-release@v2
           with:
             tag_name: ${{ env.VERSION }}
