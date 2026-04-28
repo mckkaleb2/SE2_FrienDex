@@ -5,7 +5,7 @@ The application is designed to be an android app that serves as a mobile rolodex
 This project adheres to the Contributor Covenant
 [code of conduct](https://github.com/mckkaleb2/SE2_FrienDex/tree/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable
-behavior to ~~[coc@electronjs.org](mailto:coc@electronjs.org)~~ a [Code Owner](../../.github/CODEOWNERS).
+behavior to ~~[coc@electronjs.org](mailto:coc@electronjs.org)~~ a [Code Owner](.github/CODEOWNERS).
 Once an email address is established for the project, this section will be updated.
 
 
@@ -23,6 +23,7 @@ Once an email address is established for the project, this section will be updat
 		- [FrienDex Room functions:](#friendex-room-functions)
 	- [Contributing](#contributing)
 	- [Original Owners and Creators](#original-owners-and-creators)
+	- [Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)
 <!-- - Room CRUD Features -->
 <!-- - Dex CRUD Features -->
 
@@ -134,8 +135,13 @@ Created by:
 [Kaleb](https://github.com/mckkaleb) [McKinney](https://github.com/mckkaleb2),
 [Jacob Robidas](https://github.com/Robidas02)
 
+----
 
+----
 
+## Software Engineering II - CSCI4350-001
+
+For documentation created involving CSCI4350-001, please click [here](docs/Software_Engineering_2--4350-001/README.md) to view our documentation folder
 
 
 
