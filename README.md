@@ -25,6 +25,7 @@ Once an email address is established for the project, this section will be updat
 	- [Discussions](#discussions)
 	- [Original Owners and Creators](#original-owners-and-creators)
 	- [Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)
+- [Download FrienDex on your phone!](#download-friendex-on-your-phone)
 <!-- - Room CRUD Features -->
 <!-- - Dex CRUD Features -->
 
@@ -147,5 +148,10 @@ Created by:
 
 For documentation created involving CSCI4350-001, please click [here](docs/Software_Engineering_2--4350-001/README.md) to view our documentation folder
 
+-----
 
+-----
 
+# Download FrienDex on your phone!
+
+![QR Code that links to the Releases page](./assets/images/QR_GetFriendex.png)
