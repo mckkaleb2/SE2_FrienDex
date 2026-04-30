@@ -24,7 +24,7 @@ Once an email address is established for the project, this section will be updat
 	- [Contributing](#contributing)
 	- [Discussions](#discussions)
 	- [Original Owners and Creators](#original-owners-and-creators)
-	- [Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)
+	- **[Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)**
 - [Download FrienDex on your phone!](#download-friendex-on-your-phone)
 <!-- - Room CRUD Features -->
 <!-- - Dex CRUD Features -->
