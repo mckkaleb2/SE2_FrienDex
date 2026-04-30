@@ -154,4 +154,4 @@ For documentation created involving CSCI4350-001, please click [here](docs/Softw
 
 # Download FrienDex on your phone!
 
-![QR Code that links to the Releases page](./assets/images/QR_GetFriendex.png?raw=true)
+![QR Code that links to the Releases page](https://raw.githubusercontent.com/mckkaleb2/SE2_FrienDex/refs/heads/master/assets/images/QR_GetFrienDex.png)
