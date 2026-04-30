@@ -24,6 +24,7 @@ Once an email address is established for the project, this section will be updat
 	- [Contributing](#contributing)
 	- [Discussions](#discussions)
 	- [Original Owners and Creators](#original-owners-and-creators)
+ 	- [Security](#security)
 	- **[Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)**
 - [Download FrienDex on your phone!](#download-friendex-on-your-phone)
 <!-- - Room CRUD Features -->
@@ -147,6 +148,17 @@ Created by:
 ## Software Engineering II - CSCI4350-001
 
 For documentation created involving CSCI4350-001, please click [here](docs/Software_Engineering_2--4350-001/README.md) to view our documentation folder
+
+-----
+
+## Security
+Listed below are the measures taken to keep the application secure.
+1. Our application uses .NET Maui, which includes data encryption by default.
+2. We leverage GitHub secrets to keep database credentials and tokens secure.
+3. Our application uses keystore signing to ensure that your app will only update from us, the developers of the app.
+4. Requests to alter the source code must be verified by at least two contributors to ensure that nothing malicious is added.
+5. GitHub Issues instruct users how to contact us, the developers, if they find a security vulnerability. This is preferable to prevent vulnerabilities from being known by all users or visitors.
+6. Finally, due to the offline nature of the app, the database is as secure as the user's device. It cannot be connected to by outside agents, so if the device is secure, then the information is as well. We have no way to access the data that is present in the database.
 
 -----
 
