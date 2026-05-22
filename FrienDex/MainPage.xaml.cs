@@ -1,5 +1,6 @@
 using FrienDex.Data;
 using FrienDex.Services;
+using System.Diagnostics;
 
 namespace FrienDex;
 
@@ -17,11 +18,13 @@ public partial class MainPage : ContentPage
 
     private async void RoomButtonClicked(object sender, EventArgs e)
     {
+        Debug.WriteLine("\n\n\n\t\tRooms button clicked\n\n");
         await Shell.Current.GoToAsync(nameof(RoomsPage));
     }
 
     private void RolodexButtonClicked(object sender, EventArgs e)
     {
+        Debug.WriteLine("\n\n\n\t\tRolodex button clicked\n\n");
         Navigation.PushAsync(new RolodexPage(_repo));
     }
 
