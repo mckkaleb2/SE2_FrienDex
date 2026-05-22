@@ -30,6 +30,12 @@ namespace FrienDex.Data.Entities
 
         public string FullName => $"{FirstName} {LastName}".Trim();
 
+        /// <summary>
+        /// Mark with a star if the person is a favorite, otherwise show an empty star. This property provides a visual representation of the person's favorite status, making it easy to identify at a glance.
+        /// </summary>
+        public string FavoriteStatus => IsFavorite ? "⭐" : "◌";
+        //●⁐◉◎□■▢◯⚫⚪⭕※⁜
+
         public override string ToString()
         {
             string roomRepeater = "";

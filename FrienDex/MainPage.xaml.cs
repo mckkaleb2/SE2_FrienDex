@@ -22,6 +22,7 @@ public partial class MainPage : ContentPage
 
     private void RolodexButtonClicked(object sender, EventArgs e)
     {
+        //await Shell.Current.GoToAsync(nameof(RolodexPage));
         Navigation.PushAsync(new RolodexPage(_repo));
     }
 
