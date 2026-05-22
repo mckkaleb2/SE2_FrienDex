@@ -16,7 +16,7 @@
                     <Grid Padding="12" RowDefinitions="Auto,Auto">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer 
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, BindingContext.RoomSelectedCommand}"
+                                Command="{Binding BindingContext.RoomSelectedCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                 CommandParameter="{Binding .}" />
                         </Grid.GestureRecognizers>
 
