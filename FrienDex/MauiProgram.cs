@@ -25,6 +25,12 @@ namespace FrienDex
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("OfficeCodeProD-BoldItalic-webfont.ttf", "OfficeCodeBoldItalic");
+                    fonts.AddFont("OfficeCodeProD-Bold-webfont.ttf", "OfficeCodeBold");
+                    fonts.AddFont("OfficeCodeProD-RegularItalic-webfont.ttf", "OfficeCodeRegularItalic");
+                    fonts.AddFont("OfficeCodeProD-Regular-webfont.ttf", "OfficeCodeRegular");
+                    fonts.AddFont("OfficeCodeProD-LightItalic-webfont.ttf", "OfficeCodeLightItalic");
+                    fonts.AddFont("OfficeCodeProD-Light-webfont.ttf", "OfficeCodeLight");
                 });
             builder.Services.AddDbContext<Data.DexContext>();
 
