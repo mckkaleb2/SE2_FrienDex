@@ -1,8 +1,9 @@
 # TODO: Complete adapting form
 name: Feature Request
 description: Suggest an idea for FrienDex
-# type: 'enhancement'
-labels: "enhancement :sparkles:"
+#type: enhancement
+labels: "enhancement"
+title: '[Req]: '
 body:
 - type: checkboxes
   attributes:

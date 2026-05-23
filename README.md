@@ -5,7 +5,7 @@ The application is designed to be an android app that serves as a mobile rolodex
 This project adheres to the Contributor Covenant
 [code of conduct](https://github.com/mckkaleb2/SE2_FrienDex/tree/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable
-behavior to ~~[coc@electronjs.org](mailto:coc@electronjs.org)~~ a [Code Owner](../../.github/CODEOWNERS).
+behavior to ~~[coc@electronjs.org](mailto:coc@electronjs.org)~~ a [Code Owner](.github/CODEOWNERS).
 Once an email address is established for the project, this section will be updated.
 
 
@@ -22,7 +22,11 @@ Once an email address is established for the project, this section will be updat
 		- [FrienDex Rolodex functions:](#friendex-rolodex-functions)
 		- [FrienDex Room functions:](#friendex-room-functions)
 	- [Contributing](#contributing)
+	- [Discussions](#discussions)
 	- [Original Owners and Creators](#original-owners-and-creators)
+ 	- [Security](#security)
+	- **[Software Engineering II - CSCI4350-001](#software-engineering-ii---csci4350-001)**
+- [Download FrienDex on your phone!](#download-friendex-on-your-phone)
 <!-- - Room CRUD Features -->
 <!-- - Dex CRUD Features -->
 
@@ -52,14 +56,12 @@ FrienDeX, FrienDex, and Friendex were named after it's inspiration, the PokeDex.
 1. Allow application installs from 3rd party sources on your Android phone.
 
 <!---->
-1. 1. Navigate to SETTINGS
+1. 1. Navigate to **Settings** > **Security and privacy** > **Install unknown apps**
 <!---->
-1. 2. Navigate to SECURITY AND PRIVACY
-<!---->
-- [About the project](#about-the-project)
-  - [Why is it named like that?](#about-the-name)
-1. 3. Allow for installations from unknown apps or sources
-		
+1. 2. Make sure that the slider for **My Files** is set to **ON**
+
+
+
 ### GITHUB MOBILE APP BASED INSTALL:
 2. a. Navigate to the GitHub App on your Android phone and Select the Se2_FrienDex Repo.
 3. a. Select **Releases**
@@ -68,12 +70,13 @@ FrienDeX, FrienDex, and Friendex were named after it's inspiration, the PokeDex.
 
 ### DESKTOP BASED INSTALL:  
 
-2. b. Navigate to the FrienDex repo, which can be found at <https://github.com/mckkaleb2/SE2_FrienDex>, using a desktop or laptop computer
+2. b. Using a desktop or laptop computer, navigate to the FrienDex repo, which can be found at <https://github.com/mckkaleb2/SE2_FrienDex>, and select Releases from the right side of the screen.
 
-3. b. Select the **Latest Release** from menu on right of screen
+   - You can also view the latest release by clicking this link: [View the latest release](https://github.com/mckkaleb2/SE2_FrienDex/releases/latest)
 
-4. b. Select and download the master.apk file
-5. b. Connect Android device to the computer and move master.apk file to the downloads file of the phone and open the file on the phone
+
+3. b. Select and download the **release.apk** file
+4. b. Connect Android device to the computer and move **release.apk** file to the downloads file of the phone and open the file on the phone
 
 	1. Select install from the popup menu and wait for the installation to finish
 	2. Open the application, it's ready for use!
@@ -124,6 +127,10 @@ Info on reporting bugs, getting help, finding third-party tools and sample apps,
 and more can be found on the [Community page](https://www.electronjs.org/community).
 -->
 
+## Discussions
+
+For questions, getting help, and general discussion, visit our [Discussion Board](https://github.com/mckkaleb2/SE2_FrienDex/discussions). Please ensure that all discussions meet our [code of conduct](https://github.com/mckkaleb2/SE2_FrienDex/tree/main/CODE_OF_CONDUCT.md).
+
 
 ## Original Owners and Creators
 
@@ -134,8 +141,29 @@ Created by:
 [Kaleb](https://github.com/mckkaleb) [McKinney](https://github.com/mckkaleb2),
 [Jacob Robidas](https://github.com/Robidas02)
 
+----
 
+----
 
+## Software Engineering II - CSCI4350-001
 
+For documentation created involving CSCI4350-001, please click [here](docs/Software_Engineering_2--4350-001/README.md) to view our documentation folder
 
+-----
 
+## Security
+Listed below are the measures taken to keep the application secure.
+1. Our application uses .NET Maui, which includes data encryption by default.
+2. We leverage GitHub secrets to keep database credentials and tokens secure.
+3. Our application uses keystore signing to ensure that your app will only update from us, the developers of the app.
+4. Requests to alter the source code must be verified by at least two contributors to ensure that nothing malicious is added.
+5. GitHub Issues instruct users how to contact us, the developers, if they find a security vulnerability. This is preferable to prevent vulnerabilities from being known by all users or visitors.
+6. Finally, due to the offline nature of the app, the database is as secure as the user's device. It cannot be connected to by outside agents, so if the device is secure, then the information is as well. We have no way to access the data that is present in the database.
+
+-----
+
+-----
+
+# Download FrienDex on your phone!
+
+![QR Code that links to the Releases page](https://raw.githubusercontent.com/mckkaleb2/SE2_FrienDex/refs/heads/master/assets/images/QR_GetFrienDex.png)
