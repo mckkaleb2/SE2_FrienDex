@@ -10,7 +10,8 @@
             <Image 
                    WidthRequest="400"
                    ZIndex="1"
-           HorizontalOptions="Center">
+                HorizontalOptions="Center"
+                SemanticProperties.Description="FrienDex Title Logo">
                 <Image.Source>
                     <OnPlatform x:TypeArguments="ImageSource">
                         <On Platform="iOS" Value="title.png" />
@@ -21,13 +22,15 @@
             </Image>
             
             
-            <Label  Text="FrienDex" ZIndex="-2" FontSize="24"
-                        FontAttributes="Bold" HorizontalOptions="Center" >
+            <Label  ZIndex="-2" FontSize="24"
+                    Text="Ver. XXXXXXXX"
+                    FontAttributes="Italic"
+                    HorizontalOptions="Center" >
                 <Label.Opacity>
                     <OnPlatform x:TypeArguments="x:Double" >
                         <On Platform="Android" Value="0.0" />
-                        <On Platform="WinUI" Value="1.0" />
-                        <On Platform="iOS" Value="1.0" />
+                        <On Platform="WinUI" Value="0.5" />
+                        <On Platform="iOS" Value="0.0" />
                     </OnPlatform>
                 </Label.Opacity>
             </Label>
@@ -36,63 +39,84 @@
         <!-- Button Area -->
         <StackLayout Grid.ColumnSpan="2" Grid.Row="1">
             <!-- Rolodex Button -->
-            <StackLayout VerticalOptions="Start" HorizontalOptions="Center">
-                <Label  Text="Rolodex" ZIndex="-2" FontSize="24"
+            <!--<StackLayout VerticalOptions="Start" HorizontalOptions="Center">-->
+            <Grid Margin="0,5,0,5"  Padding="8" MaximumWidthRequest="360">
+                <Image ZIndex="1"
+                        Margin="0"
+                       >
+                    <Image.Source>
+                        <OnPlatform x:TypeArguments="ImageSource">
+                            <!--
+                            <On Platform="iOS" Value="rolodex_button.png" />
+                            -->
+                            <On Platform="iOS" Value="blank_button.png" />
+                            <On Platform="Android" Value="Resources/Images/blank_button.svg" />
+                            <On Platform="WinUI" Value="blank_button.png" />
+                        </OnPlatform>
+                    </Image.Source>
+                </Image>
+                <Label  Text="Rolodex" ZIndex="2" FontSize="50"
                         FontAttributes="Bold" HorizontalOptions="Center" 
-                        FontFamily="OfficeCodeRegular">
+                        TextColor="#FFFFFF" VerticalOptions="Center" HorizontalTextAlignment="Start"
+                        FontFamily="{OnPlatform WinUI='OfficeCodeRegular', Android='Monospace', iOS='OfficeCodeRegular'}"
+                        Margin="{OnPlatform WinUI='80,30,0,0', Android='80,30,0,0', iOS='80,30,0,0'}"
+                        >
+                    
                     <Label.Opacity>
                         <OnPlatform x:TypeArguments="x:Double" >
-                            <On Platform="Android" Value="0.0" />
+                            <On Platform="Android" Value="1.0" />
                             <On Platform="WinUI" Value="1.0" />
                             <On Platform="iOS" Value="1.0" />
                         </OnPlatform>
                     </Label.Opacity>
                 </Label>
 
-                    <!--<Image ZIndex="1" Source="Resources/Images/rolodex_button.svg"-->
-                <Image ZIndex="1"
-                       MaximumWidthRequest="360" >
-                    <Image.Source>
-                        <OnPlatform x:TypeArguments="ImageSource">
-                            <On Platform="iOS" Value="rolodex_button.png" />
-                            <On Platform="Android" Value="Resources/Images/rolodex_button.svg" />
-                            <On Platform="WinUI" Value="rolodex_button.png" />
-                        </OnPlatform>
-                    </Image.Source>
-                </Image>
 
-                <StackLayout.GestureRecognizers>
+                <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RolodexButtonClicked" />
-                </StackLayout.GestureRecognizers>
-            </StackLayout>
+                </Grid.GestureRecognizers>
+            <!--</StackLayout>-->
+            </Grid>
 
             <!-- Rooms Tab Button -->
-            <StackLayout Padding="8" VerticalOptions="Start" HorizontalOptions="Center">
-                <Label  Text="Rooms" ZIndex="-2" FontSize="24"
-                         HorizontalOptions="Center"
-                        FontFamily="OfficeCodeRegular"
-                        FontAttributes="Bold">
+            <!--<StackLayout Padding="8" VerticalOptions="Start" HorizontalOptions="Center">-->
+            <Grid Margin="0, 5, 0, 5" Padding="8" MaximumWidthRequest="360"
+                  >
+                  <!--VerticalOptions="Start" HorizontalOptions="Center"-->
+                <Image  >
+                    <Image.Source>
+                        <OnPlatform x:TypeArguments="ImageSource">
+                            <!-- 
+                            <On Platform="iOS" Value="room_button.png" />
+                            -->
+                            <On Platform="iOS" Value="blank_button.png" />
+                            <On Platform="Android" Value="Resources/Images/blank_button.svg" />
+                            <On Platform="WinUI" Value="blank_button.png" />
+                        </OnPlatform>
+                    </Image.Source>
+                </Image>
+                <Label  Text="Rooms" ZIndex="2" FontSize="50"
+                        FontAttributes="Bold" HorizontalOptions="Center"
+                        TextColor="#FFFFFF"
+                        VerticalOptions="Center" HorizontalTextAlignment="Start"
+                        FontFamily="{OnPlatform WinUI='OfficeCodeRegular', Android='Monospace', iOS='OfficeCodeRegular'}"
+                        Margin="{OnPlatform WinUI='20,30,0,0', Android='15,30,0,0', iOS='20,30,0,0'}"
+                        >
+
                     <Label.Opacity>
                         <OnPlatform x:TypeArguments="x:Double" >
-                            <On Platform="Android" Value="0.0" />
+                            <On Platform="Android" Value="1.0" />
                             <On Platform="WinUI" Value="1.0" />
                             <On Platform="iOS" Value="1.0" />
                         </OnPlatform>
                     </Label.Opacity>
                 </Label>
-                <Image MaximumWidthRequest="350" >
-                    <Image.Source>
-                        <OnPlatform x:TypeArguments="ImageSource">
-                            <On Platform="iOS" Value="room_button.png" />
-                            <On Platform="Android" Value="Resources/Images/room_button.svg" />
-                            <On Platform="WinUI" Value="room_button.png" />
-                        </OnPlatform>
-                    </Image.Source>
-                </Image>
-                <StackLayout.GestureRecognizers>
+
+                <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="RoomButtonClicked" />
-                </StackLayout.GestureRecognizers>
-            </StackLayout>
+                </Grid.GestureRecognizers>
+            <!--</StackLayout>-->
+            </Grid>
         </StackLayout>
 
     </Grid>
